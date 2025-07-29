@@ -3,6 +3,7 @@ package com.zkrypto.zkMatch.domain.member.domain.entity;
 import com.zkrypto.zkMatch.domain.auth.application.dto.request.SignUpCommand;
 import com.zkrypto.zkMatch.domain.corporation.domain.entity.Corporation;
 import com.zkrypto.zkMatch.domain.member.domain.constant.Role;
+import com.zkrypto.zkMatch.domain.portfolio.domain.entity.Portfolio;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,6 +34,11 @@ public class Member {
     @JoinColumn(name = "corporation_id")
     private Corporation corporation;
 
+    @Setter
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "portfolio_id")
+    private Portfolio portfolio;
+
     private Member(Role role, String loginId, String password) {
         this.role = role;
         this.loginId = loginId;
@@ -48,7 +54,9 @@ public class Member {
     }
 
     public static Member from(SignUpCommand signUpCommand, String hashedPassword) {
-        return new Member(Role.ROLE_USER, signUpCommand.getLoginId(), hashedPassword);
+        Member member = new Member(Role.ROLE_USER, signUpCommand.getLoginId(), hashedPassword);
+        member.setPortfolio(new Portfolio());
+        return member;
     }
 
     public static Member from(String loginId, String hashedPassword) {
