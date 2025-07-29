@@ -1,4 +1,4 @@
-package com.zkrypto.zkMatch.domain.portfolio.application.response;
+package com.zkrypto.zkMatch.domain.portfolio.application.dto.response;
 
 import lombok.Getter;
 
