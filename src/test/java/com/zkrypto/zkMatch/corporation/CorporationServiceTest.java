@@ -54,6 +54,7 @@ public class CorporationServiceTest {
         ReflectionUtil.setter(corporationCreationCommand, "corporationName", "지크립토");
         ReflectionUtil.setter(corporationCreationCommand, "loginId", "1234");
         ReflectionUtil.setter(corporationCreationCommand, "password", "1234");
+        ReflectionUtil.setter(corporationCreationCommand, "corporationRegisterNumber", "1234");
 
         corporationService.createCorporation(corporationCreationCommand);
 
