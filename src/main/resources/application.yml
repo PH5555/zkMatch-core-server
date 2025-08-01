@@ -12,6 +12,10 @@ spring:
     host: localhost
     username: username
     password: password
+    template:
+      routing-key: email.routing.key
+      exchange: email.exchange.direct
+      default-receive-queue: email.queue
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
