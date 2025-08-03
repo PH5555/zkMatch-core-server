@@ -4,8 +4,9 @@ import com.zkrypto.zkMatch.domain.corporation.domain.entity.Corporation;
 import com.zkrypto.zkMatch.domain.post.domain.entity.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-
+import org.springframework.data.repository.query.Param;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface PostRepository extends JpaRepository<Post, UUID> {
@@ -13,4 +14,7 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
 
     @Query("select post from Post post left join fetch post.corporation")
     List<Post> findAllWithCorporation();
+
+    @Query("select post from Post post left join fetch post.corporation where post.postId = :postId")
+    Optional<Post> findByIdWithCorporation(@Param("postId") UUID postId);
 }

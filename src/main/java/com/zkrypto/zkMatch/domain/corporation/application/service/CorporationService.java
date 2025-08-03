@@ -15,6 +15,7 @@ import com.zkrypto.zkMatch.domain.post.domain.repository.PostRepository;
 import com.zkrypto.zkMatch.domain.recruit.domain.constant.Status;
 import com.zkrypto.zkMatch.domain.recruit.domain.entity.Recruit;
 import com.zkrypto.zkMatch.domain.recruit.domain.repository.RecruitRepository;
+import com.zkrypto.zkMatch.global.rabbitmq.DirectExchangeService;
 import com.zkrypto.zkMatch.global.response.exception.CustomException;
 import com.zkrypto.zkMatch.global.response.exception.ErrorCode;
 import lombok.AllArgsConstructor;
@@ -33,6 +34,7 @@ public class CorporationService {
     private final PasswordEncoder passwordEncoder;
     private final PostRepository postRepository;
     private final RecruitRepository recruitRepository;
+    private final DirectExchangeService directExchangeService;
 
     /**
      * 기업 생성 메서드
@@ -121,7 +123,7 @@ public class CorporationService {
     @Transactional
     public void passApplier(String postId, PassApplierCommand passApplierCommand) {
         // 공고 조회
-        Post post = postRepository.findById(UUID.fromString(postId))
+        Post post = postRepository.findByIdWithCorporation(UUID.fromString(postId))
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_POST));
 
         // 지원자 조회
@@ -136,6 +138,7 @@ public class CorporationService {
         // 합격 처리
         recruit.pass();
 
-        // TODO: 합격 이메일 전송
+        // 합격 이메일 전송
+        directExchangeService.send(post.getCorporation(), recruit.getMember());
     }
 }
