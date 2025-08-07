@@ -1,6 +1,6 @@
 package com.zkrypto.zkMatch.domain.corporation.presentation;
 
-import com.zkrypto.zkMatch.domain.corporation.application.dto.request.CorporationCreationCommand;
+import com.zkrypto.zkMatch.domain.corporation.application.dto.request.*;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.response.CorporationResponse;
 import com.zkrypto.zkMatch.domain.corporation.application.service.CorporationService;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.CorporationPostResponse;
@@ -89,6 +89,7 @@ public class CorporationController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
                     content = {@Content(array = @ArraySchema(schema = @Schema(implementation = CorporationPostResponse.class)))}),
     })
+    //TODO : 검색 키워드 추가
     @GetMapping("/post")
     public ApiResponse<List<CorporationPostResponse>> getPost(@AuthenticationPrincipal UUID memberId){
         return ApiResponse.success(corporationService.getCorporationPost(memberId));
@@ -116,6 +117,18 @@ public class CorporationController {
     @PostMapping("/post")
     public ApiResponse<Void> createPost(@AuthenticationPrincipal UUID memberId, @RequestBody PostCreationCommand postCreationCommand){
         corporationService.createPost(memberId, postCreationCommand);
+        return ApiResponse.success();
+    }
+
+    //TODO
+    @PostMapping("/post/ai")
+    public ApiResponse<Void> createPostWithAi(@AuthenticationPrincipal UUID memberId, @RequestBody PostCreationAiCommand postCreationAiCommand) {
+        return ApiResponse.success();
+    }
+
+    //TODO
+    @PatchMapping("/post/{postId}")
+    public ApiResponse<Void> updatePost(@AuthenticationPrincipal UUID memberId, @PathVariable(name = "postId") String postId, @RequestBody PostCreationCommand postCreationCommand) {
         return ApiResponse.success();
     }
 
@@ -163,8 +176,39 @@ public class CorporationController {
                     content = {@Content(schema = @Schema(implementation = Void.class))}),
     })
     @PutMapping("/post/{postId}")
+    //TODO: 통과, 탈락 둘중으로 변경
     public ApiResponse<Void> passApplier(@PathVariable(name = "postId") String postId, @RequestBody PassApplierCommand passApplierCommand){
         corporationService.passApplier(postId, passApplierCommand);
+        return ApiResponse.success();
+    }
+
+    //TODO
+    @PostMapping("/post/{postId}/interview")
+    public ApiResponse<Void> createInterview(@PathVariable(name = "postId") String postId, @RequestBody InterviewCreationCommand interviewCreationCommand) {
+        return ApiResponse.success();
+    }
+
+    //TODO
+    @PatchMapping("/post/{postId}/interview")
+    public ApiResponse<Void> updateInterview(@PathVariable(name = "postId") String postId, @RequestBody InterviewCreationCommand interviewCreationCommand) {
+        return ApiResponse.success();
+    }
+
+    //TODO
+    @PostMapping("/post/{postId}/evaluate")
+    public ApiResponse<Void> evaluateApplier(@PathVariable(name = "postId") String postId, @RequestBody EvaluationCreationCommand interviewCreationCommand) {
+        return ApiResponse.success();
+    }
+
+    //TODO
+    @PostMapping("/candidate/search")
+    public ApiResponse<Void> searchCandidate(@RequestBody CandidateSearchCommand candidateSearchCommand) {
+        return ApiResponse.success();
+    }
+
+    //TODO
+    @PostMapping("/candidate/offer")
+    public ApiResponse<Void> offerCandidate(@RequestBody CandidateOfferCommand candidateSearchCommand) {
         return ApiResponse.success();
     }
 }
