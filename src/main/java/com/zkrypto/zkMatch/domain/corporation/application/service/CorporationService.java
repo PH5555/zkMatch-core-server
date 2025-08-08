@@ -1,6 +1,7 @@
 package com.zkrypto.zkMatch.domain.corporation.application.service;
 
 import com.zkrypto.zkMatch.domain.corporation.application.dto.request.CorporationCreationCommand;
+import com.zkrypto.zkMatch.domain.corporation.application.dto.request.PostUpdateCommand;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.response.CorporationResponse;
 import com.zkrypto.zkMatch.domain.corporation.domain.entity.Corporation;
 import com.zkrypto.zkMatch.domain.corporation.domain.repository.CorporationRepository;
@@ -154,5 +155,18 @@ public class CorporationService {
 
         // 합격 이메일 전송
         directExchangeService.send(SendMessage.from(recruit, command.getStatus()));
+    }
+
+    /**
+     * 공고 업데이트 메서드
+     */
+    @Transactional
+    public void updatePost(PostUpdateCommand postUpdateCommand) {
+        // 공고 조회
+        Post post = postRepository.findById(UUID.fromString(postUpdateCommand.getPostId()))
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_POST));
+
+        // 공고 업데이트
+        post.update(postUpdateCommand);
     }
 }

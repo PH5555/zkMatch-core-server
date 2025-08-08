@@ -1,5 +1,6 @@
 package com.zkrypto.zkMatch.domain.post.domain.entity;
 
+import com.zkrypto.zkMatch.domain.corporation.application.dto.request.PostUpdateCommand;
 import com.zkrypto.zkMatch.domain.corporation.domain.entity.Corporation;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.PostCreationCommand;
 import com.zkrypto.zkMatch.global.utils.StringListConverter;
@@ -74,5 +75,21 @@ public class Post {
                 command.getPreferredSkill(),
                 corporation
         );
+    }
+
+    public void update(PostUpdateCommand postUpdateCommand) {
+        this.title = postUpdateCommand.getTitle();
+        this.content = postUpdateCommand.getTitle();
+        this.startDate = postUpdateCommand.getStartDate();
+        this.endDate = postUpdateCommand.getEndDate();
+        this.majorRequirement = postUpdateCommand.getMajorRequirement();
+        this.educationRequirement = postUpdateCommand.getEducationRequirement();
+        this.experienceRequirement = postUpdateCommand.getExperienceRequirement();
+        this.licenseRequirement = postUpdateCommand.getLicenseRequirement();
+        this.salaryStart = postUpdateCommand.getSalaryStart();
+        this.salaryEnd = postUpdateCommand.getSalaryEnd();
+        this.workSpace = postUpdateCommand.getWorkSpace();
+        this.workType = postUpdateCommand.getWorkType();
+        this.preferredSkill = postUpdateCommand.getPreferredSkill();
     }
 }

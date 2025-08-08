@@ -123,13 +123,31 @@ public class CorporationController {
         return ApiResponse.success();
     }
 
-    //TODO
+    @Operation(
+            summary = "채용 공고 수정 API",
+            description = "채용 공고를 수정합니다.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            },
+            parameters = {
+                    @Parameter(
+                            in = ParameterIn.HEADER,
+                            name = "Authorization",
+                            description = "Bearer 토큰(ADMIN)",
+                            required = true
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
+                    content = {@Content(schema = @Schema(implementation = Void.class))}),
+    })
     @PatchMapping("/post")
-    public ApiResponse<Void> updatePost(@AuthenticationPrincipal UUID memberId, @PathVariable(name = "postId") String postId, @RequestBody PostCreationCommand postCreationCommand) {
+    public ApiResponse<Void> updatePost(@RequestBody PostUpdateCommand postUpdateCommand) {
+        corporationService.updatePost(postUpdateCommand);
         return ApiResponse.success();
     }
-
-
+    
     //TODO
     @PostMapping("/post/ai")
     public ApiResponse<Void> createPostWithAi(@AuthenticationPrincipal UUID memberId, @RequestBody PostCreationAiCommand postCreationAiCommand) {
@@ -193,20 +211,20 @@ public class CorporationController {
     }
 
     //TODO
-    @PostMapping("/post/{postId}/interview")
-    public ApiResponse<Void> createInterview(@PathVariable(name = "postId") String postId, @RequestBody InterviewCreationCommand interviewCreationCommand) {
+    @PostMapping("/recruit/interview")
+    public ApiResponse<Void> createInterview(@RequestBody InterviewCreationCommand interviewCreationCommand) {
         return ApiResponse.success();
     }
 
     //TODO
-    @PatchMapping("/post/{postId}/interview")
-    public ApiResponse<Void> updateInterview(@PathVariable(name = "postId") String postId, @RequestBody InterviewCreationCommand interviewCreationCommand) {
+    @PatchMapping("/recruit/interview")
+    public ApiResponse<Void> updateInterview(@RequestBody InterviewCreationCommand interviewCreationCommand) {
         return ApiResponse.success();
     }
 
     //TODO
-    @PostMapping("/post/{postId}/evaluate")
-    public ApiResponse<Void> evaluateApplier(@PathVariable(name = "postId") String postId, @RequestBody EvaluationCreationCommand interviewCreationCommand) {
+    @PostMapping("/recruit/evaluate")
+    public ApiResponse<Void> evaluateApplier(@RequestBody EvaluationCreationCommand interviewCreationCommand) {
         return ApiResponse.success();
     }
 
