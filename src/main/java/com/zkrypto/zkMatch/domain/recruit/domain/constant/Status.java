@@ -1,5 +1,5 @@
 package com.zkrypto.zkMatch.domain.recruit.domain.constant;
 
 public enum Status {
-    PENDING, PASS
+    PENDING, PASS, FAILED, INTERVIEW
 }

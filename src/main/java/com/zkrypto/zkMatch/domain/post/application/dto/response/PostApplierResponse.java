@@ -5,19 +5,43 @@ import com.zkrypto.zkMatch.domain.recruit.domain.constant.Status;
 import com.zkrypto.zkMatch.domain.recruit.domain.entity.Recruit;
 import lombok.Getter;
 
+import java.time.format.DateTimeFormatter;
+
 @Getter
 public class PostApplierResponse {
     private String applierId;
     private String applierName;
-    private Status status;
+    private String applierPortfolio;
+    private String applyDate;
+    private String status;
 
-    private PostApplierResponse(String applierId, String applierName, Status status) {
+    private PostApplierResponse(String applierId, String applierName, String applierPortfolio, String applyDate, Status status) {
         this.applierId = applierId;
         this.applierName = applierName;
-        this.status = status;
+        this.applierPortfolio = applierPortfolio;
+        this.applyDate = applyDate;
+        this.status = statusFormatter(status);
+    }
+
+    private String statusFormatter(Status status) {
+        if(status == Status.PASS) {
+            return "합격";
+        }
+        if(status == Status.PENDING) {
+            return "검토 중";
+        }
+        if(status == Status.FAILED) {
+            return "불합격";
+        }
+        if(status == Status.INTERVIEW) {
+            return "면접";
+        }
+        return "";
     }
 
     public static PostApplierResponse from(Recruit recruit) {
-        return new PostApplierResponse(recruit.getMember().getMemberId().toString(), recruit.getMember().getName(), recruit.getStatus());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
+        String date = recruit.getCreatedAt().format(formatter);
+        return new PostApplierResponse(recruit.getMember().getMemberId().toString(), recruit.getMember().getName(), recruit.getMember().getPortfolioUrl(), date, recruit.getStatus());
     }
 }

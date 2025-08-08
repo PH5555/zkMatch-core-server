@@ -6,6 +6,9 @@ import com.zkrypto.zkMatch.domain.recruit.domain.constant.Status;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -24,6 +27,9 @@ public class Recruit {
 
     @Enumerated(EnumType.STRING)
     private Status status;
+
+    @CreatedDate
+    private LocalDateTime createdAt;
 
     public Recruit(Post post, Member member) {
         this.post = post;

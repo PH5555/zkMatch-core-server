@@ -124,14 +124,15 @@ public class CorporationController {
     }
 
     //TODO
-    @PostMapping("/post/ai")
-    public ApiResponse<Void> createPostWithAi(@AuthenticationPrincipal UUID memberId, @RequestBody PostCreationAiCommand postCreationAiCommand) {
+    @PatchMapping("/post/{postId}")
+    public ApiResponse<Void> updatePost(@AuthenticationPrincipal UUID memberId, @PathVariable(name = "postId") String postId, @RequestBody PostCreationCommand postCreationCommand) {
         return ApiResponse.success();
     }
 
+
     //TODO
-    @PatchMapping("/post/{postId}")
-    public ApiResponse<Void> updatePost(@AuthenticationPrincipal UUID memberId, @PathVariable(name = "postId") String postId, @RequestBody PostCreationCommand postCreationCommand) {
+    @PostMapping("/post/ai")
+    public ApiResponse<Void> createPostWithAi(@AuthenticationPrincipal UUID memberId, @RequestBody PostCreationAiCommand postCreationAiCommand) {
         return ApiResponse.success();
     }
 
