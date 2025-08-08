@@ -37,7 +37,7 @@ public class Recruit {
         this.status = Status.PENDING;
     }
 
-    public void pass() {
-        this.status = Status.PASS;
+    public void updateStatus(Status status) {
+        this.status = status;
     }
 }

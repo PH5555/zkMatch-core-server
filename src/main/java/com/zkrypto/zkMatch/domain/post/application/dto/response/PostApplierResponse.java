@@ -9,14 +9,14 @@ import java.time.format.DateTimeFormatter;
 
 @Getter
 public class PostApplierResponse {
-    private String applierId;
+    private String recruitId;
     private String applierName;
     private String applierPortfolio;
     private String applyDate;
     private String status;
 
-    private PostApplierResponse(String applierId, String applierName, String applierPortfolio, String applyDate, Status status) {
-        this.applierId = applierId;
+    private PostApplierResponse(String recruitId, String applierName, String applierPortfolio, String applyDate, Status status) {
+        this.recruitId = recruitId;
         this.applierName = applierName;
         this.applierPortfolio = applierPortfolio;
         this.applyDate = applyDate;
@@ -42,6 +42,6 @@ public class PostApplierResponse {
     public static PostApplierResponse from(Recruit recruit) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
         String date = recruit.getCreatedAt().format(formatter);
-        return new PostApplierResponse(recruit.getMember().getMemberId().toString(), recruit.getMember().getName(), recruit.getMember().getPortfolioUrl(), date, recruit.getStatus());
+        return new PostApplierResponse(recruit.getId().toString(), recruit.getMember().getName(), recruit.getMember().getPortfolioUrl(), date, recruit.getStatus());
     }
 }

@@ -6,7 +6,7 @@ import com.zkrypto.zkMatch.domain.corporation.domain.entity.Corporation;
 import com.zkrypto.zkMatch.domain.corporation.domain.repository.CorporationRepository;
 import com.zkrypto.zkMatch.domain.member.domain.entity.Member;
 import com.zkrypto.zkMatch.domain.member.domain.repository.MemberRepository;
-import com.zkrypto.zkMatch.domain.post.application.dto.request.PassApplierCommand;
+import com.zkrypto.zkMatch.domain.post.application.dto.request.UpdateApplierStatusCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.PostCreationCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.CorporationPostResponse;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.PostApplierResponse;
@@ -17,6 +17,7 @@ import com.zkrypto.zkMatch.domain.recruit.domain.entity.Recruit;
 import com.zkrypto.zkMatch.domain.recruit.domain.repository.RecruitRepository;
 import com.zkrypto.zkMatch.global.file.S3Service;
 import com.zkrypto.zkMatch.global.rabbitmq.DirectExchangeService;
+import com.zkrypto.zkMatch.global.rabbitmq.dto.SendMessage;
 import com.zkrypto.zkMatch.global.response.exception.CustomException;
 import com.zkrypto.zkMatch.global.response.exception.ErrorCode;
 import lombok.AllArgsConstructor;
@@ -125,27 +126,33 @@ public class CorporationService {
     }
 
     /**
-     * 지원자 합격 메서드
+     * 지원자 상태 업데이트 메서드
      */
     @Transactional
-    public void passApplier(String postId, PassApplierCommand passApplierCommand) {
-        // 공고 조회
-        Post post = postRepository.findByIdWithCorporation(UUID.fromString(postId))
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_POST));
-
+    public void updateApplierStatus(UpdateApplierStatusCommand command) {
         // 지원자 조회
-        Recruit recruit = recruitRepository.findRecruitByMemberAndPost(UUID.fromString(passApplierCommand.getApplierId()), post)
+        Recruit recruit = recruitRepository.findRecruitByIdWithMemberAndPost(command.getRecruitId())
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_APPLIED_TO_POSTING));
+
+        // PENDING, INTERVIEW 는 잘못된 요청
+        if(command.getStatus() == Status.PENDING || command.getStatus() == Status.INTERVIEW) {
+            throw new CustomException(ErrorCode.NOT_PERMITTED_STATUS);
+        }
 
         // 이미 합격한 지원자인지 확인
         if(recruit.getStatus() == Status.PASS) {
             throw new CustomException(ErrorCode.ALREADY_PASSED);
         }
 
-        // 합격 처리
-        recruit.pass();
+        // 이미 탈락한 지원자인지 확인
+        if(recruit.getStatus() == Status.FAILED) {
+            throw new CustomException(ErrorCode.ALREADY_FAILED);
+        }
+
+        // 상태 업데이트
+        recruit.updateStatus(command.getStatus());
 
         // 합격 이메일 전송
-        directExchangeService.send(post.getCorporation(), recruit.getMember());
+        directExchangeService.send(SendMessage.from(recruit, command.getStatus()));
     }
 }

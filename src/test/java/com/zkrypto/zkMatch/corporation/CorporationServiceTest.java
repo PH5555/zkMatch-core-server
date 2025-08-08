@@ -6,7 +6,7 @@ import com.zkrypto.zkMatch.domain.corporation.application.service.CorporationSer
 import com.zkrypto.zkMatch.domain.corporation.domain.repository.CorporationRepository;
 import com.zkrypto.zkMatch.domain.member.domain.entity.Member;
 import com.zkrypto.zkMatch.domain.member.domain.repository.MemberRepository;
-import com.zkrypto.zkMatch.domain.post.application.dto.request.PassApplierCommand;
+import com.zkrypto.zkMatch.domain.post.application.dto.request.UpdateApplierStatusCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.PostApplyCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.PostCreationCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.CorporationPostResponse;
@@ -178,9 +178,9 @@ public class CorporationServiceTest {
         postService.applyPost(member.getMemberId(), postApplyCommand);
 
         // 지원자 합격
-        PassApplierCommand passApplierCommand = new PassApplierCommand();
-        ReflectionUtil.setter(passApplierCommand, "applierId", member.getMemberId().toString());
-        corporationService.passApplier(posts.get(0).getPostId(), passApplierCommand);
+        UpdateApplierStatusCommand updateApplierStatusCommand = new UpdateApplierStatusCommand();
+        ReflectionUtil.setter(updateApplierStatusCommand, "applierId", member.getMemberId().toString());
+        corporationService.passApplier(posts.get(0).getPostId(), updateApplierStatusCommand);
 
         // 검증
         List<PostApplierResponse> postApplier = corporationService.getPostApplier(posts.get(0).getPostId());

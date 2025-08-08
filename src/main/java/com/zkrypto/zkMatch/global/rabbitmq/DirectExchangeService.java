@@ -19,8 +19,7 @@ public class DirectExchangeService {
     @Value("${spring.rabbitmq.template.routing-key}")
     private String routingKey;
 
-    public void send(Corporation corporation, Member member) {
-        SendMessage message = SendMessage.from(corporation, member);
+    public void send(SendMessage message) {
         rabbitTemplate.convertAndSend(exchange, routingKey, message);
     }
 }

@@ -4,7 +4,7 @@ import com.zkrypto.zkMatch.domain.corporation.application.dto.request.*;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.response.CorporationResponse;
 import com.zkrypto.zkMatch.domain.corporation.application.service.CorporationService;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.CorporationPostResponse;
-import com.zkrypto.zkMatch.domain.post.application.dto.request.PassApplierCommand;
+import com.zkrypto.zkMatch.domain.post.application.dto.request.UpdateApplierStatusCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.PostCreationCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.PostApplierResponse;
 import com.zkrypto.zkMatch.global.response.ApiResponse;
@@ -124,7 +124,7 @@ public class CorporationController {
     }
 
     //TODO
-    @PatchMapping("/post/{postId}")
+    @PatchMapping("/post")
     public ApiResponse<Void> updatePost(@AuthenticationPrincipal UUID memberId, @PathVariable(name = "postId") String postId, @RequestBody PostCreationCommand postCreationCommand) {
         return ApiResponse.success();
     }
@@ -160,6 +160,13 @@ public class CorporationController {
         return ApiResponse.success(corporationService.getPostApplier(postId));
     }
 
+    // TODO: 지원자 상세 정보
+    @GetMapping("/recruit")
+    public ApiResponse<List<PostApplierResponse>> getPostApplier(@PathVariable(name = "postId") String postId,
+                                                                 @PathVariable(name = "recruitId") String recruitId) {
+        return ApiResponse.success(corporationService.getPostApplier(postId));
+    }
+
     @Operation(
             summary = "합격 통지 API",
             description = "해당 지원자를 합격 처리합니다.",
@@ -179,10 +186,9 @@ public class CorporationController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
                     content = {@Content(schema = @Schema(implementation = Void.class))}),
     })
-    @PutMapping("/post/{postId}")
-    //TODO: 통과, 탈락 둘중으로 변경
-    public ApiResponse<Void> passApplier(@PathVariable(name = "postId") String postId, @RequestBody PassApplierCommand passApplierCommand){
-        corporationService.passApplier(postId, passApplierCommand);
+    @PutMapping("/recruit")
+    public ApiResponse<Void> updateApplierStatus(@RequestBody UpdateApplierStatusCommand updateApplierStatusCommand){
+        corporationService.updateApplierStatus(updateApplierStatusCommand);
         return ApiResponse.success();
     }
 
