@@ -16,7 +16,10 @@ import com.zkrypto.zkMatch.domain.post.application.service.PostService;
 import com.zkrypto.zkMatch.domain.post.domain.entity.Post;
 import com.zkrypto.zkMatch.domain.post.domain.repository.PostRepository;
 import com.zkrypto.zkMatch.domain.recruit.domain.constant.Status;
+import com.zkrypto.zkMatch.domain.recruit.domain.entity.Recruit;
+import com.zkrypto.zkMatch.domain.recruit.domain.repository.RecruitRepository;
 import com.zkrypto.zkMatch.global.utils.ReflectionUtil;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -47,6 +51,8 @@ public class CorporationServiceTest {
 
     @Autowired
     PostService postService;
+    @Autowired
+    private RecruitRepository recruitRepository;
 
     @Test
     void 생성_테스트() throws IOException {
@@ -167,6 +173,7 @@ public class CorporationServiceTest {
 
         // 멤버 생성
         Member member = new Member();
+        ReflectionUtil.setter(member, "email", "lmkn5342@gmail.com");
         memberRepository.save(member);
 
         // 공고 조회
@@ -177,13 +184,111 @@ public class CorporationServiceTest {
         ReflectionUtil.setter(postApplyCommand, "postId", posts.get(0).getPostId());
         postService.applyPost(member.getMemberId(), postApplyCommand);
 
+        // 지원 내역 조회
+        Recruit recruit = recruitRepository.findRecruitByPostAndMember(UUID.fromString(posts.get(0).getPostId()), member).get();
+
         // 지원자 합격
         UpdateApplierStatusCommand updateApplierStatusCommand = new UpdateApplierStatusCommand();
-        ReflectionUtil.setter(updateApplierStatusCommand, "applierId", member.getMemberId().toString());
-        corporationService.passApplier(posts.get(0).getPostId(), updateApplierStatusCommand);
+        ReflectionUtil.setter(updateApplierStatusCommand, "recruitId", recruit.getId());
+        ReflectionUtil.setter(updateApplierStatusCommand, "status", Status.PASS);
+        corporationService.updateApplierStatus(updateApplierStatusCommand);
 
         // 검증
         List<PostApplierResponse> postApplier = corporationService.getPostApplier(posts.get(0).getPostId());
-        assertThat(postApplier.get(0).getStatus()).isEqualTo(Status.PASS);
+        assertThat(postApplier.get(0).getStatus()).isEqualTo("합격");
+    }
+
+    @Test
+    void 공고_탈락_테스트() throws IOException {
+        // 기업 생성
+        CorporationCreationCommand corporationCreationCommand = new CorporationCreationCommand();
+        ReflectionUtil.setter(corporationCreationCommand, "corporationName", "지크립토");
+        ReflectionUtil.setter(corporationCreationCommand, "loginId", "1234");
+        ReflectionUtil.setter(corporationCreationCommand, "password", "1234");
+
+        corporationService.createCorporation(corporationCreationCommand, null);
+
+        // 관리자 조회
+        Member admin = memberRepository.findMemberByLoginId("1234").get();
+
+        // 공고 생성
+        PostCreationCommand postCreationCommand = new PostCreationCommand();
+        ReflectionUtil.setter(postCreationCommand, "title", "hi");
+        ReflectionUtil.setter(postCreationCommand, "startDate", LocalDateTime.of(2025, 1,1, 1, 1));
+        ReflectionUtil.setter(postCreationCommand, "endDate", LocalDateTime.of(2026, 1,1, 1, 1));
+        corporationService.createPost(admin.getMemberId(), postCreationCommand);
+
+        // 멤버 생성
+        Member member = new Member();
+        ReflectionUtil.setter(member, "email", "lmkn5342@gmail.com");
+        memberRepository.save(member);
+
+        // 공고 조회
+        List<PostResponse> posts = postService.getPost();
+
+        // 공고 지원
+        PostApplyCommand postApplyCommand = new PostApplyCommand();
+        ReflectionUtil.setter(postApplyCommand, "postId", posts.get(0).getPostId());
+        postService.applyPost(member.getMemberId(), postApplyCommand);
+
+        // 지원 내역 조회
+        Recruit recruit = recruitRepository.findRecruitByPostAndMember(UUID.fromString(posts.get(0).getPostId()), member).get();
+
+        // 지원자 합격
+        UpdateApplierStatusCommand updateApplierStatusCommand = new UpdateApplierStatusCommand();
+        ReflectionUtil.setter(updateApplierStatusCommand, "recruitId", recruit.getId());
+        ReflectionUtil.setter(updateApplierStatusCommand, "status", Status.FAILED);
+        corporationService.updateApplierStatus(updateApplierStatusCommand);
+
+        // 검증
+        List<PostApplierResponse> postApplier = corporationService.getPostApplier(posts.get(0).getPostId());
+        assertThat(postApplier.get(0).getStatus()).isEqualTo("불합격");
+    }
+
+    @Test
+    void 공고_업데이트_테스트_실패() throws IOException {
+        // 기업 생성
+        CorporationCreationCommand corporationCreationCommand = new CorporationCreationCommand();
+        ReflectionUtil.setter(corporationCreationCommand, "corporationName", "지크립토");
+        ReflectionUtil.setter(corporationCreationCommand, "loginId", "1234");
+        ReflectionUtil.setter(corporationCreationCommand, "password", "1234");
+
+        corporationService.createCorporation(corporationCreationCommand, null);
+
+        // 관리자 조회
+        Member admin = memberRepository.findMemberByLoginId("1234").get();
+
+        // 공고 생성
+        PostCreationCommand postCreationCommand = new PostCreationCommand();
+        ReflectionUtil.setter(postCreationCommand, "title", "hi");
+        ReflectionUtil.setter(postCreationCommand, "startDate", LocalDateTime.of(2025, 1,1, 1, 1));
+        ReflectionUtil.setter(postCreationCommand, "endDate", LocalDateTime.of(2026, 1,1, 1, 1));
+        corporationService.createPost(admin.getMemberId(), postCreationCommand);
+
+        // 멤버 생성
+        Member member = new Member();
+        ReflectionUtil.setter(member, "email", "lmkn5342@gmail.com");
+        memberRepository.save(member);
+
+        // 공고 조회
+        List<PostResponse> posts = postService.getPost();
+
+        // 공고 지원
+        PostApplyCommand postApplyCommand = new PostApplyCommand();
+        ReflectionUtil.setter(postApplyCommand, "postId", posts.get(0).getPostId());
+        postService.applyPost(member.getMemberId(), postApplyCommand);
+
+        // 지원 내역 조회
+        Recruit recruit = recruitRepository.findRecruitByPostAndMember(UUID.fromString(posts.get(0).getPostId()), member).get();
+
+        // 지원자 합격
+        UpdateApplierStatusCommand updateApplierStatusCommand = new UpdateApplierStatusCommand();
+        ReflectionUtil.setter(updateApplierStatusCommand, "recruitId", recruit.getId());
+        ReflectionUtil.setter(updateApplierStatusCommand, "status", Status.INTERVIEW);
+
+        // 검증
+        Assertions.assertThatThrownBy(() -> {
+            corporationService.updateApplierStatus(updateApplierStatusCommand);
+        }).hasMessageContaining("허용되지 않은 status 입니다.");
     }
 }

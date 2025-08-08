@@ -168,8 +168,8 @@ public class CorporationController {
     }
 
     @Operation(
-            summary = "합격 통지 API",
-            description = "해당 지원자를 합격 처리합니다.",
+            summary = "지원자 상태 업데이트 API",
+            description = "지원자의 상태를 업데이트합니다. (합격, 불합격)",
             security = {
                     @SecurityRequirement(name = "bearerAuth")
             },

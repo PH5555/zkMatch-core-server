@@ -28,13 +28,13 @@ public class Recruit {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    @CreatedDate
     private LocalDateTime createdAt;
 
     public Recruit(Post post, Member member) {
         this.post = post;
         this.member = member;
         this.status = Status.PENDING;
+        this.createdAt = LocalDateTime.now();
     }
 
     public void updateStatus(Status status) {
