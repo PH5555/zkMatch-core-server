@@ -147,7 +147,7 @@ public class CorporationController {
         corporationService.updatePost(postUpdateCommand);
         return ApiResponse.success();
     }
-    
+
     //TODO
     @PostMapping("/post/ai")
     public ApiResponse<Void> createPostWithAi(@AuthenticationPrincipal UUID memberId, @RequestBody PostCreationAiCommand postCreationAiCommand) {

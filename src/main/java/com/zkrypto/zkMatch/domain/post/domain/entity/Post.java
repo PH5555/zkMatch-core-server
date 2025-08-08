@@ -79,7 +79,7 @@ public class Post {
 
     public void update(PostUpdateCommand postUpdateCommand) {
         this.title = postUpdateCommand.getTitle();
-        this.content = postUpdateCommand.getTitle();
+        this.content = postUpdateCommand.getContent();
         this.startDate = postUpdateCommand.getStartDate();
         this.endDate = postUpdateCommand.getEndDate();
         this.majorRequirement = postUpdateCommand.getMajorRequirement();

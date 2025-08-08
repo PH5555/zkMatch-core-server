@@ -1,6 +1,7 @@
 package com.zkrypto.zkMatch.corporation;
 
 import com.zkrypto.zkMatch.domain.corporation.application.dto.request.CorporationCreationCommand;
+import com.zkrypto.zkMatch.domain.corporation.application.dto.request.PostUpdateCommand;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.response.CorporationResponse;
 import com.zkrypto.zkMatch.domain.corporation.application.service.CorporationService;
 import com.zkrypto.zkMatch.domain.corporation.domain.repository.CorporationRepository;
@@ -109,6 +110,41 @@ public class CorporationServiceTest {
         // 생성 테스트
         List<Post> posts = postRepository.findPostByCorporation(member.getCorporation());
         assertThat(posts.size()).isEqualTo(1);
+    }
+
+    @Test
+    void 공고_업데이트_테스트() throws IOException {
+        // 기업 생성
+        CorporationCreationCommand corporationCreationCommand = new CorporationCreationCommand();
+        ReflectionUtil.setter(corporationCreationCommand, "corporationName", "지크립토");
+        ReflectionUtil.setter(corporationCreationCommand, "loginId", "1234");
+        ReflectionUtil.setter(corporationCreationCommand, "password", "1234");
+
+        corporationService.createCorporation(corporationCreationCommand, null);
+
+        // 멤버 조회
+        Member member = memberRepository.findMemberByLoginId("1234").get();
+
+        // 공고 생성
+        PostCreationCommand postCreationCommand = new PostCreationCommand();
+        ReflectionUtil.setter(postCreationCommand, "title", "지크립토");
+        ReflectionUtil.setter(postCreationCommand, "content", "테스트");
+        corporationService.createPost(member.getMemberId(), postCreationCommand);
+
+        //공고 조회
+        List<Post> posts = postRepository.findAll();
+
+        // 공고 수정
+        PostUpdateCommand postUpdateCommand = new PostUpdateCommand();
+        ReflectionUtil.setter(postUpdateCommand, "postId", posts.getFirst().getPostId().toString());
+        ReflectionUtil.setter(postUpdateCommand, "title", "지크립토");
+        ReflectionUtil.setter(postUpdateCommand, "content", "테스트2");
+        corporationService.updatePost(postUpdateCommand);
+
+        // 검증
+        List<Post> myPosts = postRepository.findPostByCorporation(member.getCorporation());
+        assertThat(myPosts.get(0).getContent()).isEqualTo("테스트2");
+        assertThat(myPosts.get(0).getTitle()).isEqualTo("지크립토");
     }
 
     @Test
