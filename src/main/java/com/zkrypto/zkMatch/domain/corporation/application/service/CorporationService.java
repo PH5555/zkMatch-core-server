@@ -108,10 +108,7 @@ public class CorporationService {
     private CorporationPostResponse toCorporationPostResponse(Post post) {
         // 지원자 조회
         List<Recruit> appliers = recruitRepository.findByPost(post);
-
-        // 합격자 필터링
-        List<Recruit> passer = appliers.stream().filter(applier -> applier.getStatus() == Status.PASS).toList();
-        return CorporationPostResponse.from(post, appliers.size(), passer.size());
+        return CorporationPostResponse.from(post, appliers.size());
     }
 
     /**
