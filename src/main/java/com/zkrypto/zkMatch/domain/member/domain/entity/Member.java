@@ -1,6 +1,7 @@
 package com.zkrypto.zkMatch.domain.member.domain.entity;
 
 import com.zkrypto.zkMatch.domain.auth.application.dto.request.SignUpCommand;
+import com.zkrypto.zkMatch.domain.corporation.application.dto.request.CorporationCreationCommand;
 import com.zkrypto.zkMatch.domain.corporation.domain.entity.Corporation;
 import com.zkrypto.zkMatch.domain.member.domain.constant.Role;
 import com.zkrypto.zkMatch.domain.portfolio.domain.entity.Portfolio;
@@ -23,11 +24,14 @@ public class Member {
 
     private String loginId;
     private String password;
-    private String refreshToken;
     private String name;
+    private String birth;
+    private String gender;
     private String email;
     private String phoneNumber;
-    private String personalStatement;
+    private String portfolioUrl;
+    private String interests;
+    private String refreshToken;
 
     @Setter
     @OneToOne(fetch = FetchType.LAZY)
@@ -45,6 +49,15 @@ public class Member {
         this.password = password;
     }
 
+    private Member(Role role, String loginId, String password, String name, String email, String phoneNumber) {
+        this.role = role;
+        this.loginId = loginId;
+        this.password = password;
+        this.name = name;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+    }
+
     public void signOut() {
         this.refreshToken = null;
     }
@@ -59,7 +72,7 @@ public class Member {
         return member;
     }
 
-    public static Member from(String loginId, String hashedPassword) {
-        return new Member(Role.ROLE_ADMIN, loginId, hashedPassword);
+    public static Member from(CorporationCreationCommand corporationCreationCommand, String hashedPassword) {
+        return new Member(Role.ROLE_ADMIN, corporationCreationCommand.getLoginId(), hashedPassword, corporationCreationCommand.getName(), corporationCreationCommand.getEmail(), corporationCreationCommand.getPhoneNumber());
     }
 }
