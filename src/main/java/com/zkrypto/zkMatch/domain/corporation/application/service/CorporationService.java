@@ -60,7 +60,10 @@ public class CorporationService {
         Member member = Member.from(corporationCreationCommand, hashedPassword);
 
         // 사업자 등록증 업로드
-        String registerFileUrl = s3Service.uploadFile(file);
+        String registerFileUrl = "";
+        if(file != null && !file.isEmpty()) {
+            registerFileUrl = s3Service.uploadFile(file);
+        }
 
         // 기업 생성
         Corporation corporation = Corporation.from(corporationCreationCommand, registerFileUrl, member);

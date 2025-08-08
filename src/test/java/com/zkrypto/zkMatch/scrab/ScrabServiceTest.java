@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -42,14 +43,14 @@ public class ScrabServiceTest {
     ScrabService scrabService;
 
     @Test
-    void 스크랩_테스트() {
+    void 스크랩_테스트() throws IOException {
         // 기업 생성
         CorporationCreationCommand corporationCreationCommand = new CorporationCreationCommand();
         ReflectionUtil.setter(corporationCreationCommand, "corporationName", "지크립토");
         ReflectionUtil.setter(corporationCreationCommand, "loginId", "1234");
         ReflectionUtil.setter(corporationCreationCommand, "password", "1234");
 
-        corporationService.createCorporation(corporationCreationCommand);
+        corporationService.createCorporation(corporationCreationCommand, null);
 
         // 관리자 조회
         Member admin = memberRepository.findMemberByLoginId("1234").get();
@@ -79,14 +80,14 @@ public class ScrabServiceTest {
     }
 
     @Test
-    void 스크랩_해제_테스트() {
+    void 스크랩_해제_테스트() throws IOException {
         // 기업 생성
         CorporationCreationCommand corporationCreationCommand = new CorporationCreationCommand();
         ReflectionUtil.setter(corporationCreationCommand, "corporationName", "지크립토");
         ReflectionUtil.setter(corporationCreationCommand, "loginId", "1234");
         ReflectionUtil.setter(corporationCreationCommand, "password", "1234");
 
-        corporationService.createCorporation(corporationCreationCommand);
+        corporationService.createCorporation(corporationCreationCommand, null);
 
         // 관리자 조회
         Member admin = memberRepository.findMemberByLoginId("1234").get();

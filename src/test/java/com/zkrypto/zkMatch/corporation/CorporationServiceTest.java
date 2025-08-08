@@ -23,6 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -48,34 +49,32 @@ public class CorporationServiceTest {
     PostService postService;
 
     @Test
-    void 생성_테스트() {
+    void 생성_테스트() throws IOException {
         // 기업 생성
         CorporationCreationCommand corporationCreationCommand = new CorporationCreationCommand();
         ReflectionUtil.setter(corporationCreationCommand, "corporationName", "지크립토");
         ReflectionUtil.setter(corporationCreationCommand, "loginId", "1234");
         ReflectionUtil.setter(corporationCreationCommand, "password", "1234");
-        ReflectionUtil.setter(corporationCreationCommand, "corporationRegisterNumber", "1234");
-
-        corporationService.createCorporation(corporationCreationCommand);
+        corporationService.createCorporation(corporationCreationCommand, null);
 
         // member 생성 테스트
         boolean memberTest = memberRepository.existsByLoginId("1234");
         assertThat(memberTest).isTrue();
 
         // 기업 생성 테스트
-        boolean corporationTest = corporationRepository.existsCorporationByRegisterNumber("1234");
+        boolean corporationTest = corporationRepository.existsCorporationByCorporationName("지크립토");
         assertThat(corporationTest).isTrue();
     }
 
     @Test
-    void 조회_테스트() {
+    void 조회_테스트() throws IOException {
         // 기업 생성
         CorporationCreationCommand corporationCreationCommand = new CorporationCreationCommand();
         ReflectionUtil.setter(corporationCreationCommand, "corporationName", "지크립토");
         ReflectionUtil.setter(corporationCreationCommand, "loginId", "1234");
         ReflectionUtil.setter(corporationCreationCommand, "password", "1234");
 
-        corporationService.createCorporation(corporationCreationCommand);
+        corporationService.createCorporation(corporationCreationCommand, null);
 
         // 기업 조회
         Member member = memberRepository.findMemberByLoginId("1234").get();
@@ -86,14 +85,14 @@ public class CorporationServiceTest {
     }
 
     @Test
-    void 공고_생성_테스트() {
+    void 공고_생성_테스트() throws IOException {
         // 기업 생성
         CorporationCreationCommand corporationCreationCommand = new CorporationCreationCommand();
         ReflectionUtil.setter(corporationCreationCommand, "corporationName", "지크립토");
         ReflectionUtil.setter(corporationCreationCommand, "loginId", "1234");
         ReflectionUtil.setter(corporationCreationCommand, "password", "1234");
 
-        corporationService.createCorporation(corporationCreationCommand);
+        corporationService.createCorporation(corporationCreationCommand, null);
 
         // 멤버 조회
         Member member = memberRepository.findMemberByLoginId("1234").get();
@@ -107,14 +106,14 @@ public class CorporationServiceTest {
     }
 
     @Test
-    void 공고_조회_테스트() {
+    void 공고_조회_테스트() throws IOException {
         // 기업 생성
         CorporationCreationCommand corporationCreationCommand = new CorporationCreationCommand();
         ReflectionUtil.setter(corporationCreationCommand, "corporationName", "지크립토");
         ReflectionUtil.setter(corporationCreationCommand, "loginId", "1234");
         ReflectionUtil.setter(corporationCreationCommand, "password", "1234");
 
-        corporationService.createCorporation(corporationCreationCommand);
+        corporationService.createCorporation(corporationCreationCommand, null);
 
         // 관리자 조회
         Member admin = memberRepository.findMemberByLoginId("1234").get();
@@ -147,14 +146,14 @@ public class CorporationServiceTest {
     }
 
     @Test
-    void 공고_합격_테스트() {
+    void 공고_합격_테스트() throws IOException {
         // 기업 생성
         CorporationCreationCommand corporationCreationCommand = new CorporationCreationCommand();
         ReflectionUtil.setter(corporationCreationCommand, "corporationName", "지크립토");
         ReflectionUtil.setter(corporationCreationCommand, "loginId", "1234");
         ReflectionUtil.setter(corporationCreationCommand, "password", "1234");
 
-        corporationService.createCorporation(corporationCreationCommand);
+        corporationService.createCorporation(corporationCreationCommand, null);
 
         // 관리자 조회
         Member admin = memberRepository.findMemberByLoginId("1234").get();

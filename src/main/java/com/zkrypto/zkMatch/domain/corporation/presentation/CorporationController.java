@@ -68,7 +68,7 @@ public class CorporationController {
     })
     @PostMapping()
     public ApiResponse<Void> createCorporation(@RequestPart("corporationCreationCommand") CorporationCreationCommand corporationCreationCommand,
-                                               @RequestPart("registerFile")MultipartFile file) throws IOException {
+                                               @RequestPart(value = "registerFile", required = false) MultipartFile file) throws IOException {
         corporationService.createCorporation(corporationCreationCommand, file);
         return ApiResponse.success();
     }
