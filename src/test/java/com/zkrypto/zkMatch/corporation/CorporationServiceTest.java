@@ -2,6 +2,7 @@ package com.zkrypto.zkMatch.corporation;
 
 import com.zkrypto.zkMatch.domain.corporation.application.dto.request.CorporationCreationCommand;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.request.InterviewCreationCommand;
+import com.zkrypto.zkMatch.domain.corporation.application.dto.request.InterviewUpdateCommand;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.request.PostUpdateCommand;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.response.CorporationResponse;
 import com.zkrypto.zkMatch.domain.corporation.application.service.CorporationService;
@@ -373,6 +374,62 @@ public class CorporationServiceTest {
         // 검증
         Recruit result = recruitRepository.findRecruitByPostAndMember(UUID.fromString(posts.get(0).getPostId()), member).get();
         assertThat(result.getInterview().getTitle()).isEqualTo("1차면접");
+        assertThat(result.getStatus()).isEqualTo(Status.INTERVIEW);
+    }
+
+    @Test
+    void 공고_인터뷰_수정_테스트() throws IOException {
+        // 기업 생성
+        CorporationCreationCommand corporationCreationCommand = new CorporationCreationCommand();
+        ReflectionUtil.setter(corporationCreationCommand, "corporationName", "지크립토");
+        ReflectionUtil.setter(corporationCreationCommand, "loginId", "1234");
+        ReflectionUtil.setter(corporationCreationCommand, "password", "1234");
+
+        corporationService.createCorporation(corporationCreationCommand, null);
+
+        // 관리자 조회
+        Member admin = memberRepository.findMemberByLoginId("1234").get();
+
+        // 공고 생성
+        PostCreationCommand postCreationCommand = new PostCreationCommand();
+        ReflectionUtil.setter(postCreationCommand, "title", "hi");
+        ReflectionUtil.setter(postCreationCommand, "startDate", LocalDateTime.of(2025, 1,1, 1, 1));
+        ReflectionUtil.setter(postCreationCommand, "endDate", LocalDateTime.of(2026, 1,1, 1, 1));
+        corporationService.createPost(admin.getMemberId(), postCreationCommand);
+
+        // 멤버 생성
+        Member member = new Member();
+        memberRepository.save(member);
+
+        // 공고 조회
+        List<PostResponse> posts = postService.getPost();
+
+        // 공고 지원
+        PostApplyCommand postApplyCommand = new PostApplyCommand();
+        ReflectionUtil.setter(postApplyCommand, "postId", posts.get(0).getPostId());
+        postService.applyPost(member.getMemberId(), postApplyCommand);
+
+        // 지원 내역 조회
+        Recruit recruit = recruitRepository.findRecruitByPostAndMember(UUID.fromString(posts.get(0).getPostId()), member).get();
+
+        // 면접 생성
+        InterviewCreationCommand interviewCreationCommand = new InterviewCreationCommand();
+        ReflectionUtil.setter(interviewCreationCommand, "recruitId", recruit.getId());
+        ReflectionUtil.setter(interviewCreationCommand, "title", "1차면접");
+        ReflectionUtil.setter(interviewCreationCommand, "location", "지크립토");
+        corporationService.createInterview(interviewCreationCommand);
+
+        // 면접 수정
+        InterviewUpdateCommand interviewUpdateCommand = new InterviewUpdateCommand();
+        ReflectionUtil.setter(interviewUpdateCommand, "recruitId", recruit.getId());
+        ReflectionUtil.setter(interviewUpdateCommand, "title", "1차면접");
+        ReflectionUtil.setter(interviewUpdateCommand, "location", "한양대");
+        corporationService.updateInterview(interviewUpdateCommand);
+
+        // 검증
+        Recruit result = recruitRepository.findRecruitByPostAndMember(UUID.fromString(posts.get(0).getPostId()), member).get();
+        assertThat(result.getInterview().getTitle()).isEqualTo("1차면접");
+        assertThat(result.getInterview().getLocation()).isEqualTo("한양대");
         assertThat(result.getStatus()).isEqualTo(Status.INTERVIEW);
     }
 }
