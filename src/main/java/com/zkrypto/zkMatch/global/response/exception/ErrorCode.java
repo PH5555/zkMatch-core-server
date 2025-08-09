@@ -25,7 +25,9 @@ public enum ErrorCode {
     ALREADY_FAILED("P006", HttpStatus.CONFLICT, "이미 탈락한 지원자입니다."),
     NOT_PERMITTED_STATUS("P007", HttpStatus.BAD_REQUEST, "허용되지 않은 status 입니다."),
 
-    NOT_FOUND_RECRUIT("R001", HttpStatus.NOT_FOUND, "지원 이력이 존재하지 않습니다.");
+    NOT_FOUND_RECRUIT("R001", HttpStatus.NOT_FOUND, "지원 이력이 존재하지 않습니다."),
+    ALREADY_HAS_INTERVIEW("R001", HttpStatus.CONFLICT, "이미 면접 일정이 존재합니다.");
+
 
     private final String errorCode;
     private final HttpStatus httpStatus;

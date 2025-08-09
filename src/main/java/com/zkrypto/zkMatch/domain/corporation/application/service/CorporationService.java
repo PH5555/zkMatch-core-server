@@ -183,6 +183,11 @@ public class CorporationService {
         Recruit recruit = recruitRepository.findById(interviewCreationCommand.getRecruitId())
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_RECRUIT));
 
+        // 면접 이력 조회
+        if(recruit.getInterview() != null) {
+            throw new CustomException(ErrorCode.ALREADY_HAS_INTERVIEW);
+        }
+
         // 면접 생성
         Interview interview = Interview.from(interviewCreationCommand);
         interviewRepository.save(interview);

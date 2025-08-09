@@ -369,7 +369,7 @@ public class CorporationServiceTest {
         ReflectionUtil.setter(interviewCreationCommand, "recruitId", recruit.getId());
         ReflectionUtil.setter(interviewCreationCommand, "title", "1차면접");
         corporationService.createInterview(interviewCreationCommand);
-
+        
         // 검증
         Recruit result = recruitRepository.findRecruitByPostAndMember(UUID.fromString(posts.get(0).getPostId()), member).get();
         assertThat(result.getInterview().getTitle()).isEqualTo("1차면접");
