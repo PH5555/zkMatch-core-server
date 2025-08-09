@@ -2,6 +2,7 @@ package com.zkrypto.zkMatch.domain.corporation.application.service;
 
 import com.zkrypto.zkMatch.domain.corporation.application.dto.request.CorporationCreationCommand;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.request.InterviewCreationCommand;
+import com.zkrypto.zkMatch.domain.corporation.application.dto.request.InterviewUpdateCommand;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.request.PostUpdateCommand;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.response.CorporationResponse;
 import com.zkrypto.zkMatch.domain.corporation.domain.entity.Corporation;
@@ -192,5 +193,18 @@ public class CorporationService {
         Interview interview = Interview.from(interviewCreationCommand);
         interviewRepository.save(interview);
         recruit.setInterview(interview);
+    }
+
+    /**
+     * 면접 일정 수정 메서드
+     */
+    @Transactional
+    public void updateInterview(InterviewUpdateCommand interviewUpdateCommand) {
+        // 면접 일정 조회
+        Interview interview = interviewRepository.findByRecruitId(interviewUpdateCommand.getRecruitId())
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_INTERVIEW));
+
+        // 수정
+        interview.update(interviewUpdateCommand);
     }
 }

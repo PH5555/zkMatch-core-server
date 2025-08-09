@@ -231,7 +231,8 @@ public class CorporationController {
 
     //TODO
     @PatchMapping("/recruit/interview")
-    public ApiResponse<Void> updateInterview(@RequestBody InterviewCreationCommand interviewCreationCommand) {
+    public ApiResponse<Void> updateInterview(@RequestBody InterviewUpdateCommand interviewUpdateCommand) {
+        corporationService.updateInterview(interviewUpdateCommand);
         return ApiResponse.success();
     }
 
