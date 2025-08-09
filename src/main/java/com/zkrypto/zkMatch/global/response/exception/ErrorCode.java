@@ -23,7 +23,9 @@ public enum ErrorCode {
     NOT_APPLIED_TO_POSTING("P004", HttpStatus.BAD_REQUEST, "해당 공고에 지원한 이력이 없는 멤버입니다."),
     ALREADY_PASSED("P005", HttpStatus.CONFLICT, "이미 합격한 지원자입니다."),
     ALREADY_FAILED("P006", HttpStatus.CONFLICT, "이미 탈락한 지원자입니다."),
-    NOT_PERMITTED_STATUS("P007", HttpStatus.BAD_REQUEST, "허용되지 않은 status 입니다.");
+    NOT_PERMITTED_STATUS("P007", HttpStatus.BAD_REQUEST, "허용되지 않은 status 입니다."),
+
+    NOT_FOUND_RECRUIT("R001", HttpStatus.NOT_FOUND, "지원 이력이 존재하지 않습니다.");
 
     private final String errorCode;
     private final HttpStatus httpStatus;

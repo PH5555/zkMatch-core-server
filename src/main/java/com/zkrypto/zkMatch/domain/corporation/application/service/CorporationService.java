@@ -1,10 +1,13 @@
 package com.zkrypto.zkMatch.domain.corporation.application.service;
 
 import com.zkrypto.zkMatch.domain.corporation.application.dto.request.CorporationCreationCommand;
+import com.zkrypto.zkMatch.domain.corporation.application.dto.request.InterviewCreationCommand;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.request.PostUpdateCommand;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.response.CorporationResponse;
 import com.zkrypto.zkMatch.domain.corporation.domain.entity.Corporation;
 import com.zkrypto.zkMatch.domain.corporation.domain.repository.CorporationRepository;
+import com.zkrypto.zkMatch.domain.interview.domain.entity.Interview;
+import com.zkrypto.zkMatch.domain.interview.domain.repository.InterviewRepository;
 import com.zkrypto.zkMatch.domain.member.domain.entity.Member;
 import com.zkrypto.zkMatch.domain.member.domain.repository.MemberRepository;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.UpdateApplierStatusCommand;
@@ -41,6 +44,7 @@ public class CorporationService {
     private final RecruitRepository recruitRepository;
     private final DirectExchangeService directExchangeService;
     private final S3Service s3Service;
+    private final InterviewRepository interviewRepository;
 
     /**
      * 기업 생성 메서드
@@ -168,5 +172,20 @@ public class CorporationService {
 
         // 공고 업데이트
         post.update(postUpdateCommand);
+    }
+
+    /**
+     * 면접 일정 생성 메서드
+     */
+    @Transactional
+    public void createInterview(InterviewCreationCommand interviewCreationCommand) {
+        // 지원 이력 조회
+        Recruit recruit = recruitRepository.findById(interviewCreationCommand.getRecruitId())
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_RECRUIT));
+
+        // 면접 생성
+        Interview interview = Interview.from(interviewCreationCommand);
+        interviewRepository.save(interview);
+        recruit.setInterview(interview);
     }
 }

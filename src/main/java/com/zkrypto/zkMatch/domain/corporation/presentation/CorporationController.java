@@ -148,12 +148,6 @@ public class CorporationController {
         return ApiResponse.success();
     }
 
-    //TODO
-    @PostMapping("/post/ai")
-    public ApiResponse<Void> createPostWithAi(@AuthenticationPrincipal UUID memberId, @RequestBody PostCreationAiCommand postCreationAiCommand) {
-        return ApiResponse.success();
-    }
-
     @Operation(
             summary = "채용 공고 상세 API",
             description = "해당 공고의 지원자들을 불러옵니다.",
@@ -213,6 +207,7 @@ public class CorporationController {
     //TODO
     @PostMapping("/recruit/interview")
     public ApiResponse<Void> createInterview(@RequestBody InterviewCreationCommand interviewCreationCommand) {
+        corporationService.createInterview(interviewCreationCommand);
         return ApiResponse.success();
     }
 

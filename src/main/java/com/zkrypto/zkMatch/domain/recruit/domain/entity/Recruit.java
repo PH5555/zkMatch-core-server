@@ -1,11 +1,13 @@
 package com.zkrypto.zkMatch.domain.recruit.domain.entity;
 
+import com.zkrypto.zkMatch.domain.interview.domain.entity.Interview;
 import com.zkrypto.zkMatch.domain.member.domain.entity.Member;
 import com.zkrypto.zkMatch.domain.post.domain.entity.Post;
 import com.zkrypto.zkMatch.domain.recruit.domain.constant.Status;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
@@ -29,6 +31,11 @@ public class Recruit {
     private Status status;
 
     private LocalDateTime createdAt;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "interview_id")
+    @Setter
+    private Interview interview;
 
     public Recruit(Post post, Member member) {
         this.post = post;
