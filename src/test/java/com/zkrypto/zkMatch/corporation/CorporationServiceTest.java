@@ -1,9 +1,6 @@
 package com.zkrypto.zkMatch.corporation;
 
-import com.zkrypto.zkMatch.domain.corporation.application.dto.request.CorporationCreationCommand;
-import com.zkrypto.zkMatch.domain.corporation.application.dto.request.InterviewCreationCommand;
-import com.zkrypto.zkMatch.domain.corporation.application.dto.request.InterviewUpdateCommand;
-import com.zkrypto.zkMatch.domain.corporation.application.dto.request.PostUpdateCommand;
+import com.zkrypto.zkMatch.domain.corporation.application.dto.request.*;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.response.CorporationResponse;
 import com.zkrypto.zkMatch.domain.corporation.application.service.CorporationService;
 import com.zkrypto.zkMatch.domain.corporation.domain.repository.CorporationRepository;
@@ -431,5 +428,103 @@ public class CorporationServiceTest {
         assertThat(result.getInterview().getTitle()).isEqualTo("1차면접");
         assertThat(result.getInterview().getLocation()).isEqualTo("한양대");
         assertThat(result.getStatus()).isEqualTo(Status.INTERVIEW);
+    }
+
+    @Test
+    void 지원자_평가_테스트() throws IOException {
+        // 기업 생성
+        CorporationCreationCommand corporationCreationCommand = new CorporationCreationCommand();
+        ReflectionUtil.setter(corporationCreationCommand, "corporationName", "지크립토");
+        ReflectionUtil.setter(corporationCreationCommand, "loginId", "1234");
+        ReflectionUtil.setter(corporationCreationCommand, "password", "1234");
+
+        corporationService.createCorporation(corporationCreationCommand, null);
+
+        // 관리자 조회
+        Member admin = memberRepository.findMemberByLoginId("1234").get();
+
+        // 공고 생성
+        PostCreationCommand postCreationCommand = new PostCreationCommand();
+        ReflectionUtil.setter(postCreationCommand, "title", "hi");
+        ReflectionUtil.setter(postCreationCommand, "startDate", LocalDateTime.of(2025, 1,1, 1, 1));
+        ReflectionUtil.setter(postCreationCommand, "endDate", LocalDateTime.of(2026, 1,1, 1, 1));
+        corporationService.createPost(admin.getMemberId(), postCreationCommand);
+
+        // 멤버 생성
+        Member member = new Member();
+        ReflectionUtil.setter(member, "email", "lmkn5342@gmail.com");
+        memberRepository.save(member);
+
+        // 공고 조회
+        List<PostResponse> posts = postService.getPost();
+
+        // 공고 지원
+        PostApplyCommand postApplyCommand = new PostApplyCommand();
+        ReflectionUtil.setter(postApplyCommand, "postId", posts.get(0).getPostId());
+        postService.applyPost(member.getMemberId(), postApplyCommand);
+
+        // 지원 내역 조회
+        Recruit recruit = recruitRepository.findRecruitByPostAndMember(UUID.fromString(posts.get(0).getPostId()), member).get();
+
+        // 지원자 합격
+        UpdateApplierStatusCommand updateApplierStatusCommand = new UpdateApplierStatusCommand();
+        ReflectionUtil.setter(updateApplierStatusCommand, "recruitId", recruit.getId());
+        ReflectionUtil.setter(updateApplierStatusCommand, "status", Status.PASS);
+        corporationService.updateApplierStatus(updateApplierStatusCommand);
+
+        // 지원자 평가
+        EvaluationCreationCommand evaluationCreationCommand = new EvaluationCreationCommand();
+        ReflectionUtil.setter(evaluationCreationCommand, "recruitId", recruit.getId());
+        ReflectionUtil.setter(evaluationCreationCommand, "evaluation", "good");
+        corporationService.evaluateApplier(evaluationCreationCommand);
+
+        // 검증
+        Recruit result = recruitRepository.findRecruitByPostAndMember(UUID.fromString(posts.get(0).getPostId()), member).get();
+        assertThat(result.getEvaluation()).isEqualTo("good");
+    }
+
+    @Test
+    void 지원자_평가_테스트_실패() throws IOException {
+        // 기업 생성
+        CorporationCreationCommand corporationCreationCommand = new CorporationCreationCommand();
+        ReflectionUtil.setter(corporationCreationCommand, "corporationName", "지크립토");
+        ReflectionUtil.setter(corporationCreationCommand, "loginId", "1234");
+        ReflectionUtil.setter(corporationCreationCommand, "password", "1234");
+
+        corporationService.createCorporation(corporationCreationCommand, null);
+
+        // 관리자 조회
+        Member admin = memberRepository.findMemberByLoginId("1234").get();
+
+        // 공고 생성
+        PostCreationCommand postCreationCommand = new PostCreationCommand();
+        ReflectionUtil.setter(postCreationCommand, "title", "hi");
+        ReflectionUtil.setter(postCreationCommand, "startDate", LocalDateTime.of(2025, 1,1, 1, 1));
+        ReflectionUtil.setter(postCreationCommand, "endDate", LocalDateTime.of(2026, 1,1, 1, 1));
+        corporationService.createPost(admin.getMemberId(), postCreationCommand);
+
+        // 멤버 생성
+        Member member = new Member();
+        ReflectionUtil.setter(member, "email", "lmkn5342@gmail.com");
+        memberRepository.save(member);
+
+        // 공고 조회
+        List<PostResponse> posts = postService.getPost();
+
+        // 공고 지원
+        PostApplyCommand postApplyCommand = new PostApplyCommand();
+        ReflectionUtil.setter(postApplyCommand, "postId", posts.get(0).getPostId());
+        postService.applyPost(member.getMemberId(), postApplyCommand);
+
+        // 지원 내역 조회
+        Recruit recruit = recruitRepository.findRecruitByPostAndMember(UUID.fromString(posts.get(0).getPostId()), member).get();
+
+        // 지원자 평가
+        EvaluationCreationCommand evaluationCreationCommand = new EvaluationCreationCommand();
+        ReflectionUtil.setter(evaluationCreationCommand, "recruitId", recruit.getId());
+        ReflectionUtil.setter(evaluationCreationCommand, "evaluation", "good");
+        
+        Assertions.assertThatThrownBy(() -> corporationService.evaluateApplier(evaluationCreationCommand))
+                .hasMessageContaining("평가 대상이 아닙니다.");
     }
 }
