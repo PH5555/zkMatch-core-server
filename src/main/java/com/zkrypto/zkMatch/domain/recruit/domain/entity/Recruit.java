@@ -36,6 +36,9 @@ public class Recruit {
     @JoinColumn(name = "interview_id")
     private Interview interview;
 
+    @Setter
+    private String evaluation;
+
     public Recruit(Post post, Member member) {
         this.post = post;
         this.member = member;

@@ -1,9 +1,6 @@
 package com.zkrypto.zkMatch.domain.corporation.application.service;
 
-import com.zkrypto.zkMatch.domain.corporation.application.dto.request.CorporationCreationCommand;
-import com.zkrypto.zkMatch.domain.corporation.application.dto.request.InterviewCreationCommand;
-import com.zkrypto.zkMatch.domain.corporation.application.dto.request.InterviewUpdateCommand;
-import com.zkrypto.zkMatch.domain.corporation.application.dto.request.PostUpdateCommand;
+import com.zkrypto.zkMatch.domain.corporation.application.dto.request.*;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.response.CorporationResponse;
 import com.zkrypto.zkMatch.domain.corporation.domain.entity.Corporation;
 import com.zkrypto.zkMatch.domain.corporation.domain.repository.CorporationRepository;
@@ -206,5 +203,23 @@ public class CorporationService {
 
         // 수정
         interview.update(interviewUpdateCommand);
+    }
+
+    /**
+     * 지원자 평가 메서드
+     */
+    @Transactional
+    public void evaluateApplier(EvaluationCreationCommand evaluationCreationCommand) {
+        // 지원 이력 조회
+        Recruit recruit = recruitRepository.findById(evaluationCreationCommand.getRecruitId())
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_RECRUIT));
+
+        // 평가 대상자인지 확인
+        if(recruit.getStatus() != Status.PASS) {
+            throw new CustomException(ErrorCode.NOT_EVALUATE_TARGET);
+        }
+
+        // 평가 생성
+        recruit.setEvaluation(evaluationCreationCommand.getEvaluation());
     }
 }

@@ -198,9 +198,34 @@ public class CorporationController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
                     content = {@Content(schema = @Schema(implementation = Void.class))}),
     })
-    @PutMapping("/recruit")
+    @PatchMapping("/recruit")
     public ApiResponse<Void> updateApplierStatus(@RequestBody UpdateApplierStatusCommand updateApplierStatusCommand){
         corporationService.updateApplierStatus(updateApplierStatusCommand);
+        return ApiResponse.success();
+    }
+
+    @Operation(
+            summary = "지원자 평가 API",
+            description = "지원자를 평가합니다. 평가는 합격자를 대상으로만 할 수 있습니다.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            },
+            parameters = {
+                    @Parameter(
+                            in = ParameterIn.HEADER,
+                            name = "Authorization",
+                            description = "Bearer 토큰(ADMIN)",
+                            required = true
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
+                    content = {@Content(schema = @Schema(implementation = Void.class))}),
+    })
+    @PatchMapping("/recruit/evaluation")
+    public ApiResponse<Void> evaluateApplier(@RequestBody EvaluationCreationCommand evaluationCreationCommand) {
+        corporationService.evaluateApplier(evaluationCreationCommand);
         return ApiResponse.success();
     }
 
@@ -229,16 +254,28 @@ public class CorporationController {
         return ApiResponse.success();
     }
 
-    //TODO
+    @Operation(
+            summary = "면접 일정 수정 API",
+            description = "면접 일정을 수정합니다.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            },
+            parameters = {
+                    @Parameter(
+                            in = ParameterIn.HEADER,
+                            name = "Authorization",
+                            description = "Bearer 토큰(ADMIN)",
+                            required = true
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
+                    content = {@Content(schema = @Schema(implementation = Void.class))}),
+    })
     @PatchMapping("/recruit/interview")
     public ApiResponse<Void> updateInterview(@RequestBody InterviewUpdateCommand interviewUpdateCommand) {
         corporationService.updateInterview(interviewUpdateCommand);
-        return ApiResponse.success();
-    }
-
-    //TODO
-    @PostMapping("/recruit/evaluate")
-    public ApiResponse<Void> evaluateApplier(@RequestBody EvaluationCreationCommand interviewCreationCommand) {
         return ApiResponse.success();
     }
 
