@@ -34,7 +34,6 @@ public class Recruit {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "interview_id")
-    @Setter
     private Interview interview;
 
     public Recruit(Post post, Member member) {
@@ -46,5 +45,10 @@ public class Recruit {
 
     public void updateStatus(Status status) {
         this.status = status;
+    }
+
+    public void setInterview(Interview interview) {
+        this.interview = interview;
+        this.status = Status.INTERVIEW;
     }
 }

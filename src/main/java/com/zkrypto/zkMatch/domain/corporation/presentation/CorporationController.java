@@ -204,7 +204,25 @@ public class CorporationController {
         return ApiResponse.success();
     }
 
-    //TODO
+    @Operation(
+            summary = "면접 일정 생성 API",
+            description = "면접 일정을 생성합니다.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            },
+            parameters = {
+                    @Parameter(
+                            in = ParameterIn.HEADER,
+                            name = "Authorization",
+                            description = "Bearer 토큰(ADMIN)",
+                            required = true
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
+                    content = {@Content(schema = @Schema(implementation = Void.class))}),
+    })
     @PostMapping("/recruit/interview")
     public ApiResponse<Void> createInterview(@RequestBody InterviewCreationCommand interviewCreationCommand) {
         corporationService.createInterview(interviewCreationCommand);

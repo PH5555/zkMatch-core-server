@@ -184,7 +184,7 @@ public class CorporationService {
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_RECRUIT));
 
         // 면접 이력 조회
-        if(recruit.getInterview() != null) {
+        if(recruit.getStatus() == Status.INTERVIEW) {
             throw new CustomException(ErrorCode.ALREADY_HAS_INTERVIEW);
         }
 
