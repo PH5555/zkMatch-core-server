@@ -3,6 +3,7 @@ package com.zkrypto.zkMatch.domain.member.application.service;
 import com.zkrypto.zkMatch.domain.member.application.dto.request.ResumeCreationCommand;
 import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberPostResponse;
 import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberResponse;
+import com.zkrypto.zkMatch.domain.resume.domain.constant.BaseVc;
 import com.zkrypto.zkMatch.domain.resume.domain.entity.Resume;
 import com.zkrypto.zkMatch.domain.resume.domain.repository.ResumeRepository;
 import com.zkrypto.zkMatch.domain.scrab.application.dto.response.ScrabResponse;
@@ -12,6 +13,7 @@ import com.zkrypto.zkMatch.domain.recruit.domain.entity.Recruit;
 import com.zkrypto.zkMatch.domain.recruit.domain.repository.RecruitRepository;
 import com.zkrypto.zkMatch.domain.scrab.domain.entity.Scrab;
 import com.zkrypto.zkMatch.domain.scrab.domain.repository.ScrabRepository;
+import com.zkrypto.zkMatch.global.crypto.AesUtil;
 import com.zkrypto.zkMatch.global.file.S3Service;
 import com.zkrypto.zkMatch.global.response.exception.CustomException;
 import com.zkrypto.zkMatch.global.response.exception.ErrorCode;
@@ -106,8 +108,13 @@ public class MemberService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
 
+        // 데이터 형식 확인
+        if(!BaseVc.checkVcFormat(resumeCreationCommand.getData(), resumeCreationCommand.getResumeType())) {
+            throw new CustomException(ErrorCode.INVALID_VC_FORMAT);
+        }
+
         // 데이터 암호화
-        String encData = "";
+        String encData = AesUtil.encrypt(resumeCreationCommand.getData(), member.getSalt());
 
         // 이력서 저장
         Resume resume = Resume.from(resumeCreationCommand, encData, member);

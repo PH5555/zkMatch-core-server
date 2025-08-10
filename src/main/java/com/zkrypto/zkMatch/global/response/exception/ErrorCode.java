@@ -29,9 +29,14 @@ public enum ErrorCode {
 
     NOT_FOUND_RECRUIT("R001", HttpStatus.NOT_FOUND, "지원 이력이 존재하지 않습니다."),
     NOT_EVALUATE_TARGET("R002", HttpStatus.CONFLICT, "평가 대상이 아닙니다."),
+    INVALID_VC_FORMAT("R003", HttpStatus.CONFLICT, "유효하지 않은 VC 포맷입니다."),
 
     NOT_FOUND_INTERVIEW("I001", HttpStatus.NOT_FOUND, "면접 일정이 존재하지 않습니다."),
     ALREADY_HAS_INTERVIEW("I002", HttpStatus.CONFLICT, "이미 면접 일정이 존재합니다."),
+
+    FAILED_ENC("C001", HttpStatus.BAD_REQUEST, "암호화에 실패했습니다."),
+    FAILED_DEC("C002", HttpStatus.BAD_REQUEST, "복호화에 실패했습니다."),
+    FAILED_DERIVEKEY("C003", HttpStatus.BAD_REQUEST, "키복구에 실패했습니다."),
     ;
 
 
