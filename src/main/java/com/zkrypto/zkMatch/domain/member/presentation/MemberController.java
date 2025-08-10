@@ -3,6 +3,7 @@ package com.zkrypto.zkMatch.domain.member.presentation;
 import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberPostResponse;
 import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberResponse;
 import com.zkrypto.zkMatch.domain.member.application.service.MemberService;
+import com.zkrypto.zkMatch.domain.scrab.application.dto.response.ScrabResponse;
 import com.zkrypto.zkMatch.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -78,6 +79,25 @@ public class MemberController {
         return ApiResponse.success(memberService.getMember(memberId));
     }
 
+    @Operation(
+        summary = "포트폴리오 업로드 API",
+        description = "포트폴리오를 업로드 합니다.",
+        security = {
+                @SecurityRequirement(name = "bearerAuth")
+        },
+        parameters = {
+                @Parameter(
+                        in = ParameterIn.HEADER,
+                        name = "Authorization",
+                        description = "Bearer 토큰",
+                        required = true
+                )
+        }
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
+                    content = {@Content(schema = @Schema(implementation = Void.class))}),
+    })
     @PostMapping("/portfolio")
     public ApiResponse<Void> uploadPortfolio(@AuthenticationPrincipal UUID memberId, @RequestPart("file") MultipartFile file) throws IOException {
         memberService.uploadPortfolio(memberId, file);
@@ -104,7 +124,80 @@ public class MemberController {
                     content = {@Content(array = @ArraySchema(schema = @Schema(implementation = MemberPostResponse.class)))}),
     })
     @GetMapping("/post")
+    // TODO: 필터링
     public ApiResponse<List<MemberPostResponse>> getMemberPost(@AuthenticationPrincipal UUID memberId) {
         return ApiResponse.success(memberService.getPost(memberId));
+    }
+
+    @Operation(
+            summary = "스크랩 공고 조회 API",
+            description = "내가 스크랩한 공고를 조회합니다.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            },
+            parameters = {
+                    @Parameter(
+                            in = ParameterIn.HEADER,
+                            name = "Authorization",
+                            description = "Bearer 토큰",
+                            required = true
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
+                    content = {@Content(array = @ArraySchema(schema = @Schema(implementation = ScrabResponse.class)))}),
+    })
+    @GetMapping("/scrab")
+    public ApiResponse<List<ScrabResponse>> getMemberScrab(@AuthenticationPrincipal UUID memberId) {;
+        return ApiResponse.success(memberService.getScrab(memberId));
+    }
+
+    // TODO
+    @PostMapping("/resume/did")
+    public ApiResponse<Void> createMemberResumeByDid() {
+        return ApiResponse.success();
+    }
+
+    // TODO
+    @PostMapping("/resume")
+    public ApiResponse<Void> createMemberResume() {
+        return ApiResponse.success();
+    }
+
+    // TODO
+    @GetMapping("/resume")
+    public ApiResponse<Void> getMemberResume() {
+        return ApiResponse.success();
+    }
+
+    // TODO
+    @PatchMapping("/resume")
+    public ApiResponse<Void> updateMemberResume() {
+        return ApiResponse.success();
+    }
+
+    // TODO
+    @DeleteMapping("/resume")
+    public ApiResponse<Void> deleteMemberResume() {
+        return ApiResponse.success();
+    }
+
+    // TODO
+    @GetMapping("/offer")
+    public ApiResponse<Void> getMemberOffer() {
+        return ApiResponse.success();
+    }
+
+    // TODO
+    @DeleteMapping("/offer")
+    public ApiResponse<Void> rejectMemberOffer() {
+        return ApiResponse.success();
+    }
+
+    // TODO
+    @PatchMapping("/offer")
+    public ApiResponse<Void> allowMemberOffer() {
+        return ApiResponse.success();
     }
 }

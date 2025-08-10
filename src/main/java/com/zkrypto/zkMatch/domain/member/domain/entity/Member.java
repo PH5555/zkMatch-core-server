@@ -4,7 +4,6 @@ import com.zkrypto.zkMatch.domain.auth.application.dto.request.SignUpCommand;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.request.CorporationCreationCommand;
 import com.zkrypto.zkMatch.domain.corporation.domain.entity.Corporation;
 import com.zkrypto.zkMatch.domain.member.domain.constant.Role;
-import com.zkrypto.zkMatch.domain.portfolio.domain.entity.Portfolio;
 import com.zkrypto.zkMatch.global.utils.StringListConverter;
 import jakarta.persistence.*;
 import lombok.Getter;

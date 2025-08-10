@@ -29,30 +29,6 @@ public class ScrabController {
     private final ScrabService scrabService;
 
     @Operation(
-            summary = "스크랩 공고 조회 API",
-            description = "내가 스크랩한 공고를 조회합니다.",
-            security = {
-                    @SecurityRequirement(name = "bearerAuth")
-            },
-            parameters = {
-                    @Parameter(
-                            in = ParameterIn.HEADER,
-                            name = "Authorization",
-                            description = "Bearer 토큰",
-                            required = true
-                    )
-            }
-    )
-    @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
-                    content = {@Content(array = @ArraySchema(schema = @Schema(implementation = ScrabResponse.class)))}),
-    })
-    @GetMapping()
-    public ApiResponse<List<ScrabResponse>> getMemberScrab(@AuthenticationPrincipal UUID memberId) {;
-        return ApiResponse.success(scrabService.getScrab(memberId));
-    }
-
-    @Operation(
             summary = "공고 스크랩 API",
             description = "해당 공고를 스크랩한 공고로 등록합니다.",
             security = {

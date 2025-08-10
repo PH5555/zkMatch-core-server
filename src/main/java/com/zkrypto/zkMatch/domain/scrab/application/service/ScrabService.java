@@ -25,20 +25,6 @@ public class ScrabService {
     private final ScrabRepository scrabRepository;
 
     /**
-     * 스크랩 공고 조회 메서드
-     */
-    public List<ScrabResponse> getScrab(UUID memberId) {
-        // 멤버 존재 확인
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
-
-        // 스크랩 내역 조회
-        List<Scrab> scrabs = scrabRepository.findByMember(member);
-
-        return scrabs.stream().map(ScrabResponse::from).toList();
-    }
-
-    /**
      * 공고 스크랩 메서드
      */
     public void scrabPost(UUID memberId, ScrabCommand scrabCommand) {
