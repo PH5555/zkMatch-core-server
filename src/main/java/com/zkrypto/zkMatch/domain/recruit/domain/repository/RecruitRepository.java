@@ -21,9 +21,12 @@ public interface RecruitRepository extends JpaRepository<Recruit, Long> {
     @Query("select recruit from Recruit recruit left join fetch recruit.member where recruit.post = :post")
     List<Recruit> findByPostWithMember(@Param("post") Post post);
 
-    @Query("select recruit from Recruit recruit left join fetch recruit.member where recruit.post = :post and recruit.member.memberId = :memberId")
-    Optional<Recruit> findRecruitByMemberAndPost(@Param("memberId") UUID memberId, @Param("post") Post post);
-
     @Query("select recruit from Recruit recruit inner join fetch recruit.post where recruit.member = :member")
     List<Recruit> findByMemberWithPost(@Param("member") Member member);
+
+    @Query("select recruit from Recruit recruit inner join fetch recruit.member inner join fetch recruit.post where recruit.id = :recruitId")
+    Optional<Recruit> findRecruitByIdWithMemberAndPost(@Param("recruitId") Long recruitId);
+
+    @Query("select recruit from Recruit recruit where recruit.post.postId = :id and recruit.member = :member")
+    Optional<Recruit> findRecruitByPostAndMember(@Param("id") UUID id, Member member);
 }

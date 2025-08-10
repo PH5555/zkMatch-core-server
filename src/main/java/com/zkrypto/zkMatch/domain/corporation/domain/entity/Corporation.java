@@ -16,23 +16,33 @@ public class Corporation {
     private UUID corporationId;
 
     private String corporationName;
-    private String registerNumber;
-    private String ceoName;
+    private String corporationType;
+    private String corporationUrl;
+    private String registerFile;
     private String corporationAddress;
+    private String industryType;
 
     @OneToOne(mappedBy = "corporation", cascade = CascadeType.PERSIST)
     private Member member;
 
-    private Corporation(String corporationName, String registerNumber, String ceoName, String corporationAddress, Member member) {
+    private Corporation(String corporationName, String corporationType, String corporationUrl, String registerFile, String industryType, String corporationAddress, Member member) {
         this.corporationName = corporationName;
-        this.registerNumber = registerNumber;
-        this.ceoName = ceoName;
         this.corporationAddress = corporationAddress;
         this.member = member;
+        this.corporationType = corporationType;
+        this.corporationUrl = corporationUrl;
+        this.registerFile = registerFile;
+        this.industryType = industryType;
     }
 
-    public static Corporation from(CorporationCreationCommand command, Member member) {
-        Corporation corporation = new Corporation(command.getCorporationName(), command.getCorporationRegisterNumber(), command.getCeoName(), command.getCorporationAddress(), member);
+    public static Corporation from(CorporationCreationCommand command, String registerFileUrl, Member member) {
+        Corporation corporation = new Corporation(
+                command.getCorporationName(),
+                command.getCorporationType(),
+                command.getCorporationUrl(),
+                registerFileUrl,
+                command.getIndustryType(),
+                command.getCorporationAddress(), member);
         member.setCorporation(corporation);
         return corporation;
     }

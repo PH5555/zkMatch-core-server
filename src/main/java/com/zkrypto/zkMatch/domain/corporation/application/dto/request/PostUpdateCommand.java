@@ -1,13 +1,13 @@
-package com.zkrypto.zkMatch.domain.post.application.dto.request;
+package com.zkrypto.zkMatch.domain.corporation.application.dto.request;
 
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @Getter
-public class PostCreationCommand {
+public class PostUpdateCommand {
+    private String postId;
     private String title;
     private String content;
     private LocalDateTime startDate;

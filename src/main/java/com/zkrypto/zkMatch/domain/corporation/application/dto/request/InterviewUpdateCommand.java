@@ -5,7 +5,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-public class InterviewCreationCommand {
+public class InterviewUpdateCommand {
     private Long recruitId;
     private String title;
     private LocalDateTime startDate;
