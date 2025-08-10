@@ -5,11 +5,13 @@ import com.zkrypto.zkMatch.domain.corporation.application.dto.request.Corporatio
 import com.zkrypto.zkMatch.domain.corporation.domain.entity.Corporation;
 import com.zkrypto.zkMatch.domain.member.domain.constant.Role;
 import com.zkrypto.zkMatch.domain.portfolio.domain.entity.Portfolio;
+import com.zkrypto.zkMatch.global.utils.StringListConverter;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -29,8 +31,11 @@ public class Member {
     private String gender;
     private String email;
     private String phoneNumber;
+    private String ci;
     private String portfolioUrl;
-    private String interests;
+
+    @Convert(converter = StringListConverter.class)
+    private List<String> interests;
     private String refreshToken;
 
     @Setter
@@ -38,15 +43,17 @@ public class Member {
     @JoinColumn(name = "corporation_id")
     private Corporation corporation;
 
-    @Setter
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "portfolio_id")
-    private Portfolio portfolio;
-
-    private Member(Role role, String loginId, String password) {
+    public Member(Role role, String loginId, String password, String name, String birth, String gender, String email, String phoneNumber, List<String> interests, String ci) {
         this.role = role;
         this.loginId = loginId;
         this.password = password;
+        this.name = name;
+        this.birth = birth;
+        this.gender = gender;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.interests = interests;
+        this.ci = ci;
     }
 
     private Member(Role role, String loginId, String password, String name, String email, String phoneNumber) {
@@ -67,9 +74,18 @@ public class Member {
     }
 
     public static Member from(SignUpCommand signUpCommand, String hashedPassword) {
-        Member member = new Member(Role.ROLE_USER, signUpCommand.getLoginId(), hashedPassword);
-        member.setPortfolio(new Portfolio());
-        return member;
+        return new Member(
+                Role.ROLE_USER,
+                signUpCommand.getLoginId(),
+                hashedPassword,
+                signUpCommand.getName(),
+                signUpCommand.getBirth(),
+                signUpCommand.getGender(),
+                signUpCommand.getEmail(),
+                signUpCommand.getPhoneNumber(),
+                signUpCommand.getInterests(),
+                signUpCommand.getCi()
+        );
     }
 
     public static Member from(CorporationCreationCommand corporationCreationCommand, String hashedPassword) {

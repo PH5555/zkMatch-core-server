@@ -7,6 +7,7 @@ import com.zkrypto.zkMatch.domain.auth.application.dto.response.AuthTokenRespons
 import com.zkrypto.zkMatch.domain.member.domain.entity.Member;
 import com.zkrypto.zkMatch.domain.member.domain.repository.MemberRepository;
 import com.zkrypto.zkMatch.global.jwt.JwtTokenHandler;
+import com.zkrypto.zkMatch.global.redis.RedisService;
 import com.zkrypto.zkMatch.global.response.exception.CustomException;
 import com.zkrypto.zkMatch.global.response.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenHandler jwtTokenHandler;
+    private final RedisService redisService;
 
     /**
      *  회원 가입 메서드
@@ -29,6 +31,12 @@ public class AuthService {
         // 아이디 중복 확인
         if(memberRepository.existsByLoginId(signUpCommand.getLoginId())) {
            throw new CustomException(ErrorCode.ID_DUPLICATION);
+        }
+
+        // 이메일 인증번호 확인
+        String authKey = redisService.getData(signUpCommand.getCi()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_AUTH_NUMBER));
+        if(!authKey.equals(signUpCommand.getEmailAuthNumber())) {
+            throw new CustomException(ErrorCode.INVALID_EMAIL_AUTH);
         }
 
         // 비밀번호 암호화
