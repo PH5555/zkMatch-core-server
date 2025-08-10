@@ -100,12 +100,12 @@ public class CorporationService {
     /**
      * 기업 공고 조회 메서드
      */
-    public List<CorporationPostResponse> getCorporationPost(UUID memberId) {
+    public List<CorporationPostResponse> getCorporationPost(UUID memberId, String keyword) {
         // 멤버 존재 확인
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
 
-        List<Post> posts = postRepository.findPostByCorporation(member.getCorporation());
+        List<Post> posts = postRepository.findPostWithKeyword(member.getCorporation(), keyword);
         return posts.stream().map(this::toCorporationPostResponse).toList();
     }
 

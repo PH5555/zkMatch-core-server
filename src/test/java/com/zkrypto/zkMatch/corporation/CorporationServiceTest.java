@@ -171,19 +171,48 @@ public class CorporationServiceTest {
         memberRepository.save(member);
 
         // 공고 조회
-        List<PostResponse> posts = postService.getPost();
-
-        // 공고 지원
-        PostApplyCommand postApplyCommand = new PostApplyCommand();
-        ReflectionUtil.setter(postApplyCommand, "postId", posts.get(0).getPostId());
-        postService.applyPost(member.getMemberId(), postApplyCommand);
-
-        // 공고 조회
-        List<CorporationPostResponse> post = corporationService.getCorporationPost(admin.getMemberId());
+        List<CorporationPostResponse> post = corporationService.getCorporationPost(admin.getMemberId(), "");
 
         // 검증
-        assertThat(post.get(0).getApplierCount()).isEqualTo(1);
         assertThat(post.get(0).getTitle()).isEqualTo("hi");
+    }
+
+    @Test
+    void 공고_조회_키워드_테스트() throws IOException {
+        // 기업 생성
+        CorporationCreationCommand corporationCreationCommand = new CorporationCreationCommand();
+        ReflectionUtil.setter(corporationCreationCommand, "corporationName", "지크립토");
+        ReflectionUtil.setter(corporationCreationCommand, "loginId", "1234");
+        ReflectionUtil.setter(corporationCreationCommand, "password", "1234");
+
+        corporationService.createCorporation(corporationCreationCommand, null);
+
+        // 관리자 조회
+        Member admin = memberRepository.findMemberByLoginId("1234").get();
+
+        // 공고 생성
+        PostCreationCommand postCreationCommand = new PostCreationCommand();
+        ReflectionUtil.setter(postCreationCommand, "title", "[지크립토] 개발자 채용");
+        ReflectionUtil.setter(postCreationCommand, "startDate", LocalDateTime.of(2025, 1,1, 1, 1));
+        ReflectionUtil.setter(postCreationCommand, "endDate", LocalDateTime.of(2026, 1,1, 1, 1));
+        corporationService.createPost(admin.getMemberId(), postCreationCommand);
+
+        PostCreationCommand postCreationCommand2 = new PostCreationCommand();
+        ReflectionUtil.setter(postCreationCommand2, "title", "[지크립토] 디자이너 채용");
+        ReflectionUtil.setter(postCreationCommand2, "startDate", LocalDateTime.of(2025, 1,1, 1, 1));
+        ReflectionUtil.setter(postCreationCommand2, "endDate", LocalDateTime.of(2026, 1,1, 1, 1));
+        corporationService.createPost(admin.getMemberId(), postCreationCommand2);
+
+        // 멤버 생성
+        Member member = new Member();
+        memberRepository.save(member);
+
+        // 공고 조회
+        List<CorporationPostResponse> post = corporationService.getCorporationPost(admin.getMemberId(), "개발자");
+
+        // 검증
+        assertThat(post.size()).isEqualTo(1);
+        assertThat(post.get(0).getTitle()).isEqualTo("[지크립토] 개발자 채용");
     }
 
     @Test

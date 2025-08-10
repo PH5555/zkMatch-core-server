@@ -92,10 +92,9 @@ public class CorporationController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
                     content = {@Content(array = @ArraySchema(schema = @Schema(implementation = CorporationPostResponse.class)))}),
     })
-    //TODO : 검색 키워드 추가
     @GetMapping("/post")
-    public ApiResponse<List<CorporationPostResponse>> getPost(@AuthenticationPrincipal UUID memberId){
-        return ApiResponse.success(corporationService.getCorporationPost(memberId));
+    public ApiResponse<List<CorporationPostResponse>> getPost(@AuthenticationPrincipal UUID memberId, @RequestParam(value = "keyword", required = false, defaultValue = "") String keyword){
+        return ApiResponse.success(corporationService.getCorporationPost(memberId, keyword));
     }
 
     @Operation(
@@ -149,7 +148,7 @@ public class CorporationController {
     }
 
     @Operation(
-            summary = "채용 공고 상세 API",
+            summary = "지원자 조회 API",
             description = "해당 공고의 지원자들을 불러옵니다.",
             security = {
                     @SecurityRequirement(name = "bearerAuth")
