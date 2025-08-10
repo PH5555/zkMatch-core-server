@@ -4,6 +4,7 @@ import com.zkrypto.zkMatch.domain.auth.application.dto.request.SignUpCommand;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.request.CorporationCreationCommand;
 import com.zkrypto.zkMatch.domain.corporation.domain.entity.Corporation;
 import com.zkrypto.zkMatch.domain.member.domain.constant.Role;
+import com.zkrypto.zkMatch.global.crypto.SaltUtil;
 import com.zkrypto.zkMatch.global.utils.StringListConverter;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -56,6 +57,7 @@ public class Member {
         this.phoneNumber = phoneNumber;
         this.interests = interests;
         this.ci = ci;
+        this.salt = SaltUtil.generateSalt();
     }
 
     private Member(Role role, String loginId, String password, String name, String email, String phoneNumber) {
