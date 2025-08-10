@@ -31,6 +31,7 @@ public class Member {
     private String email;
     private String phoneNumber;
     private String ci;
+    private String salt;
 
     @Setter
     private String portfolioUrl;

@@ -1,5 +1,6 @@
 package com.zkrypto.zkMatch.domain.member.presentation;
 
+import com.zkrypto.zkMatch.domain.member.application.dto.request.ResumeCreationCommand;
 import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberPostResponse;
 import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberResponse;
 import com.zkrypto.zkMatch.domain.member.application.service.MemberService;
@@ -124,7 +125,6 @@ public class MemberController {
                     content = {@Content(array = @ArraySchema(schema = @Schema(implementation = MemberPostResponse.class)))}),
     })
     @GetMapping("/post")
-    // TODO: 필터링
     public ApiResponse<List<MemberPostResponse>> getMemberPost(@AuthenticationPrincipal UUID memberId) {
         return ApiResponse.success(memberService.getPost(memberId));
     }
@@ -159,9 +159,9 @@ public class MemberController {
         return ApiResponse.success();
     }
 
-    // TODO
     @PostMapping("/resume")
-    public ApiResponse<Void> createMemberResume() {
+    public ApiResponse<Void> createMemberResume(@AuthenticationPrincipal UUID memberId, ResumeCreationCommand resumeCreationCommand) {
+        memberService.createMemberResume(memberId, resumeCreationCommand);
         return ApiResponse.success();
     }
 

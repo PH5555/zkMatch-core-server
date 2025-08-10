@@ -1,18 +1,34 @@
 package com.zkrypto.zkMatch.domain.resume.domain.entity;
 
+import com.zkrypto.zkMatch.domain.member.application.dto.request.ResumeCreationCommand;
 import com.zkrypto.zkMatch.domain.member.domain.entity.Member;
 import com.zkrypto.zkMatch.domain.resume.domain.constant.ResumeType;
 import jakarta.persistence.*;
+import lombok.NoArgsConstructor;
 
 @Entity
+@NoArgsConstructor
 public class Resume {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long resumeId;
+
+    @Enumerated(EnumType.STRING)
     private ResumeType resumeType;
-    private String enc_data;
+    private String encData;
     private String did;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    public Resume(ResumeType resumeType, String encData, String did, Member member) {
+        this.resumeType = resumeType;
+        this.encData = encData;
+        this.did = did;
+        this.member = member;
+    }
+
+    public static Resume from(ResumeCreationCommand command, String data, Member member) {
+        return new Resume(command.getResumeType(), data, null, member);
+    }
 }

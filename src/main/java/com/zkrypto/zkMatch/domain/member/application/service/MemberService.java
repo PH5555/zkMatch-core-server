@@ -1,7 +1,10 @@
 package com.zkrypto.zkMatch.domain.member.application.service;
 
+import com.zkrypto.zkMatch.domain.member.application.dto.request.ResumeCreationCommand;
 import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberPostResponse;
 import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberResponse;
+import com.zkrypto.zkMatch.domain.resume.domain.entity.Resume;
+import com.zkrypto.zkMatch.domain.resume.domain.repository.ResumeRepository;
 import com.zkrypto.zkMatch.domain.scrab.application.dto.response.ScrabResponse;
 import com.zkrypto.zkMatch.domain.member.domain.entity.Member;
 import com.zkrypto.zkMatch.domain.member.domain.repository.MemberRepository;
@@ -28,6 +31,7 @@ public class MemberService {
     private final RecruitRepository recruitRepository;
     private final S3Service s3Service;
     private final ScrabRepository scrabRepository;
+    private final ResumeRepository resumeRepository;
 
     /**
      * 멤버 조회 메서드
@@ -92,5 +96,21 @@ public class MemberService {
         List<Scrab> scrabs = scrabRepository.findByMember(member);
 
         return scrabs.stream().map(ScrabResponse::from).toList();
+    }
+
+    /**
+     * 이력 생성 메서드
+     */
+    public void createMemberResume(UUID memberId, ResumeCreationCommand resumeCreationCommand) {
+        // 멤버 존재 확인
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
+
+        // 데이터 암호화
+        String encData = "";
+
+        // 이력서 저장
+        Resume resume = Resume.from(resumeCreationCommand, encData, member);
+        resumeRepository.save(resume);
     }
 }
