@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface PostRepository extends JpaRepository<Post, UUID> {
+public interface PostRepository extends JpaRepository<Post, UUID>, PostCustomRepository {
     List<Post> findPostByCorporation(Corporation corporation);
 
     @Query("select post from Post post left join fetch post.corporation")
@@ -17,4 +17,6 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
 
     @Query("select post from Post post left join fetch post.corporation where post.postId = :postId")
     Optional<Post> findByIdWithCorporation(@Param("postId") UUID postId);
+
+    List<Post> findPostByCorporationAndTitleContaining(Corporation corporation, String title);
 }
