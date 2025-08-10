@@ -76,29 +76,29 @@ public class PortfolioController {
 
     }
 
-    @Operation(
-            summary = "자기소개서 업로드 API",
-            description = "자기소개서를 업로드 합니다.",
-            security = {
-                    @SecurityRequirement(name = "bearerAuth")
-            },
-            parameters = {
-                    @Parameter(
-                            in = ParameterIn.HEADER,
-                            name = "Authorization",
-                            description = "Bearer 토큰",
-                            required = true
-                    )
-            }
-    )
-    @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
-                    content = {@Content(schema = @Schema(implementation = Void.class))}),
-    })
-    @PostMapping("/statement")
-    public ApiResponse<Void> uploadPersonalStatement(@AuthenticationPrincipal UUID memberId, @RequestPart("file") MultipartFile file) throws IOException {
-        portfolioService.uploadPersonalStatement(memberId, file);
-        return ApiResponse.success();
-    }
+//    @Operation(
+//            summary = "자기소개서 업로드 API",
+//            description = "자기소개서를 업로드 합니다.",
+//            security = {
+//                    @SecurityRequirement(name = "bearerAuth")
+//            },
+//            parameters = {
+//                    @Parameter(
+//                            in = ParameterIn.HEADER,
+//                            name = "Authorization",
+//                            description = "Bearer 토큰",
+//                            required = true
+//                    )
+//            }
+//    )
+//    @ApiResponses(value = {
+//            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
+//                    content = {@Content(schema = @Schema(implementation = Void.class))}),
+//    })
+//    @PostMapping("/statement")
+//    public ApiResponse<Void> uploadPersonalStatement(@AuthenticationPrincipal UUID memberId, @RequestPart("file") MultipartFile file) throws IOException {
+//        portfolioService.uploadPersonalStatement(memberId, file);
+//        return ApiResponse.success();
+//    }
 
 }

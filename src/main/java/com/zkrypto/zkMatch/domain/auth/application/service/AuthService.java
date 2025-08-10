@@ -48,6 +48,9 @@ public class AuthService {
         // 비밀번호 암호화
         String hashedPassword = passwordEncoder.encode(signUpCommand.getPassword());
 
+        // redis에서 키 삭제
+        redisService.deleteData(signUpCommand.getCi());
+
         // 유저 생성
         Member member = Member.from(signUpCommand, hashedPassword);
         memberRepository.save(member);

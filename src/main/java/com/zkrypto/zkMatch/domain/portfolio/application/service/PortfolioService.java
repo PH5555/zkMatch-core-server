@@ -24,16 +24,16 @@ public class PortfolioService {
     /**
      * 자기소개서 업로드 메서드
      */
-    @Transactional
-    public void uploadPersonalStatement(UUID memberId, MultipartFile file) throws IOException {
-        // 멤버 조회
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
-
-        // 파일 업로드
-        String url = s3Service.uploadFile(file);
-
-        // 자기소개서 등록
-        member.getPortfolio().setPersonalStatement(url);
-    }
+//    @Transactional
+//    public void uploadPersonalStatement(UUID memberId, MultipartFile file) throws IOException {
+//        // 멤버 조회
+//        Member member = memberRepository.findById(memberId)
+//                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
+//
+//        // 파일 업로드
+//        String url = s3Service.uploadFile(file);
+//
+//        // 자기소개서 등록
+//        member.getPortfolio().setPersonalStatement(url);
+//    }
 }
