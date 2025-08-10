@@ -32,6 +32,8 @@ public class Member {
     private String email;
     private String phoneNumber;
     private String ci;
+
+    @Setter
     private String portfolioUrl;
 
     @Convert(converter = StringListConverter.class)
