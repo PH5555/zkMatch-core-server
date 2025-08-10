@@ -1,5 +1,6 @@
 package com.zkrypto.zkMatch.domain.auth.application.service;
 
+import com.zkrypto.zkMatch.domain.auth.application.dto.request.EmailVerificationCommand;
 import com.zkrypto.zkMatch.domain.auth.application.dto.request.ReissueCommand;
 import com.zkrypto.zkMatch.domain.auth.application.dto.request.SignInCommand;
 import com.zkrypto.zkMatch.domain.auth.application.dto.request.SignUpCommand;
@@ -7,6 +8,8 @@ import com.zkrypto.zkMatch.domain.auth.application.dto.response.AuthTokenRespons
 import com.zkrypto.zkMatch.domain.member.domain.entity.Member;
 import com.zkrypto.zkMatch.domain.member.domain.repository.MemberRepository;
 import com.zkrypto.zkMatch.global.jwt.JwtTokenHandler;
+import com.zkrypto.zkMatch.global.rabbitmq.DirectExchangeService;
+import com.zkrypto.zkMatch.global.rabbitmq.dto.SendMessage;
 import com.zkrypto.zkMatch.global.redis.RedisService;
 import com.zkrypto.zkMatch.global.response.exception.CustomException;
 import com.zkrypto.zkMatch.global.response.exception.ErrorCode;
@@ -15,6 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -22,6 +27,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenHandler jwtTokenHandler;
     private final RedisService redisService;
+    private final DirectExchangeService directExchangeService;
 
     /**
      *  회원 가입 메서드
@@ -101,5 +107,19 @@ public class AuthService {
         if (!member.getRefreshToken().equals(refreshToken)) {
             throw new RuntimeException("리프레시 토큰이 일치하지 않습니다.");
         }
+    }
+
+    /**
+     * 이메일 인증 요청 메서드
+     */
+    public void verifyEmail(EmailVerificationCommand emailVerificationCommand) {
+        // 랜덤 키 생성
+        String randomKey = UUID.randomUUID().toString().substring(0, 8);
+
+        // 키 redis에 저장 10분 동안 유효
+        redisService.setData(emailVerificationCommand.getCi(), randomKey, 600000L);
+
+        // 이메일 전송
+        directExchangeService.send(SendMessage.from(emailVerificationCommand.getEmail(), randomKey));
     }
 }

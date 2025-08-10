@@ -29,4 +29,10 @@ public class SendMessage {
         }
         return new SendMessage(recruit.getMember().getEmail(), subject, content);
     }
+
+    public static SendMessage from(String email, String randomKey) {
+        String subject = "[zkMatch] 이메일 인증";
+        String content = randomKey + " 를 입력해주세요";
+        return new SendMessage(email, subject, content);
+    }
 }
