@@ -4,7 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zkrypto.zkMatch.global.response.exception.CustomException;
 import com.zkrypto.zkMatch.global.response.exception.ErrorCode;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+@Getter
+@Slf4j
 public class BaseVc {
     protected String ci;
     protected String name;
@@ -25,12 +29,13 @@ public class BaseVc {
         }
     }
 
-    private static Boolean tryMappingVc(Object target, String data) {
+    private static Boolean tryMappingVc(Class<?> target, String data) {
         ObjectMapper mapper = new ObjectMapper();
         try {
-            mapper.readValue(data, target.getClass());
+            mapper.readValue(data, target);
             return true;
         } catch (JsonProcessingException e) {
+            log.error(e.getMessage());
             throw new CustomException(ErrorCode.INVALID_VC_FORMAT);
         }
     }
