@@ -4,9 +4,11 @@ import com.zkrypto.zkMatch.domain.member.application.dto.request.ResumeCreationC
 import com.zkrypto.zkMatch.domain.member.domain.entity.Member;
 import com.zkrypto.zkMatch.domain.resume.domain.constant.ResumeType;
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Getter
 @NoArgsConstructor
 public class Resume {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

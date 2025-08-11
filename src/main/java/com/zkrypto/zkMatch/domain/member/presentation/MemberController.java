@@ -3,6 +3,7 @@ package com.zkrypto.zkMatch.domain.member.presentation;
 import com.zkrypto.zkMatch.domain.member.application.dto.request.ResumeCreationCommand;
 import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberPostResponse;
 import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberResponse;
+import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberResumeResponse;
 import com.zkrypto.zkMatch.domain.member.application.service.MemberService;
 import com.zkrypto.zkMatch.domain.scrab.application.dto.response.ScrabResponse;
 import com.zkrypto.zkMatch.global.response.ApiResponse;
@@ -159,16 +160,53 @@ public class MemberController {
         return ApiResponse.success();
     }
 
+    @Operation(
+            summary = "이력 생성 API",
+            description = "이력을 생성합니다.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            },
+            parameters = {
+                    @Parameter(
+                            in = ParameterIn.HEADER,
+                            name = "Authorization",
+                            description = "Bearer 토큰",
+                            required = true
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
+                    content = {@Content(schema = @Schema(implementation = Void.class))}),
+    })
     @PostMapping("/resume")
     public ApiResponse<Void> createMemberResume(@AuthenticationPrincipal UUID memberId, ResumeCreationCommand resumeCreationCommand) {
         memberService.createMemberResume(memberId, resumeCreationCommand);
         return ApiResponse.success();
     }
 
-    // TODO
+    @Operation(
+            summary = "멤버 이력 조회 API",
+            description = "나의 이력을 조회 합니다.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            },
+            parameters = {
+                    @Parameter(
+                            in = ParameterIn.HEADER,
+                            name = "Authorization",
+                            description = "Bearer 토큰",
+                            required = true
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
+                    content = {@Content(schema = @Schema(implementation = Void.class))}),
+    })
     @GetMapping("/resume")
-    public ApiResponse<Void> getMemberResume() {
-        return ApiResponse.success();
+    public ApiResponse<List<MemberResumeResponse>> getMemberResume(@AuthenticationPrincipal UUID memberId) {
+        return ApiResponse.success(memberService.getMemberResume(memberId));
     }
 
     // TODO

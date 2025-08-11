@@ -30,6 +30,7 @@ public enum ErrorCode {
     NOT_FOUND_RECRUIT("R001", HttpStatus.NOT_FOUND, "지원 이력이 존재하지 않습니다."),
     NOT_EVALUATE_TARGET("R002", HttpStatus.CONFLICT, "평가 대상이 아닙니다."),
     INVALID_VC_FORMAT("R003", HttpStatus.CONFLICT, "유효하지 않은 VC 포맷입니다."),
+    INVALID_VC_TYPE("R003", HttpStatus.CONFLICT, "유효하지 않은 VC 타입입니다."),
 
     NOT_FOUND_INTERVIEW("I001", HttpStatus.NOT_FOUND, "면접 일정이 존재하지 않습니다."),
     ALREADY_HAS_INTERVIEW("I002", HttpStatus.CONFLICT, "이미 면접 일정이 존재합니다."),

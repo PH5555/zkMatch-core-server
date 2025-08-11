@@ -3,6 +3,7 @@ package com.zkrypto.zkMatch.domain.member.application.service;
 import com.zkrypto.zkMatch.domain.member.application.dto.request.ResumeCreationCommand;
 import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberPostResponse;
 import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberResponse;
+import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberResumeResponse;
 import com.zkrypto.zkMatch.domain.resume.domain.constant.BaseVc;
 import com.zkrypto.zkMatch.domain.resume.domain.entity.Resume;
 import com.zkrypto.zkMatch.domain.resume.domain.repository.ResumeRepository;
@@ -110,7 +111,7 @@ public class MemberService {
 
         // 데이터 형식 확인
         if(!BaseVc.checkVcFormat(resumeCreationCommand.getData(), resumeCreationCommand.getResumeType())) {
-            throw new CustomException(ErrorCode.INVALID_VC_FORMAT);
+            throw new CustomException(ErrorCode.INVALID_VC_TYPE);
         }
 
         // 데이터 암호화
@@ -119,5 +120,25 @@ public class MemberService {
         // 이력서 저장
         Resume resume = Resume.from(resumeCreationCommand, encData, member);
         resumeRepository.save(resume);
+    }
+
+
+    /**
+     * 멤버 전체 이력 조회 메서드
+     */
+    public List<MemberResumeResponse> getMemberResume(UUID memberId) {
+        // 멤버 존재 확인
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
+
+        // 이력 조회
+        List<Resume> encResumes = resumeRepository.getResumesByMember(member);
+
+
+        return encResumes.stream().map(encResume -> {
+            String plainText = AesUtil.decrypt(encResume.getEncData(), member.getSalt());
+            Object vc = BaseVc.mappingVc(plainText, encResume.getResumeType());
+            return new MemberResumeResponse(encResume.getResumeType(), vc, encResume.getDid());
+        }).toList();
     }
 }
