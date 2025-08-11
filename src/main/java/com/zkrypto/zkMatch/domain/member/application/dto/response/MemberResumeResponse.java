@@ -9,7 +9,8 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class MemberResumeResponse {
+    private Long resumeId;
     private ResumeType resumeType;
-    private List<Object> data;
+    private Object data;
     private String did;
 }

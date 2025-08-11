@@ -16,6 +16,8 @@ public class Resume {
 
     @Enumerated(EnumType.STRING)
     private ResumeType resumeType;
+
+    @Column(length = 1000)
     private String encData;
     private String did;
 

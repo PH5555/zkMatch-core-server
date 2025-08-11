@@ -3,6 +3,7 @@ package com.zkrypto.zkMatch.global.crypto;
 import com.zkrypto.zkMatch.global.response.exception.CustomException;
 import com.zkrypto.zkMatch.global.response.exception.ErrorCode;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +19,7 @@ import java.security.spec.KeySpec;
 import java.util.Base64;
 
 @Component
+@Slf4j
 public class AesUtil {
     @Value("${encryption.aes.key}")
     private String aesKey;
@@ -53,6 +55,7 @@ public class AesUtil {
             return Base64.getEncoder().encodeToString(encryptedIvAndText);
         }
         catch (Exception e) {
+            log.error(e.getMessage());
             throw new CustomException(ErrorCode.FAILED_ENC);
         }
     }
@@ -87,6 +90,7 @@ public class AesUtil {
             return new SecretKeySpec(tmp.getEncoded(), "AES");
         }
         catch (Exception e) {
+            log.error(e.getMessage());
             throw new CustomException(ErrorCode.FAILED_DERIVEKEY);
         }
     }

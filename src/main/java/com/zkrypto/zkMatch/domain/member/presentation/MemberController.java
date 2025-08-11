@@ -82,19 +82,19 @@ public class MemberController {
     }
 
     @Operation(
-        summary = "포트폴리오 업로드 API",
-        description = "포트폴리오를 업로드 합니다.",
-        security = {
-                @SecurityRequirement(name = "bearerAuth")
-        },
-        parameters = {
-                @Parameter(
-                        in = ParameterIn.HEADER,
-                        name = "Authorization",
-                        description = "Bearer 토큰",
-                        required = true
-                )
-        }
+            summary = "포트폴리오 업로드 API",
+            description = "포트폴리오를 업로드 합니다.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            },
+            parameters = {
+                    @Parameter(
+                            in = ParameterIn.HEADER,
+                            name = "Authorization",
+                            description = "Bearer 토큰",
+                            required = true
+                    )
+            }
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
@@ -187,7 +187,31 @@ public class MemberController {
 
     @Operation(
             summary = "멤버 이력 조회 API",
-            description = "나의 이력을 조회 합니다.",
+            description = "나의 이력을 조회합니다.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            },
+            parameters = {
+                    @Parameter(
+                            in = ParameterIn.HEADER,
+                            name = "Authorization",
+                            description = "Bearer 토큰",
+                            required = true
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
+                    content = {@Content(array = @ArraySchema(schema = @Schema(implementation = MemberResumeResponse.class)))}),
+    })
+    @GetMapping("/resume")
+    public ApiResponse<List<MemberResumeResponse>> getMemberResume(@AuthenticationPrincipal UUID memberId) {
+        return ApiResponse.success(memberService.getMemberResume(memberId));
+    }
+
+    @Operation(
+            summary = "멤버 이력 삭제 API",
+            description = "나의 이력을 삭제합니다.",
             security = {
                     @SecurityRequirement(name = "bearerAuth")
             },
@@ -204,38 +228,15 @@ public class MemberController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
                     content = {@Content(schema = @Schema(implementation = Void.class))}),
     })
-    @GetMapping("/resume")
-    public ApiResponse<List<MemberResumeResponse>> getMemberResume(@AuthenticationPrincipal UUID memberId) {
-        return ApiResponse.success(memberService.getMemberResume(memberId));
-    }
-
-    // TODO
-    @PatchMapping("/resume")
-    public ApiResponse<Void> updateMemberResume() {
-        return ApiResponse.success();
-    }
-
-    // TODO
-    @DeleteMapping("/resume")
-    public ApiResponse<Void> deleteMemberResume() {
+    @DeleteMapping("/resume/{resumeId}")
+    public ApiResponse<Void> deleteMemberResume(@AuthenticationPrincipal UUID memberId, @PathVariable("resumeId") String resumeId) {
+        memberService.deleteMemberResume(memberId, resumeId);
         return ApiResponse.success();
     }
 
     // TODO
     @GetMapping("/offer")
     public ApiResponse<Void> getMemberOffer() {
-        return ApiResponse.success();
-    }
-
-    // TODO
-    @DeleteMapping("/offer")
-    public ApiResponse<Void> rejectMemberOffer() {
-        return ApiResponse.success();
-    }
-
-    // TODO
-    @PatchMapping("/offer")
-    public ApiResponse<Void> allowMemberOffer() {
         return ApiResponse.success();
     }
 }

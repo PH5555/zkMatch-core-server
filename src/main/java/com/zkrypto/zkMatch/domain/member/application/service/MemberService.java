@@ -138,7 +138,29 @@ public class MemberService {
         return encResumes.stream().map(encResume -> {
             String plainText = AesUtil.decrypt(encResume.getEncData(), member.getSalt());
             Object vc = BaseVc.mappingVc(plainText, encResume.getResumeType());
-            return new MemberResumeResponse(encResume.getResumeType(), vc, encResume.getDid());
+            return new MemberResumeResponse(encResume.getResumeId(), encResume.getResumeType(), vc, encResume.getDid());
         }).toList();
+    }
+
+    /**
+     * 멤버 이력 삭제 메서드
+     */
+    @Transactional
+    public void deleteMemberResume(UUID memberId, String resumeId) {
+        // 멤버 존재 확인
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
+
+        // 이력 조회
+        Resume resume = resumeRepository.getResumeByResumeId(Long.parseLong(resumeId))
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_RESUME));
+
+        // 자신의 이력인지 확인
+        if(resume.getMember().getMemberId() != member.getMemberId()) {
+            throw new CustomException(ErrorCode.NOT_ALLOWED_DELETE_RESUME);
+        }
+
+        // 삭제
+        resumeRepository.delete(resume);
     }
 }
