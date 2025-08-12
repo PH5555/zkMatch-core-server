@@ -1,6 +1,7 @@
 package com.zkrypto.zkMatch.domain.corporation.presentation;
 
 import com.zkrypto.zkMatch.domain.corporation.application.dto.request.*;
+import com.zkrypto.zkMatch.domain.corporation.application.dto.response.CandidateResponse;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.response.CorporationResponse;
 import com.zkrypto.zkMatch.domain.corporation.application.service.CorporationService;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.CorporationPostResponse;
@@ -278,13 +279,49 @@ public class CorporationController {
         return ApiResponse.success();
     }
 
-    //TODO
-    @PostMapping("/candidate/search")
-    public ApiResponse<Void> searchCandidate(@RequestBody CandidateSearchCommand candidateSearchCommand) {
-        return ApiResponse.success();
+    @Operation(
+            summary = "인재 검색 API",
+            description = "필터링 조건에 맞는 인재를 검색합니다.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            },
+            parameters = {
+                    @Parameter(
+                            in = ParameterIn.HEADER,
+                            name = "Authorization",
+                            description = "Bearer 토큰(ADMIN)",
+                            required = true
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
+                    content = {@Content(array = @ArraySchema(schema = @Schema(implementation = CandidateResponse.class)))}),
+    })
+    @GetMapping("/candidate")
+    public ApiResponse<List<CandidateResponse>> searchCandidate() {
+        return ApiResponse.success(corporationService.searchCandidate());
     }
 
-    //TODO
+    @Operation(
+            summary = "채용 제안 API",
+            description = "인재 검색후 채용 제안을 보냅니다.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            },
+            parameters = {
+                    @Parameter(
+                            in = ParameterIn.HEADER,
+                            name = "Authorization",
+                            description = "Bearer 토큰(ADMIN)",
+                            required = true
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
+                    content = {@Content(schema = @Schema(implementation = Void.class))}),
+    })
     @PostMapping("/candidate/offer")
     public ApiResponse<Void> offerCandidate(@RequestBody CandidateOfferCommand candidateSearchCommand) {
         return ApiResponse.success();

@@ -1,6 +1,7 @@
 package com.zkrypto.zkMatch.domain.corporation.application.service;
 
 import com.zkrypto.zkMatch.domain.corporation.application.dto.request.*;
+import com.zkrypto.zkMatch.domain.corporation.application.dto.response.CandidateResponse;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.response.CorporationResponse;
 import com.zkrypto.zkMatch.domain.corporation.domain.entity.Corporation;
 import com.zkrypto.zkMatch.domain.corporation.domain.repository.CorporationRepository;
@@ -221,5 +222,14 @@ public class CorporationService {
 
         // 평가 생성
         recruit.setEvaluation(evaluationCreationCommand.getEvaluation());
+    }
+
+    /**
+     *  인재 검색 메서드
+     */
+    public List<CandidateResponse> searchCandidate() {
+        // TODO: 필터링 조건 따라 인재 검색으로 변경
+        List<Member> members = memberRepository.findAll();
+        return members.stream().map(CandidateResponse::from).toList();
     }
 }
