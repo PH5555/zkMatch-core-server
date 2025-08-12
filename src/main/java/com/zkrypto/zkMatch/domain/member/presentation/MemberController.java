@@ -1,6 +1,7 @@
 package com.zkrypto.zkMatch.domain.member.presentation;
 
 import com.zkrypto.zkMatch.domain.member.application.dto.request.ResumeCreationCommand;
+import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberOfferResponse;
 import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberPostResponse;
 import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberResponse;
 import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberResumeResponse;
@@ -234,9 +235,27 @@ public class MemberController {
         return ApiResponse.success();
     }
 
-    // TODO
+    @Operation(
+            summary = "채용 제안 조회 API",
+            description = "나의 채용 제안 이력을 조회합니다.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            },
+            parameters = {
+                    @Parameter(
+                            in = ParameterIn.HEADER,
+                            name = "Authorization",
+                            description = "Bearer 토큰",
+                            required = true
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
+                    content = {@Content(array = @ArraySchema(schema = @Schema(implementation = MemberOfferResponse.class)))}),
+    })
     @GetMapping("/offer")
-    public ApiResponse<Void> getMemberOffer() {
-        return ApiResponse.success();
+    public ApiResponse<List<MemberOfferResponse>> getMemberOffer(@AuthenticationPrincipal UUID memberId) {
+        return ApiResponse.success(memberService.getMemberOffer(memberId));
     }
 }

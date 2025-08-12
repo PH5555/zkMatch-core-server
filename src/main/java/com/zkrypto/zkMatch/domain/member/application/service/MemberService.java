@@ -1,9 +1,12 @@
 package com.zkrypto.zkMatch.domain.member.application.service;
 
 import com.zkrypto.zkMatch.domain.member.application.dto.request.ResumeCreationCommand;
+import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberOfferResponse;
 import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberPostResponse;
 import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberResponse;
 import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberResumeResponse;
+import com.zkrypto.zkMatch.domain.offer.domain.entity.Offer;
+import com.zkrypto.zkMatch.domain.offer.domain.repository.OfferRepository;
 import com.zkrypto.zkMatch.domain.resume.domain.constant.BaseVc;
 import com.zkrypto.zkMatch.domain.resume.domain.entity.Resume;
 import com.zkrypto.zkMatch.domain.resume.domain.repository.ResumeRepository;
@@ -35,6 +38,7 @@ public class MemberService {
     private final S3Service s3Service;
     private final ScrabRepository scrabRepository;
     private final ResumeRepository resumeRepository;
+    private final OfferRepository offerRepository;
 
     /**
      * 멤버 조회 메서드
@@ -162,5 +166,18 @@ public class MemberService {
 
         // 삭제
         resumeRepository.delete(resume);
+    }
+
+    /**
+     * 채용 제안 조회 메서드
+     */
+    public List<MemberOfferResponse> getMemberOffer(UUID memberId) {
+        // 멤버 존재 확인
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
+
+        // 채용 제안 조회
+        List<Offer> offers = offerRepository.findOffersByMember(member);
+        return offers.stream().map(MemberOfferResponse::from).toList();
     }
 }
