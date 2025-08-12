@@ -40,6 +40,8 @@ public enum ErrorCode {
     FAILED_ENC("C001", HttpStatus.BAD_REQUEST, "암호화에 실패했습니다."),
     FAILED_DEC("C002", HttpStatus.BAD_REQUEST, "복호화에 실패했습니다."),
     FAILED_DERIVEKEY("C003", HttpStatus.BAD_REQUEST, "키복구에 실패했습니다."),
+
+    FAILED_UPLOAD_FILE("F001", HttpStatus.BAD_REQUEST, "파일 업로드에 실패했습니다."),
     ;
 
 

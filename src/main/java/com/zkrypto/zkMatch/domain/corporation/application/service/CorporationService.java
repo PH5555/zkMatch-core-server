@@ -52,7 +52,7 @@ public class CorporationService {
      * 기업 생성 메서드
      */
     @Transactional
-    public void createCorporation(CorporationCreationCommand corporationCreationCommand, MultipartFile file) throws IOException {
+    public void createCorporation(CorporationCreationCommand corporationCreationCommand, MultipartFile file) {
         // 기업 중복 확인
         if(corporationRepository.existsCorporationByCorporationName(corporationCreationCommand.getCorporationName())) {
             throw new CustomException(ErrorCode.CORPORATION_DUPLICATION);
@@ -239,9 +239,9 @@ public class CorporationService {
     /**
      * 채용 제안 메서드
      */
-    public void offerCandidate(UUID memberId, CandidateOfferCommand candidateSearchCommand) {
+    public void offerCandidate(UUID memberId, CandidateOfferCommand candidateOfferCommand) {
         // 멤버 조회
-        Member member = memberRepository.findById(UUID.fromString(candidateSearchCommand.getMemberId()))
+        Member member = memberRepository.findById(UUID.fromString(candidateOfferCommand.getMemberId()))
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
 
         // 회사 조회

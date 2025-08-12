@@ -79,7 +79,7 @@ public class MemberService {
      * 포트폴리오 업로드 메서드
      */
     @Transactional
-    public void uploadPortfolio(UUID memberId, MultipartFile file) throws IOException {
+    public void uploadPortfolio(UUID memberId, MultipartFile file) {
         // 멤버 조회
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));

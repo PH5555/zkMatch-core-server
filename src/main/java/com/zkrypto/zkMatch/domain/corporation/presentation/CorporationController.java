@@ -69,7 +69,7 @@ public class CorporationController {
     })
     @PostMapping()
     public ApiResponse<Void> createCorporation(@RequestPart("corporationCreationCommand") CorporationCreationCommand corporationCreationCommand,
-                                               @RequestPart(value = "registerFile", required = false) MultipartFile file) throws IOException {
+                                               @RequestPart(value = "registerFile", required = false) MultipartFile file) {
         corporationService.createCorporation(corporationCreationCommand, file);
         return ApiResponse.success();
     }
@@ -323,8 +323,8 @@ public class CorporationController {
                     content = {@Content(schema = @Schema(implementation = Void.class))}),
     })
     @PostMapping("/candidate/offer")
-    public ApiResponse<Void> offerCandidate(@AuthenticationPrincipal UUID memberId, @RequestBody CandidateOfferCommand candidateSearchCommand) {
-        corporationService.offerCandidate(memberId, candidateSearchCommand);
+    public ApiResponse<Void> offerCandidate(@AuthenticationPrincipal UUID memberId, @RequestBody CandidateOfferCommand candidateOfferCommand) {
+        corporationService.offerCandidate(memberId, candidateOfferCommand);
         return ApiResponse.success();
     }
 }

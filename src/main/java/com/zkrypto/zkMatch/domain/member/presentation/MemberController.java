@@ -102,7 +102,7 @@ public class MemberController {
                     content = {@Content(schema = @Schema(implementation = Void.class))}),
     })
     @PostMapping("/portfolio")
-    public ApiResponse<Void> uploadPortfolio(@AuthenticationPrincipal UUID memberId, @RequestPart("file") MultipartFile file) throws IOException {
+    public ApiResponse<Void> uploadPortfolio(@AuthenticationPrincipal UUID memberId, @RequestPart("file") MultipartFile file) {
         memberService.uploadPortfolio(memberId, file);
         return ApiResponse.success();
     }
