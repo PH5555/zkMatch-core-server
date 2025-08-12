@@ -9,6 +9,8 @@ import com.zkrypto.zkMatch.domain.interview.domain.entity.Interview;
 import com.zkrypto.zkMatch.domain.interview.domain.repository.InterviewRepository;
 import com.zkrypto.zkMatch.domain.member.domain.entity.Member;
 import com.zkrypto.zkMatch.domain.member.domain.repository.MemberRepository;
+import com.zkrypto.zkMatch.domain.offer.domain.entity.Offer;
+import com.zkrypto.zkMatch.domain.offer.domain.repository.OfferRepository;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.UpdateApplierStatusCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.PostCreationCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.CorporationPostResponse;
@@ -44,6 +46,7 @@ public class CorporationService {
     private final DirectExchangeService directExchangeService;
     private final S3Service s3Service;
     private final InterviewRepository interviewRepository;
+    private final OfferRepository offerRepository;
 
     /**
      * 기업 생성 메서드
@@ -231,5 +234,21 @@ public class CorporationService {
         // TODO: 필터링 조건 따라 인재 검색으로 변경
         List<Member> members = memberRepository.findAll();
         return members.stream().map(CandidateResponse::from).toList();
+    }
+
+    /**
+     * 채용 제안 메서드
+     */
+    public void offerCandidate(UUID memberId, CandidateOfferCommand candidateSearchCommand) {
+        // 멤버 조회
+        Member member = memberRepository.findById(UUID.fromString(candidateSearchCommand.getMemberId()))
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
+
+        // 회사 조회
+        Corporation corporation = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER)).getCorporation();
+
+        // 제안 생성
+        offerRepository.save(new Offer(member, corporation));
     }
 }

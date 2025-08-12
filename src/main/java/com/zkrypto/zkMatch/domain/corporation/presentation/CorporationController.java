@@ -323,7 +323,8 @@ public class CorporationController {
                     content = {@Content(schema = @Schema(implementation = Void.class))}),
     })
     @PostMapping("/candidate/offer")
-    public ApiResponse<Void> offerCandidate(@RequestBody CandidateOfferCommand candidateSearchCommand) {
+    public ApiResponse<Void> offerCandidate(@AuthenticationPrincipal UUID memberId, @RequestBody CandidateOfferCommand candidateSearchCommand) {
+        corporationService.offerCandidate(memberId, candidateSearchCommand);
         return ApiResponse.success();
     }
 }
