@@ -1,6 +1,7 @@
 package com.zkrypto.zkMatch.domain.corporation.application.service;
 
 import com.zkrypto.zkMatch.domain.corporation.application.dto.request.*;
+import com.zkrypto.zkMatch.domain.corporation.application.dto.response.CandidateResponse;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.response.CorporationResponse;
 import com.zkrypto.zkMatch.domain.corporation.domain.entity.Corporation;
 import com.zkrypto.zkMatch.domain.corporation.domain.repository.CorporationRepository;
@@ -8,6 +9,8 @@ import com.zkrypto.zkMatch.domain.interview.domain.entity.Interview;
 import com.zkrypto.zkMatch.domain.interview.domain.repository.InterviewRepository;
 import com.zkrypto.zkMatch.domain.member.domain.entity.Member;
 import com.zkrypto.zkMatch.domain.member.domain.repository.MemberRepository;
+import com.zkrypto.zkMatch.domain.offer.domain.entity.Offer;
+import com.zkrypto.zkMatch.domain.offer.domain.repository.OfferRepository;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.UpdateApplierStatusCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.PostCreationCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.CorporationPostResponse;
@@ -43,12 +46,13 @@ public class CorporationService {
     private final DirectExchangeService directExchangeService;
     private final S3Service s3Service;
     private final InterviewRepository interviewRepository;
+    private final OfferRepository offerRepository;
 
     /**
      * 기업 생성 메서드
      */
     @Transactional
-    public void createCorporation(CorporationCreationCommand corporationCreationCommand, MultipartFile file) throws IOException {
+    public void createCorporation(CorporationCreationCommand corporationCreationCommand, MultipartFile file) {
         // 기업 중복 확인
         if(corporationRepository.existsCorporationByCorporationName(corporationCreationCommand.getCorporationName())) {
             throw new CustomException(ErrorCode.CORPORATION_DUPLICATION);
@@ -221,5 +225,30 @@ public class CorporationService {
 
         // 평가 생성
         recruit.setEvaluation(evaluationCreationCommand.getEvaluation());
+    }
+
+    /**
+     *  인재 검색 메서드
+     */
+    public List<CandidateResponse> searchCandidate() {
+        // TODO: 필터링 조건 따라 인재 검색으로 변경
+        List<Member> members = memberRepository.findAll();
+        return members.stream().map(CandidateResponse::from).toList();
+    }
+
+    /**
+     * 채용 제안 메서드
+     */
+    public void offerCandidate(UUID memberId, CandidateOfferCommand candidateOfferCommand) {
+        // 멤버 조회
+        Member member = memberRepository.findById(UUID.fromString(candidateOfferCommand.getMemberId()))
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
+
+        // 회사 조회
+        Corporation corporation = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER)).getCorporation();
+
+        // 제안 생성
+        offerRepository.save(new Offer(member, corporation));
     }
 }
