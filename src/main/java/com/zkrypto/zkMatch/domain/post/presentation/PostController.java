@@ -76,4 +76,6 @@ public class PostController {
         postService.applyPost(memberId, postApplyCommand);
         return ApiResponse.success();
     }
+
+    //TODO: 관심 분야 공고
 }

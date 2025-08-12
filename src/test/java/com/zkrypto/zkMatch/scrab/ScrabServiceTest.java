@@ -2,6 +2,7 @@ package com.zkrypto.zkMatch.scrab;
 
 import com.zkrypto.zkMatch.domain.corporation.application.dto.request.CorporationCreationCommand;
 import com.zkrypto.zkMatch.domain.corporation.application.service.CorporationService;
+import com.zkrypto.zkMatch.domain.member.application.service.MemberService;
 import com.zkrypto.zkMatch.domain.member.domain.entity.Member;
 import com.zkrypto.zkMatch.domain.member.domain.repository.MemberRepository;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.PostCreationCommand;
@@ -41,6 +42,8 @@ public class ScrabServiceTest {
 
     @Autowired
     ScrabService scrabService;
+    @Autowired
+    private MemberService memberService;
 
     @Test
     void 스크랩_테스트() throws IOException {
@@ -74,7 +77,7 @@ public class ScrabServiceTest {
         scrabService.scrabPost(member.getMemberId(), scrabCommand);
 
         // 검증
-        List<ScrabResponse> scrab = scrabService.getScrab(member.getMemberId());
+        List<ScrabResponse> scrab = memberService.getScrab(member.getMemberId());
         assertThat(scrab.size()).isEqualTo(1);
         assertThat(scrab.get(0).getPostTitle()).isEqualTo("하이");
     }
@@ -114,7 +117,7 @@ public class ScrabServiceTest {
         scrabService.scrabPost(member.getMemberId(), scrabCommand);
 
         // 검증
-        List<ScrabResponse> scrab = scrabService.getScrab(member.getMemberId());
+        List<ScrabResponse> scrab = memberService.getScrab(member.getMemberId());
         assertThat(scrab.size()).isEqualTo(0);
     }
 }
