@@ -68,6 +68,36 @@ public class PostServiceTest {
     }
 
     @Test
+    void 관심_공고_조회_테스트() throws IOException {
+        // 기업 생성
+        CorporationCreationCommand corporationCreationCommand = new CorporationCreationCommand();
+        ReflectionUtil.setter(corporationCreationCommand, "corporationName", "지크립토");
+        ReflectionUtil.setter(corporationCreationCommand, "loginId", "1234");
+        ReflectionUtil.setter(corporationCreationCommand, "password", "1234");
+
+        corporationService.createCorporation(corporationCreationCommand, null);
+
+        // 관리자 조회
+        Member admin = memberRepository.findMemberByLoginId("1234").get();
+
+        // 멤버 생성
+        Member member = new Member();
+        ReflectionUtil.setter(member, "interests", List.of("개발"));
+        memberRepository.save(member);
+
+        // 공고 생성
+        PostCreationCommand postCreationCommand = new PostCreationCommand();
+        ReflectionUtil.setter(postCreationCommand, "category", List.of("개발", "프론트엔드"));
+        corporationService.createPost(admin.getMemberId(), postCreationCommand);
+
+        // 공고 조회
+        List<PostResponse> posts = postService.getInterestPost(member.getMemberId());
+
+        // 검증
+        Assertions.assertThat(posts.size()).isEqualTo(1);
+    }
+
+    @Test
     void 공고_지원_테스트() throws IOException {
         // 기업 생성
         CorporationCreationCommand corporationCreationCommand = new CorporationCreationCommand();
