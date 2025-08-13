@@ -61,4 +61,17 @@ public class PostService {
         Recruit recruit = new Recruit(post, member);
         recruitRepository.save(recruit);
     }
+
+    /**
+     * 관심 공고 조회 메서드
+     */
+    public List<PostResponse> getInterestPost(UUID memberId) {
+        // 멤버 존재 확인
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
+
+        // 관심 분야 조회
+        return member.getInterests().stream().flatMap(interest -> postRepository.findByCategory(interest).stream())
+                .map(PostResponse::from).toList();
+    }
 }

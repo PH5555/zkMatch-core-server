@@ -77,5 +77,27 @@ public class PostController {
         return ApiResponse.success();
     }
 
-    //TODO: 관심 분야 공고
+    @Operation(
+            summary = "관심 분야 채용 공고 조회 API",
+            description = "관심 분야 채용 공고를 조회 합니다.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            },
+            parameters = {
+                    @Parameter(
+                            in = ParameterIn.HEADER,
+                            name = "Authorization",
+                            description = "Bearer 토큰",
+                            required = true
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
+                    content = {@Content(array = @ArraySchema(schema = @Schema(implementation = PostResponse.class)))}),
+    })
+    @GetMapping("/interest")
+    public ApiResponse<List<PostResponse>> getInterestPost(@AuthenticationPrincipal UUID memberId){
+        return ApiResponse.success(postService.getInterestPost(memberId));
+    }
 }
