@@ -19,4 +19,6 @@ public interface PostRepository extends JpaRepository<Post, UUID>, PostCustomRep
     Optional<Post> findByIdWithCorporation(@Param("postId") UUID postId);
 
     List<Post> findPostByCorporationAndTitleContaining(Corporation corporation, String title);
+
+    List<Post> findPostsByCategoryContaining(String category);
 }

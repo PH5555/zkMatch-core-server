@@ -21,4 +21,5 @@ public class PostUpdateCommand {
     private String workSpace;
     private String workType;
     private List<String> preferredSkill;
+    private List<String> category;
 }
