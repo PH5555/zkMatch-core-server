@@ -82,19 +82,26 @@ public class PostServiceTest {
 
         // 멤버 생성
         Member member = new Member();
-        ReflectionUtil.setter(member, "interests", List.of("개발"));
+        ReflectionUtil.setter(member, "interests", List.of("백엔드"));
         memberRepository.save(member);
 
         // 공고 생성
         PostCreationCommand postCreationCommand = new PostCreationCommand();
+        ReflectionUtil.setter(postCreationCommand, "title", "프론트 채용");
         ReflectionUtil.setter(postCreationCommand, "category", List.of("개발", "프론트엔드"));
         corporationService.createPost(admin.getMemberId(), postCreationCommand);
+
+        PostCreationCommand postCreationCommand1 = new PostCreationCommand();
+        ReflectionUtil.setter(postCreationCommand1, "title", "백엔드 채용");
+        ReflectionUtil.setter(postCreationCommand1, "category", List.of("개발", "백엔드"));
+        corporationService.createPost(admin.getMemberId(), postCreationCommand1);
 
         // 공고 조회
         List<PostResponse> posts = postService.getInterestPost(member.getMemberId());
 
         // 검증
         Assertions.assertThat(posts.size()).isEqualTo(1);
+        Assertions.assertThat(posts.get(0).getTitle()).isEqualTo("백엔드 채용");
     }
 
     @Test

@@ -71,7 +71,7 @@ public class PostService {
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
 
         // 관심 분야 조회
-        return member.getInterests().stream().flatMap(interest -> postRepository.findPostsByCategoryContaining(interest).stream())
+        return member.getInterests().stream().flatMap(interest -> postRepository.findByCategory(interest).stream())
                 .map(PostResponse::from).toList();
     }
 }
