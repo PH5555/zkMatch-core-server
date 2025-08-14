@@ -14,7 +14,7 @@ public class PostCreationCommand {
     private LocalDateTime endDate;
     private String majorRequirement;
     private String educationRequirement;
-    private String experienceRequirement;
+    private int experienceRequirement;
     private List<String> licenseRequirement;
     private int salaryStart;
     private int salaryEnd;

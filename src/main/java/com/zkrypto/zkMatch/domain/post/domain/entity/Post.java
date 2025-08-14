@@ -25,7 +25,7 @@ public class Post {
     private LocalDateTime endDate;
     private String majorRequirement;
     private String educationRequirement;
-    private String experienceRequirement;
+    private int experienceRequirement;
 
     @Convert(converter = StringListConverter.class)
     private List<String> licenseRequirement;
@@ -41,7 +41,7 @@ public class Post {
     @JoinColumn(name = "corporation_id")
     private Corporation corporation;
 
-    public Post(String title, String content, LocalDateTime startDate, LocalDateTime endDate, String majorRequirement, String educationRequirement, String experienceRequirement, List<String> licenseRequirement, int salaryStart, int salaryEnd, String workSpace, String workType, Corporation corporation, List<String> category) {
+    public Post(String title, String content, LocalDateTime startDate, LocalDateTime endDate, String majorRequirement, String educationRequirement, int experienceRequirement, List<String> licenseRequirement, int salaryStart, int salaryEnd, String workSpace, String workType, Corporation corporation, List<String> category) {
         this.title = title;
         this.content = content;
         this.startDate = startDate;
