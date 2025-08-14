@@ -1,11 +1,9 @@
 package com.zkrypto.zkMatch.domain.member.presentation;
 
 import com.zkrypto.zkMatch.domain.member.application.dto.request.ResumeCreationCommand;
-import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberOfferResponse;
-import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberPostResponse;
-import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberResponse;
-import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberResumeResponse;
+import com.zkrypto.zkMatch.domain.member.application.dto.response.*;
 import com.zkrypto.zkMatch.domain.member.application.service.MemberService;
+import com.zkrypto.zkMatch.domain.resume.domain.constant.ResumeType;
 import com.zkrypto.zkMatch.domain.scrab.application.dto.response.ScrabResponse;
 import com.zkrypto.zkMatch.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -155,10 +153,28 @@ public class MemberController {
         return ApiResponse.success(memberService.getScrab(memberId));
     }
 
-    // TODO
-    @PostMapping("/resume/did")
-    public ApiResponse<Void> createMemberResumeByDid() {
-        return ApiResponse.success();
+    @Operation(
+            summary = "이력 불러오기 QR 요청 API",
+            description = "이력 불러오기를 위한 QR을 가져옵니다.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            },
+            parameters = {
+                    @Parameter(
+                            in = ParameterIn.HEADER,
+                            name = "Authorization",
+                            description = "Bearer 토큰",
+                            required = true
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
+                    content = {@Content(schema = @Schema(implementation = ResumeQrResponse.class))}),
+    })
+    @GetMapping("/resume/did")
+    public ApiResponse<ResumeQrResponse> getResumeDidQr(@AuthenticationPrincipal UUID memberId, @RequestParam("type") ResumeType type) {
+        return ApiResponse.success(memberService.getResumeDidQr(memberId, type));
     }
 
     @Operation(

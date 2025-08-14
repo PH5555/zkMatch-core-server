@@ -1,13 +1,14 @@
 package com.zkrypto.zkMatch.domain.member.application.service;
 
+import com.zkrypto.zkMatch.api.verify.VerifierFeign;
+import com.zkrypto.zkMatch.api.verify.dto.RequestVpOfferReqDto;
+import com.zkrypto.zkMatch.api.verify.dto.RequestVpOfferResDto;
 import com.zkrypto.zkMatch.domain.member.application.dto.request.ResumeCreationCommand;
-import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberOfferResponse;
-import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberPostResponse;
-import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberResponse;
-import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberResumeResponse;
+import com.zkrypto.zkMatch.domain.member.application.dto.response.*;
 import com.zkrypto.zkMatch.domain.offer.domain.entity.Offer;
 import com.zkrypto.zkMatch.domain.offer.domain.repository.OfferRepository;
 import com.zkrypto.zkMatch.domain.resume.domain.constant.BaseVc;
+import com.zkrypto.zkMatch.domain.resume.domain.constant.ResumeType;
 import com.zkrypto.zkMatch.domain.resume.domain.entity.Resume;
 import com.zkrypto.zkMatch.domain.resume.domain.repository.ResumeRepository;
 import com.zkrypto.zkMatch.domain.scrab.application.dto.response.ScrabResponse;
@@ -19,8 +20,13 @@ import com.zkrypto.zkMatch.domain.scrab.domain.entity.Scrab;
 import com.zkrypto.zkMatch.domain.scrab.domain.repository.ScrabRepository;
 import com.zkrypto.zkMatch.global.crypto.AesUtil;
 import com.zkrypto.zkMatch.global.file.S3Service;
+import com.zkrypto.zkMatch.global.qr.QrMaker;
+import com.zkrypto.zkMatch.global.redis.RedisService;
 import com.zkrypto.zkMatch.global.response.exception.CustomException;
 import com.zkrypto.zkMatch.global.response.exception.ErrorCode;
+import com.zkrypto.zkMatch.global.utils.BaseMultibaseUtil;
+import com.zkrypto.zkMatch.global.utils.JsonUtil;
+import com.zkrypto.zkMatch.global.utils.MultiBaseType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +45,8 @@ public class MemberService {
     private final ScrabRepository scrabRepository;
     private final ResumeRepository resumeRepository;
     private final OfferRepository offerRepository;
+    private final VerifierFeign verifierFeign;
+    private final RedisService redisService;
 
     /**
      * 멤버 조회 메서드
@@ -179,5 +187,37 @@ public class MemberService {
         // 채용 제안 조회
         List<Offer> offers = offerRepository.findOffersByMember(member);
         return offers.stream().map(MemberOfferResponse::from).toList();
+    }
+
+    /**
+     * QR 요청 메서드
+     */
+    public ResumeQrResponse getResumeDidQr(UUID memberId, ResumeType type) {
+
+        // TODO: 타입별 policy 가져오기
+        RequestVpOfferReqDto requestVpOfferReqDto = RequestVpOfferReqDto.builder()
+                .policyId("").build();
+
+        // vp 생성 시작 요청
+        RequestVpOfferResDto requestVpOfferResDto = verifierFeign.requestVpOfferQR(requestVpOfferReqDto);
+        if(requestVpOfferResDto == null) {
+            throw new CustomException(ErrorCode.VP_OFFER_NOT_FOUND);
+        }
+
+        // QR 생성
+        String jsonString = JsonUtil.serializeAndSort(requestVpOfferResDto.getPayload());
+        String encDataPayload = BaseMultibaseUtil.encode(jsonString.getBytes(), MultiBaseType.base64);
+        ResumeQrResponse resultDto = ResumeQrResponse.from(encDataPayload, requestVpOfferResDto);
+        byte[] qrImage = QrMaker.makeQr(resultDto);
+
+        // 반환 값에 저장
+        String offerId = requestVpOfferResDto.getPayload().getOfferId();
+        resultDto.setQrImage(qrImage);
+        resultDto.setOfferId(offerId);
+
+        // offerId, memberId 매핑
+        redisService.setData(memberId.toString(), offerId, 600000L);
+
+        return resultDto;
     }
 }
