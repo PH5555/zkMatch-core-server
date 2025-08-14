@@ -25,7 +25,7 @@ public class Post {
     private LocalDateTime endDate;
     private String majorRequirement;
     private String educationRequirement;
-    private String experienceRequirement;
+    private int experienceRequirement;
 
     @Convert(converter = StringListConverter.class)
     private List<String> licenseRequirement;
@@ -35,16 +35,13 @@ public class Post {
     private String workType;
 
     @Convert(converter = StringListConverter.class)
-    private List<String> preferredSkill;
-
-    @Convert(converter = StringListConverter.class)
     private List<String> category;
 
     @ManyToOne
     @JoinColumn(name = "corporation_id")
     private Corporation corporation;
 
-    public Post(String title, String content, LocalDateTime startDate, LocalDateTime endDate, String majorRequirement, String educationRequirement, String experienceRequirement, List<String> licenseRequirement, int salaryStart, int salaryEnd, String workSpace, String workType, List<String> preferredSkill, Corporation corporation, List<String> category) {
+    public Post(String title, String content, LocalDateTime startDate, LocalDateTime endDate, String majorRequirement, String educationRequirement, int experienceRequirement, List<String> licenseRequirement, int salaryStart, int salaryEnd, String workSpace, String workType, Corporation corporation, List<String> category) {
         this.title = title;
         this.content = content;
         this.startDate = startDate;
@@ -57,7 +54,6 @@ public class Post {
         this.salaryEnd = salaryEnd;
         this.workSpace = workSpace;
         this.workType = workType;
-        this.preferredSkill = preferredSkill;
         this.corporation = corporation;
         this.category = category;
     }
@@ -76,7 +72,6 @@ public class Post {
                 command.getSalaryEnd(),
                 command.getWorkSpace(),
                 command.getWorkType(),
-                command.getPreferredSkill(),
                 corporation,
                 command.getCategory()
         );
@@ -95,7 +90,6 @@ public class Post {
         this.salaryEnd = postUpdateCommand.getSalaryEnd();
         this.workSpace = postUpdateCommand.getWorkSpace();
         this.workType = postUpdateCommand.getWorkType();
-        this.preferredSkill = postUpdateCommand.getPreferredSkill();
         this.category = postUpdateCommand.getCategory();
     }
 }
