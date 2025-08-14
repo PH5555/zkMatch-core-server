@@ -20,6 +20,5 @@ public class PostCreationCommand {
     private int salaryEnd;
     private String workSpace;
     private String workType;
-    private List<String> preferredSkill;
     private List<String> category;
 }
