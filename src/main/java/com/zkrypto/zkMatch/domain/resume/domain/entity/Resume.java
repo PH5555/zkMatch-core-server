@@ -35,4 +35,8 @@ public class Resume {
     public static Resume from(ResumeCreationCommand command, String data, Member member) {
         return new Resume(command.getResumeType(), data, null, member);
     }
+
+    public static Resume from(ResumeType type, String data, Member member) {
+        return new Resume(type, data, null, member);
+    }
 }
