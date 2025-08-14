@@ -4,29 +4,66 @@ import com.zkrypto.zkMatch.domain.post.domain.entity.Post;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Getter
 public class PostResponse {
     private String postId;
     private String title;
+    private String content;
+    private String startDate;
+    private String endDate;
+    private String majorRequirement;
+    private String educationRequirement;
+    private String experienceRequirement;
+    private List<String> licenseRequirement;
+    private int salaryStart;
+    private int salaryEnd;
+    private String workSpace;
+    private String workType;
+    private List<String> category;
     private String corporationName;
-    private String corporationAddress;
-    private String jobType;
-    private String jobHistory;
-    private String period;
-    private String schoolHistory;
-    private List<String> licenses;
-    private int salary;
-    private int recruitCount;
 
-    public PostResponse(String postId, String title, String corporationName) {
+    private PostResponse(String postId, String title, String content, String startDate, String endDate, String majorRequirement, String educationRequirement, String experienceRequirement, List<String> licenseRequirement, int salaryStart, int salaryEnd, String workSpace, String workType, List<String> category, String corporationName) {
         this.postId = postId;
         this.title = title;
+        this.content = content;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.majorRequirement = majorRequirement;
+        this.educationRequirement = educationRequirement;
+        this.experienceRequirement = experienceRequirement;
+        this.licenseRequirement = licenseRequirement;
+        this.salaryStart = salaryStart;
+        this.salaryEnd = salaryEnd;
+        this.workSpace = workSpace;
+        this.workType = workType;
+        this.category = category;
         this.corporationName = corporationName;
     }
 
     public static PostResponse from(Post post) {
-        return new PostResponse(post.getPostId().toString(), post.getTitle(), post.getCorporation().getCorporationName());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
+        String endDate = post.getEndDate().format(formatter);
+        String startDate = post.getStartDate().format(formatter);
+
+        return new PostResponse(
+                post.getPostId().toString(),
+                post.getTitle(),
+                post.getContent(),
+                startDate,
+                endDate,
+                post.getMajorRequirement(),
+                post.getEducationRequirement(),
+                post.getExperienceRequirement() + "년 이상",
+                post.getLicenseRequirement(),
+                post.getSalaryStart(),
+                post.getSalaryEnd(),
+                post.getWorkSpace(),
+                post.getWorkType(),
+                post.getCategory(),
+                post.getCorporation().getCorporationName()
+        );
     }
 }
