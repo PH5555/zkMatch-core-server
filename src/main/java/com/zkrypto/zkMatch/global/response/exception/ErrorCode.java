@@ -46,6 +46,9 @@ public enum ErrorCode {
     VP_OFFER_NOT_FOUND("V001", HttpStatus.NOT_FOUND, "vp offer를 찾을 수 없습니다."),
     VP_JSON_FORMAT_ERROR("V002", HttpStatus.BAD_REQUEST, "vp json 형식이 잘못됐습니다."),
     VP_QR_MAKE_ERROR("V003", HttpStatus.BAD_REQUEST, "QR 생성에 실패했습니다."),
+    NOT_FOUND_OFFER_ID("V004", HttpStatus.NOT_FOUND, "offer id가 존재하지 않습니다."),
+    FAILED_GET_VP("V005", HttpStatus.NOT_FOUND, "VP 생성에 실패했습니다."),
+    NOT_FOUND_VP_TYPE("V006", HttpStatus.NOT_FOUND, "VP TYPE을 찾을 수 없습니다."),
     ;
 
 

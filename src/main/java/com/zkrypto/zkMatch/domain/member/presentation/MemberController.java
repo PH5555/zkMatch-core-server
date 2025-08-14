@@ -1,5 +1,6 @@
 package com.zkrypto.zkMatch.domain.member.presentation;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.zkrypto.zkMatch.domain.member.application.dto.request.ResumeCreationCommand;
 import com.zkrypto.zkMatch.domain.member.application.dto.response.*;
 import com.zkrypto.zkMatch.domain.member.application.service.MemberService;
@@ -175,6 +176,31 @@ public class MemberController {
     @GetMapping("/resume/did")
     public ApiResponse<ResumeQrResponse> getResumeDidQr(@AuthenticationPrincipal UUID memberId, @RequestParam("type") ResumeType type) {
         return ApiResponse.success(memberService.getResumeDidQr(memberId, type));
+    }
+
+    @Operation(
+            summary = "이력 불러오기 완료 요청 API",
+            description = "QR을 스캔하여 CA앱에서 제출 완료 후 호출합니다.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            },
+            parameters = {
+                    @Parameter(
+                            in = ParameterIn.HEADER,
+                            name = "Authorization",
+                            description = "Bearer 토큰",
+                            required = true
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
+                    content = {@Content(schema = @Schema(implementation = Void.class))}),
+    })
+    @PostMapping("/resume/did")
+    public ApiResponse<Void> completeResumeDidQr(@AuthenticationPrincipal UUID memberId) throws JsonProcessingException {
+        memberService.completeResumeDidQr(memberId);
+        return ApiResponse.success();
     }
 
     @Operation(

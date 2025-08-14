@@ -1,4 +1,4 @@
-package com.zkrypto.zkMatch.api.verify.dto;
+package com.zkrypto.zkMatch.api.verify.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;

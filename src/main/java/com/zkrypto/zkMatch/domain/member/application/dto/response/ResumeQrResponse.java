@@ -1,6 +1,6 @@
 package com.zkrypto.zkMatch.domain.member.application.dto.response;
 
-import com.zkrypto.zkMatch.api.verify.dto.RequestVpOfferResDto;
+import com.zkrypto.zkMatch.api.verify.dto.response.RequestVpOfferResDto;
 import lombok.Getter;
 import lombok.Setter;
 

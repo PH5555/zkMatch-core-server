@@ -1,8 +1,12 @@
 package com.zkrypto.zkMatch.domain.member.application.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zkrypto.zkMatch.api.verify.VerifierFeign;
-import com.zkrypto.zkMatch.api.verify.dto.RequestVpOfferReqDto;
-import com.zkrypto.zkMatch.api.verify.dto.RequestVpOfferResDto;
+import com.zkrypto.zkMatch.api.verify.dto.request.ConfirmVerifyReqDto;
+import com.zkrypto.zkMatch.api.verify.dto.request.RequestVpOfferReqDto;
+import com.zkrypto.zkMatch.api.verify.dto.response.ConfirmVerifyResDto;
+import com.zkrypto.zkMatch.api.verify.dto.response.RequestVpOfferResDto;
 import com.zkrypto.zkMatch.domain.member.application.dto.request.ResumeCreationCommand;
 import com.zkrypto.zkMatch.domain.member.application.dto.response.*;
 import com.zkrypto.zkMatch.domain.offer.domain.entity.Offer;
@@ -28,16 +32,19 @@ import com.zkrypto.zkMatch.global.utils.BaseMultibaseUtil;
 import com.zkrypto.zkMatch.global.utils.JsonUtil;
 import com.zkrypto.zkMatch.global.utils.MultiBaseType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MemberService {
     private final MemberRepository memberRepository;
     private final RecruitRepository recruitRepository;
@@ -146,7 +153,6 @@ public class MemberService {
         // 이력 조회
         List<Resume> encResumes = resumeRepository.getResumesByMember(member);
 
-
         return encResumes.stream().map(encResume -> {
             String plainText = AesUtil.decrypt(encResume.getEncData(), member.getSalt());
             Object vc = BaseVc.mappingVc(plainText, encResume.getResumeType());
@@ -217,7 +223,50 @@ public class MemberService {
 
         // offerId, memberId 매핑
         redisService.setData(memberId.toString(), offerId, 600000L);
+        redisService.setData(memberId.toString() + "type", type.name(), 600000L);
 
         return resultDto;
+    }
+
+    /**
+     * 생성 요청 완료 메서드
+     */
+    @Transactional
+    public void completeResumeDidQr(UUID memberId) throws JsonProcessingException {
+        // offerId 가져오기
+        String offerId = redisService.getData(memberId.toString())
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_OFFER_ID));
+
+        // 완료 요청
+        ConfirmVerifyResDto confirmVerifyResDto = verifierFeign.confirmVerify(new ConfirmVerifyReqDto(offerId));
+
+        // VP 생성 여부 확인
+        if(!confirmVerifyResDto.getResult()) {
+            throw new CustomException(ErrorCode.FAILED_GET_VP);
+        }
+
+        // 유저 데이터 저장
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, Object> data = new HashMap<>();
+        confirmVerifyResDto.getClaims().forEach(claim -> {
+            data.put(claim.getCaption(), claim.getValue());
+        });
+        String vc = objectMapper.writeValueAsString(data);
+
+        // 데이터 형식 확인
+        ResumeType type = ResumeType.valueOf(redisService.getData(memberId + "type")
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VP_TYPE)));
+        if(!BaseVc.checkVcFormat(vc, type)) {
+            throw new CustomException(ErrorCode.INVALID_VC_TYPE);
+        }
+
+        // 데이터 암호화
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
+        String encData = AesUtil.encrypt(vc, member.getSalt());
+
+        // 이력서 저장
+        Resume resume = Resume.from(type, encData, member);
+        resumeRepository.save(resume);
     }
 }

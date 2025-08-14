@@ -1,4 +1,4 @@
-package com.zkrypto.zkMatch.api.verify.dto;
+package com.zkrypto.zkMatch.api.verify.dto.response;
 
 import com.zkrypto.zkMatch.api.verify.constant.VerifyOfferPayload;
 import lombok.Getter;
