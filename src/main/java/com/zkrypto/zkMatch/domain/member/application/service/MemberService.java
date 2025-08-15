@@ -11,6 +11,7 @@ import com.zkrypto.zkMatch.domain.member.application.dto.request.ResumeCreationC
 import com.zkrypto.zkMatch.domain.member.application.dto.response.*;
 import com.zkrypto.zkMatch.domain.offer.domain.entity.Offer;
 import com.zkrypto.zkMatch.domain.offer.domain.repository.OfferRepository;
+import com.zkrypto.zkMatch.domain.post.application.dto.response.PostResponse;
 import com.zkrypto.zkMatch.domain.resume.domain.constant.BaseVc;
 import com.zkrypto.zkMatch.domain.resume.domain.constant.ResumeType;
 import com.zkrypto.zkMatch.domain.resume.domain.entity.Resume;
@@ -109,7 +110,7 @@ public class MemberService {
     /**
      * 스크랩 공고 조회 메서드
      */
-    public List<ScrabResponse> getScrab(UUID memberId) {
+    public List<PostResponse> getScrab(UUID memberId) {
         // 멤버 존재 확인
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
@@ -117,7 +118,7 @@ public class MemberService {
         // 스크랩 내역 조회
         List<Scrab> scrabs = scrabRepository.findByMember(member);
 
-        return scrabs.stream().map(ScrabResponse::from).toList();
+        return scrabs.stream().map(PostResponse::from).toList();
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.zkrypto.zkMatch.domain.post.application.dto.response;
 
 import com.zkrypto.zkMatch.domain.post.domain.entity.Post;
+import com.zkrypto.zkMatch.global.utils.DateFormatter;
 import lombok.Getter;
 import org.springframework.cglib.core.Local;
 
@@ -22,8 +23,6 @@ public class CorporationPostResponse {
     }
 
     public static CorporationPostResponse from(Post post, int applierCount) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
-        String endDate = post.getEndDate().format(formatter);
-        return new CorporationPostResponse(post.getPostId().toString(), post.getTitle(), applierCount, endDate);
+        return new CorporationPostResponse(post.getPostId().toString(), post.getTitle(), applierCount, DateFormatter.format(post.getEndDate()));
     }
 }

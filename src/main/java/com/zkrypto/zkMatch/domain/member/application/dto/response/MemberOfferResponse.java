@@ -1,6 +1,7 @@
 package com.zkrypto.zkMatch.domain.member.application.dto.response;
 
 import com.zkrypto.zkMatch.domain.offer.domain.entity.Offer;
+import com.zkrypto.zkMatch.global.utils.DateFormatter;
 import lombok.Getter;
 
 import java.time.format.DateTimeFormatter;
@@ -16,8 +17,6 @@ public class MemberOfferResponse {
     }
 
     public static MemberOfferResponse from(Offer offer) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
-        String date = offer.getCreatedAt().format(formatter);
-        return new MemberOfferResponse(offer.getCorporation().getCorporationName(), date);
+        return new MemberOfferResponse(offer.getCorporation().getCorporationName(), DateFormatter.format(offer.getCreatedAt()));
     }
 }

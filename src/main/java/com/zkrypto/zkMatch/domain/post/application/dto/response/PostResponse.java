@@ -1,6 +1,8 @@
 package com.zkrypto.zkMatch.domain.post.application.dto.response;
 
 import com.zkrypto.zkMatch.domain.post.domain.entity.Post;
+import com.zkrypto.zkMatch.domain.scrab.domain.entity.Scrab;
+import com.zkrypto.zkMatch.global.utils.DateFormatter;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -25,7 +27,7 @@ public class PostResponse {
     private List<String> category;
     private String corporationName;
 
-    private PostResponse(String postId, String title, String content, String startDate, String endDate, String majorRequirement, String educationRequirement, String experienceRequirement, List<String> licenseRequirement, int salaryStart, int salaryEnd, String workSpace, String workType, List<String> category, String corporationName) {
+    public PostResponse(String postId, String title, String content, String startDate, String endDate, String majorRequirement, String educationRequirement, String experienceRequirement, List<String> licenseRequirement, int salaryStart, int salaryEnd, String workSpace, String workType, List<String> category, String corporationName) {
         this.postId = postId;
         this.title = title;
         this.content = content;
@@ -44,16 +46,34 @@ public class PostResponse {
     }
 
     public static PostResponse from(Post post) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
-        String endDate = post.getEndDate().format(formatter);
-        String startDate = post.getStartDate().format(formatter);
+        return new PostResponse(
+                post.getPostId().toString(),
+                post.getTitle(),
+                post.getContent(),
+                DateFormatter.format(post.getStartDate()),
+                DateFormatter.format(post.getEndDate()),
+                post.getMajorRequirement(),
+                post.getEducationRequirement(),
+                post.getExperienceRequirement() + "년 이상",
+                post.getLicenseRequirement(),
+                post.getSalaryStart(),
+                post.getSalaryEnd(),
+                post.getWorkSpace(),
+                post.getWorkType(),
+                post.getCategory(),
+                post.getCorporation().getCorporationName()
+        );
+    }
+
+    public static PostResponse from(Scrab scrab) {
+        Post post = scrab.getPost();
 
         return new PostResponse(
                 post.getPostId().toString(),
                 post.getTitle(),
                 post.getContent(),
-                startDate,
-                endDate,
+                DateFormatter.format(post.getStartDate()),
+                DateFormatter.format(post.getEndDate()),
                 post.getMajorRequirement(),
                 post.getEducationRequirement(),
                 post.getExperienceRequirement() + "년 이상",

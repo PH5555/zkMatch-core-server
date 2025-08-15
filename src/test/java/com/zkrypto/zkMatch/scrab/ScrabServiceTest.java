@@ -77,9 +77,9 @@ public class ScrabServiceTest {
         scrabService.scrabPost(member.getMemberId(), scrabCommand);
 
         // 검증
-        List<ScrabResponse> scrab = memberService.getScrab(member.getMemberId());
+        List<PostResponse> scrab = memberService.getScrab(member.getMemberId());
         assertThat(scrab.size()).isEqualTo(1);
-        assertThat(scrab.get(0).getPostTitle()).isEqualTo("하이");
+        assertThat(scrab.get(0).getTitle()).isEqualTo("하이");
     }
 
     @Test
@@ -117,7 +117,7 @@ public class ScrabServiceTest {
         scrabService.scrabPost(member.getMemberId(), scrabCommand);
 
         // 검증
-        List<ScrabResponse> scrab = memberService.getScrab(member.getMemberId());
+        List<PostResponse> scrab = memberService.getScrab(member.getMemberId());
         assertThat(scrab.size()).isEqualTo(0);
     }
 }
