@@ -3,8 +3,11 @@ package com.zkrypto.zkMatch.domain.corporation.application.service;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.request.*;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.response.CandidateResponse;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.response.CorporationResponse;
+import com.zkrypto.zkMatch.domain.corporation.application.dto.response.EvaluationResponse;
 import com.zkrypto.zkMatch.domain.corporation.domain.entity.Corporation;
 import com.zkrypto.zkMatch.domain.corporation.domain.repository.CorporationRepository;
+import com.zkrypto.zkMatch.domain.evaluation.domain.entity.Evaluation;
+import com.zkrypto.zkMatch.domain.evaluation.domain.repository.EvaluationRepository;
 import com.zkrypto.zkMatch.domain.interview.domain.entity.Interview;
 import com.zkrypto.zkMatch.domain.interview.domain.repository.InterviewRepository;
 import com.zkrypto.zkMatch.domain.member.domain.entity.Member;
@@ -47,6 +50,7 @@ public class CorporationService {
     private final S3Service s3Service;
     private final InterviewRepository interviewRepository;
     private final OfferRepository offerRepository;
+    private final EvaluationRepository evaluationRepository;
 
     /**
      * 기업 생성 메서드
@@ -224,7 +228,7 @@ public class CorporationService {
         }
 
         // 평가 생성
-        recruit.setEvaluation(evaluationCreationCommand.getEvaluation());
+        evaluationRepository.save(Evaluation.from(evaluationCreationCommand, recruit));
     }
 
     /**
@@ -250,5 +254,18 @@ public class CorporationService {
 
         // 제안 생성
         offerRepository.save(new Offer(member, corporation));
+    }
+
+    /**
+     * 지원자 평가 조회 메서드
+     */
+    public List<EvaluationResponse> getEvaluation(String recruitId) {
+        // 지원 이력 조회
+        Recruit recruit = recruitRepository.findById(Long.parseLong(recruitId))
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_RECRUIT));
+
+        // 평가 조회
+        return evaluationRepository.findEvaluationsByMember(recruit.getMember())
+                .stream().map(EvaluationResponse::from).toList();
     }
 }

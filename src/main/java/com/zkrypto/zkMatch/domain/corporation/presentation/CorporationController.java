@@ -3,6 +3,7 @@ package com.zkrypto.zkMatch.domain.corporation.presentation;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.request.*;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.response.CandidateResponse;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.response.CorporationResponse;
+import com.zkrypto.zkMatch.domain.corporation.application.dto.response.EvaluationResponse;
 import com.zkrypto.zkMatch.domain.corporation.application.service.CorporationService;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.CorporationPostResponse;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.UpdateApplierStatusCommand;
@@ -223,10 +224,34 @@ public class CorporationController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
                     content = {@Content(schema = @Schema(implementation = Void.class))}),
     })
-    @PatchMapping("/recruit/evaluation")
+    @PostMapping("/recruit/evaluation")
     public ApiResponse<Void> evaluateApplier(@RequestBody EvaluationCreationCommand evaluationCreationCommand) {
         corporationService.evaluateApplier(evaluationCreationCommand);
         return ApiResponse.success();
+    }
+
+    @Operation(
+            summary = "지원자 평가 조회 API",
+            description = "지원자의 평가 정보를 조회합니다.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            },
+            parameters = {
+                    @Parameter(
+                            in = ParameterIn.HEADER,
+                            name = "Authorization",
+                            description = "Bearer 토큰(ADMIN)",
+                            required = true
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
+                    content = {@Content(schema = @Schema(implementation = Void.class))}),
+    })
+    @GetMapping("/recruit/evaluation")
+    public ApiResponse<List<EvaluationResponse>> getEvaluation(@RequestParam("recruitId") String recruitId) {
+        return ApiResponse.success(corporationService.getEvaluation(recruitId));
     }
 
     @Operation(
