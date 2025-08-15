@@ -1,9 +1,9 @@
 package com.zkrypto.zkMatch.domain.corporation.presentation;
 
 import com.zkrypto.zkMatch.domain.corporation.application.dto.request.*;
-import com.zkrypto.zkMatch.domain.corporation.application.dto.response.CandidateResponse;
-import com.zkrypto.zkMatch.domain.corporation.application.dto.response.CorporationResponse;
+import com.zkrypto.zkMatch.domain.corporation.application.dto.response.*;
 import com.zkrypto.zkMatch.domain.corporation.application.service.CorporationService;
+import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberResumeResponse;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.CorporationPostResponse;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.UpdateApplierStatusCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.PostCreationCommand;
@@ -142,9 +142,9 @@ public class CorporationController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
                     content = {@Content(schema = @Schema(implementation = Void.class))}),
     })
-    @PatchMapping("/post")
-    public ApiResponse<Void> updatePost(@RequestBody PostUpdateCommand postUpdateCommand) {
-        corporationService.updatePost(postUpdateCommand);
+    @PatchMapping("/post/{postId}")
+    public ApiResponse<Void> updatePost(@PathVariable(name = "postId") String postId, @RequestBody PostUpdateCommand postUpdateCommand) {
+        corporationService.updatePost(postId, postUpdateCommand);
         return ApiResponse.success();
     }
 
@@ -172,11 +172,28 @@ public class CorporationController {
         return ApiResponse.success(corporationService.getPostApplier(postId));
     }
 
-    // TODO: 지원자 상세 정보
-    @GetMapping("/recruit")
-    public ApiResponse<List<PostApplierResponse>> getPostApplier(@PathVariable(name = "postId") String postId,
-                                                                 @PathVariable(name = "recruitId") String recruitId) {
-        return ApiResponse.success(corporationService.getPostApplier(postId));
+    @Operation(
+            summary = "지원자 상세 정보 조회 API",
+            description = "지원자의 상세 정보를 조회합니다. (지원자 기본 정보, 공개한 이력서)",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            },
+            parameters = {
+                    @Parameter(
+                            in = ParameterIn.HEADER,
+                            name = "Authorization",
+                            description = "Bearer 토큰(ADMIN)",
+                            required = true
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
+                    content = {@Content(schema = @Schema(implementation = ApplierDetailResponse.class))}),
+    })
+    @GetMapping("/recruit/{recruitId}")
+    public ApiResponse<ApplierDetailResponse> getApplierDetail(@PathVariable(name = "recruitId") String recruitId) {
+        return ApiResponse.success(corporationService.getApplierDetail(recruitId));
     }
 
     @Operation(
@@ -198,9 +215,9 @@ public class CorporationController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
                     content = {@Content(schema = @Schema(implementation = Void.class))}),
     })
-    @PatchMapping("/recruit")
-    public ApiResponse<Void> updateApplierStatus(@RequestBody UpdateApplierStatusCommand updateApplierStatusCommand){
-        corporationService.updateApplierStatus(updateApplierStatusCommand);
+    @PatchMapping("/recruit/{recruitId}")
+    public ApiResponse<Void> updateApplierStatus(@PathVariable(name = "recruitId") String recruitId, @RequestBody UpdateApplierStatusCommand updateApplierStatusCommand){
+        corporationService.updateApplierStatus(recruitId, updateApplierStatusCommand);
         return ApiResponse.success();
     }
 
@@ -223,10 +240,34 @@ public class CorporationController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
                     content = {@Content(schema = @Schema(implementation = Void.class))}),
     })
-    @PatchMapping("/recruit/evaluation")
-    public ApiResponse<Void> evaluateApplier(@RequestBody EvaluationCreationCommand evaluationCreationCommand) {
-        corporationService.evaluateApplier(evaluationCreationCommand);
+    @PostMapping("/recruit/{recruitId}/evaluation")
+    public ApiResponse<Void> evaluateApplier(@PathVariable(name = "recruitId") String recruitId, @RequestBody EvaluationCreationCommand evaluationCreationCommand) {
+        corporationService.evaluateApplier(recruitId, evaluationCreationCommand);
         return ApiResponse.success();
+    }
+
+    @Operation(
+            summary = "지원자 평가 조회 API",
+            description = "지원자의 평가 정보를 조회합니다.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            },
+            parameters = {
+                    @Parameter(
+                            in = ParameterIn.HEADER,
+                            name = "Authorization",
+                            description = "Bearer 토큰(ADMIN)",
+                            required = true
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
+                    content = {@Content(array = @ArraySchema(schema = @Schema(implementation = EvaluationResponse.class)))}),
+    })
+    @GetMapping("/recruit/{recruitId}/evaluation")
+    public ApiResponse<List<EvaluationResponse>> getEvaluation(@PathVariable("recruitId") String recruitId) {
+        return ApiResponse.success(corporationService.getEvaluation(recruitId));
     }
 
     @Operation(
@@ -248,9 +289,9 @@ public class CorporationController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
                     content = {@Content(schema = @Schema(implementation = Void.class))}),
     })
-    @PostMapping("/recruit/interview")
-    public ApiResponse<Void> createInterview(@RequestBody InterviewCreationCommand interviewCreationCommand) {
-        corporationService.createInterview(interviewCreationCommand);
+    @PostMapping("/recruit/{recruitId}/interview")
+    public ApiResponse<Void> createInterview(@PathVariable("recruitId") String recruitId, @RequestBody InterviewCreationCommand interviewCreationCommand) {
+        corporationService.createInterview(recruitId, interviewCreationCommand);
         return ApiResponse.success();
     }
 
@@ -273,10 +314,34 @@ public class CorporationController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
                     content = {@Content(schema = @Schema(implementation = Void.class))}),
     })
-    @PatchMapping("/recruit/interview")
-    public ApiResponse<Void> updateInterview(@RequestBody InterviewUpdateCommand interviewUpdateCommand) {
-        corporationService.updateInterview(interviewUpdateCommand);
+    @PatchMapping("/recruit/{recruitId}/interview")
+    public ApiResponse<Void> updateInterview(@PathVariable("recruitId") String recruitId, @RequestBody InterviewUpdateCommand interviewUpdateCommand) {
+        corporationService.updateInterview(recruitId, interviewUpdateCommand);
         return ApiResponse.success();
+    }
+
+    @Operation(
+            summary = "면접 일정 조회 API",
+            description = "면접 일정을 조회합니다.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            },
+            parameters = {
+                    @Parameter(
+                            in = ParameterIn.HEADER,
+                            name = "Authorization",
+                            description = "Bearer 토큰(ADMIN)",
+                            required = true
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
+                    content = {@Content(schema = @Schema(implementation = InterviewResponse.class))}),
+    })
+    @GetMapping("/recruit/{recruitId}/interview")
+    public ApiResponse<InterviewResponse> getInterview(@PathVariable("recruitId") String recruitId) {
+        return ApiResponse.success(corporationService.getInterview(recruitId));
     }
 
     @Operation(

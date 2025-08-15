@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.zkrypto.zkMatch.domain.member.application.dto.request.ResumeCreationCommand;
 import com.zkrypto.zkMatch.domain.member.application.dto.response.*;
 import com.zkrypto.zkMatch.domain.member.application.service.MemberService;
+import com.zkrypto.zkMatch.domain.post.application.dto.response.PostResponse;
 import com.zkrypto.zkMatch.domain.resume.domain.constant.ResumeType;
 import com.zkrypto.zkMatch.domain.scrab.application.dto.response.ScrabResponse;
 import com.zkrypto.zkMatch.global.response.ApiResponse;
@@ -147,10 +148,10 @@ public class MemberController {
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
-                    content = {@Content(array = @ArraySchema(schema = @Schema(implementation = ScrabResponse.class)))}),
+                    content = {@Content(array = @ArraySchema(schema = @Schema(implementation = PostResponse.class)))}),
     })
     @GetMapping("/scrab")
-    public ApiResponse<List<ScrabResponse>> getMemberScrab(@AuthenticationPrincipal UUID memberId) {;
+    public ApiResponse<List<PostResponse>> getMemberScrab(@AuthenticationPrincipal UUID memberId) {;
         return ApiResponse.success(memberService.getScrab(memberId));
     }
 
@@ -223,7 +224,7 @@ public class MemberController {
                     content = {@Content(schema = @Schema(implementation = Void.class))}),
     })
     @PostMapping("/resume")
-    public ApiResponse<Void> createMemberResume(@AuthenticationPrincipal UUID memberId, ResumeCreationCommand resumeCreationCommand) {
+    public ApiResponse<Void> createMemberResume(@AuthenticationPrincipal UUID memberId, @RequestBody ResumeCreationCommand resumeCreationCommand) {
         memberService.createMemberResume(memberId, resumeCreationCommand);
         return ApiResponse.success();
     }

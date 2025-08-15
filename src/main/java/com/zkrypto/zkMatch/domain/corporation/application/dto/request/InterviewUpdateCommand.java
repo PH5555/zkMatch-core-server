@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 
 @Getter
 public class InterviewUpdateCommand {
-    private Long recruitId;
     private String title;
     private LocalDateTime startDate;
     private LocalDateTime endDate;

@@ -7,7 +7,6 @@ import java.util.List;
 
 @Getter
 public class PostUpdateCommand {
-    private String postId;
     private String title;
     private String content;
     private LocalDateTime startDate;

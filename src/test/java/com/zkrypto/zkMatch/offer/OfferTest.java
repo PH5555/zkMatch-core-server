@@ -34,14 +34,14 @@ public class OfferTest {
     void 채용_제안_테스트() {
         // 기업 생성
         CorporationCreationCommand corporationCreationCommand = new CorporationCreationCommand();
-        ReflectionUtil.setter(corporationCreationCommand, "corporationName", "지크립토");
-        ReflectionUtil.setter(corporationCreationCommand, "loginId", "1234");
-        ReflectionUtil.setter(corporationCreationCommand, "password", "1234");
+        ReflectionUtil.setter(corporationCreationCommand, "corporationName", "test");
+        ReflectionUtil.setter(corporationCreationCommand, "loginId", "test");
+        ReflectionUtil.setter(corporationCreationCommand, "password", "test");
 
         corporationService.createCorporation(corporationCreationCommand, null);
 
         // 멤버 조회
-        Member manager = memberRepository.findMemberByLoginId("1234").get();
+        Member manager = memberRepository.findMemberByLoginId("test").get();
 
         // 유저 생성
         Member member = new Member();
@@ -58,6 +58,6 @@ public class OfferTest {
 
         // 검증
         Assertions.assertThat(offers.size()).isEqualTo(1);
-        Assertions.assertThat(offers.get(0).getCorporationName()).isEqualTo("지크립토");
+        Assertions.assertThat(offers.get(0).getCorporationName()).isEqualTo("test");
     }
 }

@@ -5,6 +5,5 @@ import lombok.Getter;
 
 @Getter
 public class UpdateApplierStatusCommand {
-    private Long recruitId;
     private Status status;
 }

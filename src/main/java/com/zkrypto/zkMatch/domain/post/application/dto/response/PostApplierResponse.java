@@ -3,6 +3,7 @@ package com.zkrypto.zkMatch.domain.post.application.dto.response;
 import com.zkrypto.zkMatch.domain.member.domain.entity.Member;
 import com.zkrypto.zkMatch.domain.recruit.domain.constant.Status;
 import com.zkrypto.zkMatch.domain.recruit.domain.entity.Recruit;
+import com.zkrypto.zkMatch.global.utils.DateFormatter;
 import lombok.Getter;
 
 import java.time.format.DateTimeFormatter;
@@ -40,8 +41,6 @@ public class PostApplierResponse {
     }
 
     public static PostApplierResponse from(Recruit recruit) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
-        String date = recruit.getCreatedAt().format(formatter);
-        return new PostApplierResponse(recruit.getId().toString(), recruit.getMember().getName(), recruit.getMember().getPortfolioUrl(), date, recruit.getStatus());
+        return new PostApplierResponse(recruit.getId().toString(), recruit.getMember().getName(), recruit.getMember().getPortfolioUrl(), DateFormatter.format(recruit.getCreatedAt()), recruit.getStatus());
     }
 }

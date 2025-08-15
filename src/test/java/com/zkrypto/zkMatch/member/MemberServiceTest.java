@@ -10,6 +10,7 @@ import com.zkrypto.zkMatch.domain.post.application.dto.request.PostApplyCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.PostCreationCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.PostResponse;
 import com.zkrypto.zkMatch.domain.post.application.service.PostService;
+import com.zkrypto.zkMatch.domain.post.domain.entity.Post;
 import com.zkrypto.zkMatch.domain.post.domain.repository.PostRepository;
 import com.zkrypto.zkMatch.domain.recruit.domain.repository.RecruitRepository;
 import com.zkrypto.zkMatch.global.utils.ReflectionUtil;
@@ -44,21 +45,25 @@ public class MemberServiceTest {
     @Autowired
     MemberService memberService;
 
+    @Autowired
+    PostRepository postRepository;
+
     @Test
-    void 나의_지원_내역_테스트() throws IOException {
+    void 나의_지원_내역_테스트() {
         // 기업 생성
         CorporationCreationCommand corporationCreationCommand = new CorporationCreationCommand();
-        ReflectionUtil.setter(corporationCreationCommand, "corporationName", "지크립토");
-        ReflectionUtil.setter(corporationCreationCommand, "loginId", "1234");
-        ReflectionUtil.setter(corporationCreationCommand, "password", "1234");
+        ReflectionUtil.setter(corporationCreationCommand, "corporationName", "test");
+        ReflectionUtil.setter(corporationCreationCommand, "loginId", "test");
+        ReflectionUtil.setter(corporationCreationCommand, "password", "test");
 
         corporationService.createCorporation(corporationCreationCommand, null);
 
         // 관리자 조회
-        Member admin = memberRepository.findMemberByLoginId("1234").get();
+        Member admin = memberRepository.findMemberByLoginId("test").get();
 
         // 공고 생성
         PostCreationCommand postCreationCommand = new PostCreationCommand();
+        ReflectionUtil.setter(postCreationCommand, "startDate", LocalDateTime.of(2025, 1,1, 1, 1));
         ReflectionUtil.setter(postCreationCommand, "endDate", LocalDateTime.of(2026, 1,1, 1, 1));
         ReflectionUtil.setter(postCreationCommand, "title", "하이");
         corporationService.createPost(admin.getMemberId(), postCreationCommand);
@@ -68,19 +73,17 @@ public class MemberServiceTest {
         memberRepository.save(member);
 
         // 공고 조회
-        List<PostResponse> posts = postService.getPost();
+        Post post = postRepository.findPostByTitle("하이").get();
 
         // 공고 지원
-        PostApplyCommand postApplyCommand = new PostApplyCommand();
-        ReflectionUtil.setter(postApplyCommand, "postId", posts.get(0).getPostId());
-        postService.applyPost(member.getMemberId(), postApplyCommand);
+        postService.applyPost(member.getMemberId(), post.getPostId().toString());
 
         // 지원 내역 불러오기
-        List<MemberPostResponse> post = memberService.getPost(member.getMemberId());
+        List<MemberPostResponse> res = memberService.getPost(member.getMemberId());
 
         // 검증
-        assertThat(post.size()).isEqualTo(1);
-        assertThat(post.getFirst().getTitle()).isEqualTo("하이");
+        assertThat(res.size()).isEqualTo(1);
+        assertThat(res.getFirst().getTitle()).isEqualTo("하이");
     }
 }
 

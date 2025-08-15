@@ -35,7 +35,7 @@ public enum ErrorCode {
     NOT_ALLOWED_DELETE_RESUME("R006", HttpStatus.FORBIDDEN, "이력을 삭제할 권한이 없습니다."),
 
     NOT_FOUND_INTERVIEW("I001", HttpStatus.NOT_FOUND, "면접 일정이 존재하지 않습니다."),
-    ALREADY_HAS_INTERVIEW("I002", HttpStatus.CONFLICT, "이미 면접 일정이 존재합니다."),
+    NOT_INTERVIEW_TARGET("I002", HttpStatus.CONFLICT, "면접 대상이 아닙니다."),
 
     FAILED_ENC("C001", HttpStatus.BAD_REQUEST, "암호화에 실패했습니다."),
     FAILED_DEC("C002", HttpStatus.BAD_REQUEST, "복호화에 실패했습니다."),

@@ -8,6 +8,7 @@ import com.zkrypto.zkMatch.domain.member.domain.repository.MemberRepository;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.PostCreationCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.PostResponse;
 import com.zkrypto.zkMatch.domain.post.application.service.PostService;
+import com.zkrypto.zkMatch.domain.post.domain.entity.Post;
 import com.zkrypto.zkMatch.domain.post.domain.repository.PostRepository;
 import com.zkrypto.zkMatch.domain.recruit.domain.repository.RecruitRepository;
 import com.zkrypto.zkMatch.domain.scrab.application.dto.request.ScrabCommand;
@@ -44,22 +45,25 @@ public class ScrabServiceTest {
     ScrabService scrabService;
     @Autowired
     private MemberService memberService;
+    @Autowired
+    private PostRepository postRepository;
 
     @Test
-    void 스크랩_테스트() throws IOException {
+    void 스크랩_테스트() {
         // 기업 생성
         CorporationCreationCommand corporationCreationCommand = new CorporationCreationCommand();
-        ReflectionUtil.setter(corporationCreationCommand, "corporationName", "지크립토");
-        ReflectionUtil.setter(corporationCreationCommand, "loginId", "1234");
-        ReflectionUtil.setter(corporationCreationCommand, "password", "1234");
+        ReflectionUtil.setter(corporationCreationCommand, "corporationName", "test");
+        ReflectionUtil.setter(corporationCreationCommand, "loginId", "test");
+        ReflectionUtil.setter(corporationCreationCommand, "password", "test");
 
         corporationService.createCorporation(corporationCreationCommand, null);
 
         // 관리자 조회
-        Member admin = memberRepository.findMemberByLoginId("1234").get();
+        Member admin = memberRepository.findMemberByLoginId("test").get();
 
         // 공고 생성
         PostCreationCommand postCreationCommand = new PostCreationCommand();
+        ReflectionUtil.setter(postCreationCommand, "startDate", LocalDateTime.of(2026, 1,1, 1, 1));
         ReflectionUtil.setter(postCreationCommand, "endDate", LocalDateTime.of(2026, 1,1, 1, 1));
         ReflectionUtil.setter(postCreationCommand, "title", "하이");
         corporationService.createPost(admin.getMemberId(), postCreationCommand);
@@ -69,34 +73,35 @@ public class ScrabServiceTest {
         memberRepository.save(member);
 
         // 공고 조회
-        List<PostResponse> posts = postService.getPost();
+        Post post = postRepository.findPostByTitle("하이").get();
 
         // 공고 스크랩
         ScrabCommand scrabCommand = new ScrabCommand();
-        ReflectionUtil.setter(scrabCommand, "postId", posts.get(0).getPostId());
+        ReflectionUtil.setter(scrabCommand, "postId", post.getPostId().toString());
         scrabService.scrabPost(member.getMemberId(), scrabCommand);
 
         // 검증
-        List<ScrabResponse> scrab = memberService.getScrab(member.getMemberId());
+        List<PostResponse> scrab = memberService.getScrab(member.getMemberId());
         assertThat(scrab.size()).isEqualTo(1);
-        assertThat(scrab.get(0).getPostTitle()).isEqualTo("하이");
+        assertThat(scrab.get(0).getTitle()).isEqualTo("하이");
     }
 
     @Test
-    void 스크랩_해제_테스트() throws IOException {
+    void 스크랩_해제_테스트() {
         // 기업 생성
         CorporationCreationCommand corporationCreationCommand = new CorporationCreationCommand();
-        ReflectionUtil.setter(corporationCreationCommand, "corporationName", "지크립토");
-        ReflectionUtil.setter(corporationCreationCommand, "loginId", "1234");
-        ReflectionUtil.setter(corporationCreationCommand, "password", "1234");
+        ReflectionUtil.setter(corporationCreationCommand, "corporationName", "test");
+        ReflectionUtil.setter(corporationCreationCommand, "loginId", "test");
+        ReflectionUtil.setter(corporationCreationCommand, "password", "test");
 
         corporationService.createCorporation(corporationCreationCommand, null);
 
         // 관리자 조회
-        Member admin = memberRepository.findMemberByLoginId("1234").get();
+        Member admin = memberRepository.findMemberByLoginId("test").get();
 
         // 공고 생성
         PostCreationCommand postCreationCommand = new PostCreationCommand();
+        ReflectionUtil.setter(postCreationCommand, "startDate", LocalDateTime.of(2026, 1,1, 1, 1));
         ReflectionUtil.setter(postCreationCommand, "endDate", LocalDateTime.of(2026, 1,1, 1, 1));
         ReflectionUtil.setter(postCreationCommand, "title", "하이");
         corporationService.createPost(admin.getMemberId(), postCreationCommand);
@@ -106,18 +111,18 @@ public class ScrabServiceTest {
         memberRepository.save(member);
 
         // 공고 조회
-        List<PostResponse> posts = postService.getPost();
+        Post post = postRepository.findPostByTitle("하이").get();
 
         // 공고 스크랩
         ScrabCommand scrabCommand = new ScrabCommand();
-        ReflectionUtil.setter(scrabCommand, "postId", posts.get(0).getPostId());
+        ReflectionUtil.setter(scrabCommand, "postId", post.getPostId().toString());
         scrabService.scrabPost(member.getMemberId(), scrabCommand);
 
         // 스크랩 해제
         scrabService.scrabPost(member.getMemberId(), scrabCommand);
 
         // 검증
-        List<ScrabResponse> scrab = memberService.getScrab(member.getMemberId());
+        List<PostResponse> scrab = memberService.getScrab(member.getMemberId());
         assertThat(scrab.size()).isEqualTo(0);
     }
 }

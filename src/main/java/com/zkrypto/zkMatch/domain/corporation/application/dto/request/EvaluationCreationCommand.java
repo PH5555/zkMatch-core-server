@@ -4,6 +4,6 @@ import lombok.Getter;
 
 @Getter
 public class EvaluationCreationCommand {
-    private Long recruitId;
     private String evaluation;
+    private int rating;
 }
