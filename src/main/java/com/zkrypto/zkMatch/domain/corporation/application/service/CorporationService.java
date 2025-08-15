@@ -1,9 +1,7 @@
 package com.zkrypto.zkMatch.domain.corporation.application.service;
 
 import com.zkrypto.zkMatch.domain.corporation.application.dto.request.*;
-import com.zkrypto.zkMatch.domain.corporation.application.dto.response.CandidateResponse;
-import com.zkrypto.zkMatch.domain.corporation.application.dto.response.CorporationResponse;
-import com.zkrypto.zkMatch.domain.corporation.application.dto.response.EvaluationResponse;
+import com.zkrypto.zkMatch.domain.corporation.application.dto.response.*;
 import com.zkrypto.zkMatch.domain.corporation.domain.entity.Corporation;
 import com.zkrypto.zkMatch.domain.corporation.domain.repository.CorporationRepository;
 import com.zkrypto.zkMatch.domain.evaluation.domain.entity.Evaluation;
@@ -29,12 +27,14 @@ import com.zkrypto.zkMatch.global.rabbitmq.dto.SendMessage;
 import com.zkrypto.zkMatch.global.response.exception.CustomException;
 import com.zkrypto.zkMatch.global.response.exception.ErrorCode;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -140,9 +140,9 @@ public class CorporationService {
      * 지원자 상태 업데이트 메서드
      */
     @Transactional
-    public void updateApplierStatus(UpdateApplierStatusCommand command) {
+    public void updateApplierStatus(String recruitId, UpdateApplierStatusCommand command) {
         // 지원자 조회
-        Recruit recruit = recruitRepository.findRecruitByIdWithMemberAndPost(command.getRecruitId())
+        Recruit recruit = recruitRepository.findRecruitByIdWithMemberAndPost(Long.parseLong(recruitId))
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_APPLIED_TO_POSTING));
 
         // PENDING, INTERVIEW 는 잘못된 요청
@@ -171,9 +171,9 @@ public class CorporationService {
      * 공고 업데이트 메서드
      */
     @Transactional
-    public void updatePost(PostUpdateCommand postUpdateCommand) {
+    public void updatePost(String postId, PostUpdateCommand postUpdateCommand) {
         // 공고 조회
-        Post post = postRepository.findById(UUID.fromString(postUpdateCommand.getPostId()))
+        Post post = postRepository.findById(UUID.fromString(postId))
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_POST));
 
         // 공고 업데이트
@@ -184,14 +184,14 @@ public class CorporationService {
      * 면접 일정 생성 메서드
      */
     @Transactional
-    public void createInterview(InterviewCreationCommand interviewCreationCommand) {
+    public void createInterview(String recruitId, InterviewCreationCommand interviewCreationCommand) {
         // 지원 이력 조회
-        Recruit recruit = recruitRepository.findById(interviewCreationCommand.getRecruitId())
+        Recruit recruit = recruitRepository.findById(Long.parseLong(recruitId))
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_RECRUIT));
 
         // 면접 이력 조회
-        if(recruit.getStatus() == Status.INTERVIEW) {
-            throw new CustomException(ErrorCode.ALREADY_HAS_INTERVIEW);
+        if(recruit.getStatus() != Status.PENDING) {
+            throw new CustomException(ErrorCode.NOT_INTERVIEW_TARGET);
         }
 
         // 면접 생성
@@ -204,9 +204,9 @@ public class CorporationService {
      * 면접 일정 수정 메서드
      */
     @Transactional
-    public void updateInterview(InterviewUpdateCommand interviewUpdateCommand) {
+    public void updateInterview(String recruitId, InterviewUpdateCommand interviewUpdateCommand) {
         // 면접 일정 조회
-        Interview interview = interviewRepository.findByRecruitId(interviewUpdateCommand.getRecruitId())
+        Interview interview = interviewRepository.findByRecruitId(Long.parseLong(recruitId))
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_INTERVIEW));
 
         // 수정
@@ -217,9 +217,9 @@ public class CorporationService {
      * 지원자 평가 메서드
      */
     @Transactional
-    public void evaluateApplier(EvaluationCreationCommand evaluationCreationCommand) {
+    public void evaluateApplier(String recruitId, EvaluationCreationCommand evaluationCreationCommand) {
         // 지원 이력 조회
-        Recruit recruit = recruitRepository.findById(evaluationCreationCommand.getRecruitId())
+        Recruit recruit = recruitRepository.findById(Long.parseLong(recruitId))
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_RECRUIT));
 
         // 평가 대상자인지 확인
@@ -267,5 +267,35 @@ public class CorporationService {
         // 평가 조회
         return evaluationRepository.findEvaluationsByMember(recruit.getMember())
                 .stream().map(EvaluationResponse::from).toList();
+    }
+
+    /**
+     * 면접 조회 메서드
+     */
+    public InterviewResponse getInterview(String recruitId) {
+        // 지원 이력 조회
+        Recruit recruit = recruitRepository.findById(Long.parseLong(recruitId))
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_RECRUIT));
+
+        // 면접 조회
+        if(recruit.getInterview() == null) {
+            throw new CustomException(ErrorCode.NOT_FOUND_INTERVIEW);
+        }
+
+        return InterviewResponse.from(recruit.getInterview());
+    }
+
+    /**
+     * 지원자 상세 정보 조회 메서드
+     */
+    public ApplierDetailResponse getApplierDetail(String recruitId) {
+        // 지원 이력 조회
+        Recruit recruit = recruitRepository.findById(Long.parseLong(recruitId))
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_RECRUIT));
+
+        // TODO: 공개한 이력서 조회
+        List<Object> resumes = new ArrayList<>();
+
+        return ApplierDetailResponse.from(recruit, resumes);
     }
 }

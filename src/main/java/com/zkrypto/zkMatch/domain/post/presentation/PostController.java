@@ -71,9 +71,9 @@ public class PostController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
                     content = {@Content(schema = @Schema(implementation = Void.class))}),
     })
-    @PutMapping()
-    public ApiResponse<Void> applyPost(@AuthenticationPrincipal UUID memberId, @RequestBody PostApplyCommand postApplyCommand) {
-        postService.applyPost(memberId, postApplyCommand);
+    @PutMapping("/{postId}")
+    public ApiResponse<Void> applyPost(@AuthenticationPrincipal UUID memberId, @PathVariable("postId") String postId) {
+        postService.applyPost(memberId, postId);
         return ApiResponse.success();
     }
 

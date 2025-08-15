@@ -23,4 +23,6 @@ public interface PostRepository extends JpaRepository<Post, UUID>, PostCustomRep
 
     @Query(value = "SELECT * FROM post WHERE category LIKE %:keyword%", nativeQuery = true)
     List<Post> findByCategory(@Param("keyword") String keyword);
+
+    Optional<Post> findPostByTitle(String title);
 }

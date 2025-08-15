@@ -38,13 +38,13 @@ public class PostService {
     /**
      * 공고 지원 메서드
      */
-    public void applyPost(UUID memberId, PostApplyCommand postApplyCommand) {
+    public void applyPost(UUID memberId, String postId) {
         // 멤버 존재 확인
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
 
         // 공고 확인
-        Post post = postRepository.findById(UUID.fromString(postApplyCommand.getPostId()))
+        Post post = postRepository.findById(UUID.fromString(postId))
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_POST));
 
         // 이미 지원한 공고인지 확인

@@ -46,10 +46,13 @@ public class SecurityConfig {
                     // auth api 설정
                     authorizeRequest.requestMatchers("/auth/**").permitAll();
 
+                    // 채용 공고 조회 인증 필요 없음
+                    authorizeRequest.requestMatchers(HttpMethod.GET, "/post").permitAll();
+
                     // corporation api 설정
                     authorizeRequest.requestMatchers(HttpMethod.POST, "/corporation").permitAll();
                     authorizeRequest.requestMatchers(HttpMethod.GET, "/corporation").hasAuthority(Role.ROLE_ADMIN.toString());
-                    authorizeRequest.requestMatchers( "/corporation/post", "/corporation/post/**", "/corporation/recruit", "/corporation/recruit/**", "/candidate/**").hasAuthority(Role.ROLE_ADMIN.toString());
+                    authorizeRequest.requestMatchers( "/corporation/post", "/corporation/post/**", "/corporation/recruit", "/corporation/recruit/**", "/corporation/candidate/**", "/corporation/candidate").hasAuthority(Role.ROLE_ADMIN.toString());
 
                     // 나머지 모든 API는 Jwt 인증 필요
                     authorizeRequest.anyRequest().authenticated();
