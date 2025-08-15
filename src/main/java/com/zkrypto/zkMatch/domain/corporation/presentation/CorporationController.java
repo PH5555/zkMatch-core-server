@@ -3,6 +3,7 @@ package com.zkrypto.zkMatch.domain.corporation.presentation;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.request.*;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.response.*;
 import com.zkrypto.zkMatch.domain.corporation.application.service.CorporationService;
+import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberResumeResponse;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.CorporationPostResponse;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.UpdateApplierStatusCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.PostCreationCommand;
@@ -262,7 +263,7 @@ public class CorporationController {
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
-                    content = {@Content(schema = @Schema(implementation = Void.class))}),
+                    content = {@Content(array = @ArraySchema(schema = @Schema(implementation = EvaluationResponse.class)))}),
     })
     @GetMapping("/recruit/{recruitId}/evaluation")
     public ApiResponse<List<EvaluationResponse>> getEvaluation(@PathVariable("recruitId") String recruitId) {

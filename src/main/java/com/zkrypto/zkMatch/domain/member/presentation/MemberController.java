@@ -224,7 +224,7 @@ public class MemberController {
                     content = {@Content(schema = @Schema(implementation = Void.class))}),
     })
     @PostMapping("/resume")
-    public ApiResponse<Void> createMemberResume(@AuthenticationPrincipal UUID memberId, ResumeCreationCommand resumeCreationCommand) {
+    public ApiResponse<Void> createMemberResume(@AuthenticationPrincipal UUID memberId, @RequestBody ResumeCreationCommand resumeCreationCommand) {
         memberService.createMemberResume(memberId, resumeCreationCommand);
         return ApiResponse.success();
     }

@@ -10,6 +10,7 @@ import com.zkrypto.zkMatch.domain.post.application.dto.request.PostApplyCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.PostCreationCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.PostResponse;
 import com.zkrypto.zkMatch.domain.post.application.service.PostService;
+import com.zkrypto.zkMatch.domain.post.domain.entity.Post;
 import com.zkrypto.zkMatch.domain.post.domain.repository.PostRepository;
 import com.zkrypto.zkMatch.domain.recruit.domain.repository.RecruitRepository;
 import com.zkrypto.zkMatch.global.utils.ReflectionUtil;
@@ -44,6 +45,9 @@ public class MemberServiceTest {
     @Autowired
     MemberService memberService;
 
+    @Autowired
+    PostRepository postRepository;
+
     @Test
     void 나의_지원_내역_테스트() {
         // 기업 생성
@@ -69,17 +73,17 @@ public class MemberServiceTest {
         memberRepository.save(member);
 
         // 공고 조회
-        List<PostResponse> posts = postService.getPost();
+        Post post = postRepository.findPostByTitle("하이").get();
 
         // 공고 지원
-        postService.applyPost(member.getMemberId(), posts.get(0).getPostId());
+        postService.applyPost(member.getMemberId(), post.getPostId().toString());
 
         // 지원 내역 불러오기
-        List<MemberPostResponse> post = memberService.getPost(member.getMemberId());
+        List<MemberPostResponse> res = memberService.getPost(member.getMemberId());
 
         // 검증
-        assertThat(post.size()).isEqualTo(1);
-        assertThat(post.getFirst().getTitle()).isEqualTo("하이");
+        assertThat(res.size()).isEqualTo(1);
+        assertThat(res.getFirst().getTitle()).isEqualTo("하이");
     }
 }
 

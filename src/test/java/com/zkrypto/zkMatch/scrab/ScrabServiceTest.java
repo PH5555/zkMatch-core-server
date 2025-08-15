@@ -8,6 +8,7 @@ import com.zkrypto.zkMatch.domain.member.domain.repository.MemberRepository;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.PostCreationCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.PostResponse;
 import com.zkrypto.zkMatch.domain.post.application.service.PostService;
+import com.zkrypto.zkMatch.domain.post.domain.entity.Post;
 import com.zkrypto.zkMatch.domain.post.domain.repository.PostRepository;
 import com.zkrypto.zkMatch.domain.recruit.domain.repository.RecruitRepository;
 import com.zkrypto.zkMatch.domain.scrab.application.dto.request.ScrabCommand;
@@ -44,6 +45,8 @@ public class ScrabServiceTest {
     ScrabService scrabService;
     @Autowired
     private MemberService memberService;
+    @Autowired
+    private PostRepository postRepository;
 
     @Test
     void 스크랩_테스트() {
@@ -70,11 +73,11 @@ public class ScrabServiceTest {
         memberRepository.save(member);
 
         // 공고 조회
-        List<PostResponse> posts = postService.getPost();
+        Post post = postRepository.findPostByTitle("하이").get();
 
         // 공고 스크랩
         ScrabCommand scrabCommand = new ScrabCommand();
-        ReflectionUtil.setter(scrabCommand, "postId", posts.get(0).getPostId());
+        ReflectionUtil.setter(scrabCommand, "postId", post.getPostId().toString());
         scrabService.scrabPost(member.getMemberId(), scrabCommand);
 
         // 검증
@@ -108,11 +111,11 @@ public class ScrabServiceTest {
         memberRepository.save(member);
 
         // 공고 조회
-        List<PostResponse> posts = postService.getPost();
+        Post post = postRepository.findPostByTitle("하이").get();
 
         // 공고 스크랩
         ScrabCommand scrabCommand = new ScrabCommand();
-        ReflectionUtil.setter(scrabCommand, "postId", posts.get(0).getPostId());
+        ReflectionUtil.setter(scrabCommand, "postId", post.getPostId().toString());
         scrabService.scrabPost(member.getMemberId(), scrabCommand);
 
         // 스크랩 해제
