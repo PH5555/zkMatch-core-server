@@ -1,6 +1,7 @@
 package com.zkrypto.zkMatch.domain.post.presentation;
 
 import com.zkrypto.zkMatch.domain.post.application.dto.request.PostApplyCommand;
+import com.zkrypto.zkMatch.domain.post.application.dto.response.ApplyQrResponse;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.PostResponse;
 import com.zkrypto.zkMatch.domain.post.application.service.PostService;
 import com.zkrypto.zkMatch.global.response.ApiResponse;
@@ -53,8 +54,8 @@ public class PostController {
     }
 
     @Operation(
-            summary = "즉시 지원 API",
-            description = "해당 공고에 지원합니다.",
+            summary = "지원 QR 생성 API",
+            description = "해당 공고에 지원하기 위한 QR을 생성합니다.",
             security = {
                     @SecurityRequirement(name = "bearerAuth")
             },
@@ -69,12 +70,11 @@ public class PostController {
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
-                    content = {@Content(schema = @Schema(implementation = Void.class))}),
+                    content = {@Content(schema = @Schema(implementation = ApplyQrResponse.class))}),
     })
-    @PutMapping("/{postId}")
-    public ApiResponse<Void> applyPost(@AuthenticationPrincipal UUID memberId, @PathVariable("postId") String postId) {
-        postService.applyPost(memberId, postId);
-        return ApiResponse.success();
+    @GetMapping("/{postId}")
+    public ApiResponse<ApplyQrResponse> createApplyQr(@AuthenticationPrincipal UUID memberId, @PathVariable("postId") String postId) {
+        return ApiResponse.success(postService.createApplyQr(memberId, postId));
     }
 
     @Operation(

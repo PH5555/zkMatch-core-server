@@ -2,12 +2,14 @@ package com.zkrypto.zkMatch.domain.post.application.service;
 
 import com.zkrypto.zkMatch.domain.member.domain.entity.Member;
 import com.zkrypto.zkMatch.domain.member.domain.repository.MemberRepository;
-import com.zkrypto.zkMatch.domain.post.application.dto.request.PostApplyCommand;
+import com.zkrypto.zkMatch.domain.post.application.dto.response.ApplyQrResponse;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.PostResponse;
 import com.zkrypto.zkMatch.domain.post.domain.entity.Post;
 import com.zkrypto.zkMatch.domain.post.domain.repository.PostRepository;
 import com.zkrypto.zkMatch.domain.recruit.domain.entity.Recruit;
 import com.zkrypto.zkMatch.domain.recruit.domain.repository.RecruitRepository;
+import com.zkrypto.zkMatch.global.qr.QrMaker;
+import com.zkrypto.zkMatch.global.redis.RedisService;
 import com.zkrypto.zkMatch.global.response.exception.CustomException;
 import com.zkrypto.zkMatch.global.response.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
     private final RecruitRepository recruitRepository;
+    private final RedisService redisService;
 
     /**
      * 공고 조회 메서드
@@ -35,7 +38,7 @@ public class PostService {
         return posts.stream().map(PostResponse::from).toList();
     }
 
-    /**
+    /** TODO: 삭제
      * 공고 지원 메서드
      */
     public void applyPost(UUID memberId, String postId) {
@@ -73,5 +76,22 @@ public class PostService {
         // 관심 분야 조회
         return member.getInterests().stream().flatMap(interest -> postRepository.findByCategory(interest).stream())
                 .map(PostResponse::from).toList();
+    }
+
+    /**
+     * 지원 QR 생성 메서드
+     */
+    public ApplyQrResponse createApplyQr(UUID memberId, String postId) {
+        // QR 생성
+        ApplyQrResponse resultDto = ApplyQrResponse.from(memberId);
+        byte[] qrImage = QrMaker.makeQr(resultDto);
+
+        // 반환 값에 저장
+        resultDto.setQrImage(qrImage);
+
+        // 생성 요청 저장
+        redisService.setData(memberId.toString(), postId, 600000L);
+
+        return resultDto;
     }
 }

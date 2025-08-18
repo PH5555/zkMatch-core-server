@@ -24,6 +24,6 @@ public class ResumeQrResponse {
     }
 
     public static ResumeQrResponse from(String encDataPayload, RequestVpOfferResDto requestVpOfferResDto) {
-        return new ResumeQrResponse("SUBMIT_VP", encDataPayload, requestVpOfferResDto.getPayload().getValidUntil());
+        return new ResumeQrResponse(encDataPayload, "SUBMIT_VP", requestVpOfferResDto.getPayload().getValidUntil());
     }
 }
