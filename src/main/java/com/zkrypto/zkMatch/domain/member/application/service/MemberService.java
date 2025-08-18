@@ -269,5 +269,8 @@ public class MemberService {
         // 이력서 저장
         Resume resume = Resume.from(type, encData, member);
         resumeRepository.save(resume);
+
+        redisService.deleteData(memberId.toString());
+        redisService.deleteData(memberId + "type");
     }
 }

@@ -124,7 +124,13 @@ public class PostService {
      */
     @Transactional
     public void completeApply(UUID memberId, String postId, CompleteApplyCommand completeApplyCommand) {
-        // 멤버 존재 확인
+        // 지원 조건 확인
+        String applyResult = redisService.getData(memberId.toString()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_APPLY_SESSION));
+        if(!applyResult.equals("SUCCESS")) {
+            throw new CustomException(ErrorCode.INVALID_APPLY_CONDITION);
+        }
+
+        // 멤버 조회
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
 
@@ -146,5 +152,14 @@ public class PostService {
             AppliedResume appliedResume = new AppliedResume(recruit, resume);
             appliedResumeRepository.save(appliedResume);
         });
+
+        redisService.deleteData(memberId.toString());
+    }
+
+    /**
+     * CA앱용 지원 조건 확인 메서드
+     */
+    public void confirmApply(String memberId) {
+        redisService.setData(memberId, "SUCCESS", 600000L);
     }
 }
