@@ -2,10 +2,12 @@ package com.zkrypto.zkMatch.domain.resume.domain.entity;
 
 import com.zkrypto.zkMatch.domain.recruit.domain.entity.Recruit;
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor
+@Getter
 public class AppliedResume {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long appliedResumeId;
