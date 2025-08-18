@@ -1,5 +1,6 @@
 package com.zkrypto.zkMatch.domain.post.presentation;
 
+import com.zkrypto.zkMatch.domain.post.application.dto.request.CompleteApplyCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.PostApplyCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.ApplyQrResponse;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.PostResponse;
@@ -75,6 +76,32 @@ public class PostController {
     @GetMapping("/{postId}")
     public ApiResponse<ApplyQrResponse> createApplyQr(@AuthenticationPrincipal UUID memberId, @PathVariable("postId") String postId) {
         return ApiResponse.success(postService.createApplyQr(memberId, postId));
+    }
+
+    @Operation(
+            summary = "지원 완료 API",
+            description = "QR을 스캔한 이후 조건에 맞는 지원자이면 공개할 정보를 선택한 후 지원 완료상태가 됩니다.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            },
+            parameters = {
+                    @Parameter(
+                            in = ParameterIn.HEADER,
+                            name = "Authorization",
+                            description = "Bearer 토큰",
+                            required = true
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
+                    content = {@Content(schema = @Schema(implementation = Void.class))}),
+    })
+    @PostMapping("/{postId}")
+    public ApiResponse<Void> completeApply(@AuthenticationPrincipal UUID memberId, @PathVariable("postId") String postId,
+                                                      @RequestBody CompleteApplyCommand completeApplyCommand) {
+        postService.completeApply(memberId, postId, completeApplyCommand);
+        return ApiResponse.success();
     }
 
     @Operation(
