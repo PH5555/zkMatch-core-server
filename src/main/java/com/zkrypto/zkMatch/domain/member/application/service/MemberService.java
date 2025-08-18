@@ -7,6 +7,7 @@ import com.zkrypto.zkMatch.api.verify.dto.request.ConfirmVerifyReqDto;
 import com.zkrypto.zkMatch.api.verify.dto.request.RequestVpOfferReqDto;
 import com.zkrypto.zkMatch.api.verify.dto.response.ConfirmVerifyResDto;
 import com.zkrypto.zkMatch.api.verify.dto.response.RequestVpOfferResDto;
+import com.zkrypto.zkMatch.api.verify.dto.response.VpPolicyResponseDto;
 import com.zkrypto.zkMatch.domain.member.application.dto.request.ResumeCreationCommand;
 import com.zkrypto.zkMatch.domain.member.application.dto.response.*;
 import com.zkrypto.zkMatch.domain.offer.domain.entity.Offer;
@@ -200,10 +201,12 @@ public class MemberService {
      * QR 요청 메서드
      */
     public ResumeQrResponse getResumeDidQr(UUID memberId, ResumeType type) {
-
-        // TODO: 타입별 policy 가져오기
+        // vp policy 조회
+        List<VpPolicyResponseDto> policies = verifierFeign.getAllPolicies();
+        VpPolicyResponseDto vpPolicy = policies.stream().filter(policy -> policy.getPolicyTitle().equals(type.name())).findFirst()
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUNT_POLICY));
         RequestVpOfferReqDto requestVpOfferReqDto = RequestVpOfferReqDto.builder()
-                .policyId("").build();
+                .policyId(vpPolicy.getPolicyId()).build();
 
         // vp 생성 시작 요청
         RequestVpOfferResDto requestVpOfferResDto = verifierFeign.requestVpOfferQR(requestVpOfferReqDto);

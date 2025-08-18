@@ -34,7 +34,8 @@ public enum ErrorCode {
     NOT_FOUND_RESUME("R005", HttpStatus.NOT_FOUND, "해당 이력이 존재하지 않습니다."),
     NOT_ALLOWED_DELETE_RESUME("R006", HttpStatus.FORBIDDEN, "이력을 삭제할 권한이 없습니다."),
     NOT_FOUND_APPLY_SESSION("R007", HttpStatus.NOT_FOUND, "지원 세션을 찾을 수 없습니다."),
-    INVALID_APPLY_CONDITION("R007", HttpStatus.CONFLICT, "지원 조건을 만족하지 않습니다."),
+    INVALID_APPLY_CONDITION("R008", HttpStatus.CONFLICT, "지원 조건을 만족하지 않습니다."),
+    NOT_FOUNT_POLICY("R009", HttpStatus.NOT_FOUND, "해당 vp policy를 찾을 수 없습니다."),
 
     NOT_FOUND_INTERVIEW("I001", HttpStatus.NOT_FOUND, "면접 일정이 존재하지 않습니다."),
     NOT_INTERVIEW_TARGET("I002", HttpStatus.CONFLICT, "면접 대상이 아닙니다."),
