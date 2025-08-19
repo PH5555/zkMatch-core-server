@@ -1,5 +1,6 @@
 package com.zkrypto.zkMatch.domain.corporation.application.dto.response;
 
+import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberResumeResponse;
 import com.zkrypto.zkMatch.domain.member.domain.entity.Member;
 import com.zkrypto.zkMatch.domain.recruit.domain.constant.Status;
 import com.zkrypto.zkMatch.domain.recruit.domain.entity.Recruit;
@@ -17,9 +18,9 @@ public class ApplierDetailResponse {
     private Status status;
     private String portfolioUrl;
     private String phoneNumber;
-    private List<Object> resumes;
+    private List<MemberResumeResponse> resumes;
 
-    public ApplierDetailResponse(String name, String applyDate, String email, String applyPosition, Status status, String portfolioUrl, String phoneNumber, List<Object> resumes) {
+    public ApplierDetailResponse(String name, String applyDate, String email, String applyPosition, Status status, String portfolioUrl, String phoneNumber, List<MemberResumeResponse> resumes) {
         this.name = name;
         this.applyDate = applyDate;
         this.email = email;
@@ -30,7 +31,7 @@ public class ApplierDetailResponse {
         this.resumes = resumes;
     }
 
-    public static ApplierDetailResponse from(Recruit recruit, List<Object> resumes) {
+    public static ApplierDetailResponse from(Recruit recruit, List<MemberResumeResponse> resumes) {
         return new ApplierDetailResponse(
                 recruit.getMember().getName(),
                 DateFormatter.format(recruit.getCreatedAt()),

@@ -7,6 +7,7 @@ import com.zkrypto.zkMatch.api.verify.dto.request.ConfirmVerifyReqDto;
 import com.zkrypto.zkMatch.api.verify.dto.request.RequestVpOfferReqDto;
 import com.zkrypto.zkMatch.api.verify.dto.response.ConfirmVerifyResDto;
 import com.zkrypto.zkMatch.api.verify.dto.response.RequestVpOfferResDto;
+import com.zkrypto.zkMatch.api.verify.dto.response.VpPolicyResponseDto;
 import com.zkrypto.zkMatch.domain.member.application.dto.request.ResumeCreationCommand;
 import com.zkrypto.zkMatch.domain.member.application.dto.response.*;
 import com.zkrypto.zkMatch.domain.offer.domain.entity.Offer;
@@ -200,17 +201,22 @@ public class MemberService {
      * QR 요청 메서드
      */
     public ResumeQrResponse getResumeDidQr(UUID memberId, ResumeType type) {
-
-        // TODO: 타입별 policy 가져오기
+        // vp policy 조회
+        log.info("get policy");
+        List<VpPolicyResponseDto> policies = verifierFeign.getAllPolicies();
+        VpPolicyResponseDto vpPolicy = policies.stream().filter(policy -> policy.getPolicyTitle().equals(type.name())).findFirst()
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUNT_POLICY));
         RequestVpOfferReqDto requestVpOfferReqDto = RequestVpOfferReqDto.builder()
-                .policyId("").build();
+                .policyId(vpPolicy.getPolicyId()).build();
 
+        log.info("request vp start");
         // vp 생성 시작 요청
         RequestVpOfferResDto requestVpOfferResDto = verifierFeign.requestVpOfferQR(requestVpOfferReqDto);
         if(requestVpOfferResDto == null) {
             throw new CustomException(ErrorCode.VP_OFFER_NOT_FOUND);
         }
 
+        log.info("generate qr");
         // QR 생성
         String jsonString = JsonUtil.serializeAndSort(requestVpOfferResDto.getPayload());
         String encDataPayload = BaseMultibaseUtil.encode(jsonString.getBytes(), MultiBaseType.base64);
@@ -237,14 +243,17 @@ public class MemberService {
         // offerId 가져오기
         String offerId = redisService.getData(memberId.toString())
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_OFFER_ID));
+        log.info("get offerId : " + offerId);
 
         // 완료 요청
         ConfirmVerifyResDto confirmVerifyResDto = verifierFeign.confirmVerify(new ConfirmVerifyReqDto(offerId));
+        log.info("request complete verify");
 
         // VP 생성 여부 확인
         if(!confirmVerifyResDto.getResult()) {
             throw new CustomException(ErrorCode.FAILED_GET_VP);
         }
+        log.info("confirm generate vp");
 
         // 유저 데이터 저장
         ObjectMapper objectMapper = new ObjectMapper();
@@ -253,6 +262,7 @@ public class MemberService {
             data.put(claim.getCaption(), claim.getValue());
         });
         String vc = objectMapper.writeValueAsString(data);
+        log.info("vp data:" + vc);
 
         // 데이터 형식 확인
         ResumeType type = ResumeType.valueOf(redisService.getData(memberId + "type")
@@ -269,5 +279,8 @@ public class MemberService {
         // 이력서 저장
         Resume resume = Resume.from(type, encData, member);
         resumeRepository.save(resume);
+
+        redisService.deleteData(memberId.toString());
+        redisService.deleteData(memberId + "type");
     }
 }

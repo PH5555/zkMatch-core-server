@@ -19,13 +19,13 @@ public class Resume {
 
     @Column(length = 1000)
     private String encData;
-    private String did;
+    private Boolean did;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
-    public Resume(ResumeType resumeType, String encData, String did, Member member) {
+    public Resume(ResumeType resumeType, String encData, Boolean did, Member member) {
         this.resumeType = resumeType;
         this.encData = encData;
         this.did = did;
@@ -33,10 +33,10 @@ public class Resume {
     }
 
     public static Resume from(ResumeCreationCommand command, String data, Member member) {
-        return new Resume(command.getResumeType(), data, null, member);
+        return new Resume(command.getResumeType(), data, false, member);
     }
 
     public static Resume from(ResumeType type, String data, Member member) {
-        return new Resume(type, data, null, member);
+        return new Resume(type, data, true, member);
     }
 }

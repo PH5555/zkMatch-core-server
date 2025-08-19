@@ -48,6 +48,7 @@ public class SecurityConfig {
 
                     // 채용 공고 조회 인증 필요 없음
                     authorizeRequest.requestMatchers(HttpMethod.GET, "/post").permitAll();
+                    authorizeRequest.requestMatchers("/post/ca-confirm/**").permitAll();
 
                     // corporation api 설정
                     authorizeRequest.requestMatchers(HttpMethod.POST, "/corporation").permitAll();

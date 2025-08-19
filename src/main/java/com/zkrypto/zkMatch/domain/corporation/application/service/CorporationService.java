@@ -8,6 +8,7 @@ import com.zkrypto.zkMatch.domain.evaluation.domain.entity.Evaluation;
 import com.zkrypto.zkMatch.domain.evaluation.domain.repository.EvaluationRepository;
 import com.zkrypto.zkMatch.domain.interview.domain.entity.Interview;
 import com.zkrypto.zkMatch.domain.interview.domain.repository.InterviewRepository;
+import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberResumeResponse;
 import com.zkrypto.zkMatch.domain.member.domain.entity.Member;
 import com.zkrypto.zkMatch.domain.member.domain.repository.MemberRepository;
 import com.zkrypto.zkMatch.domain.offer.domain.entity.Offer;
@@ -21,6 +22,11 @@ import com.zkrypto.zkMatch.domain.post.domain.repository.PostRepository;
 import com.zkrypto.zkMatch.domain.recruit.domain.constant.Status;
 import com.zkrypto.zkMatch.domain.recruit.domain.entity.Recruit;
 import com.zkrypto.zkMatch.domain.recruit.domain.repository.RecruitRepository;
+import com.zkrypto.zkMatch.domain.resume.domain.constant.BaseVc;
+import com.zkrypto.zkMatch.domain.resume.domain.entity.AppliedResume;
+import com.zkrypto.zkMatch.domain.resume.domain.repository.AppliedResumeRepository;
+import com.zkrypto.zkMatch.domain.resume.domain.repository.ResumeRepository;
+import com.zkrypto.zkMatch.global.crypto.AesUtil;
 import com.zkrypto.zkMatch.global.file.S3Service;
 import com.zkrypto.zkMatch.global.rabbitmq.DirectExchangeService;
 import com.zkrypto.zkMatch.global.rabbitmq.dto.SendMessage;
@@ -51,6 +57,8 @@ public class CorporationService {
     private final InterviewRepository interviewRepository;
     private final OfferRepository offerRepository;
     private final EvaluationRepository evaluationRepository;
+    private final ResumeRepository resumeRepository;
+    private final AppliedResumeRepository appliedResumeRepository;
 
     /**
      * 기업 생성 메서드
@@ -293,8 +301,15 @@ public class CorporationService {
         Recruit recruit = recruitRepository.findById(Long.parseLong(recruitId))
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_RECRUIT));
 
-        // TODO: 공개한 이력서 조회
-        List<Object> resumes = new ArrayList<>();
+        // 유저가 공개한 이력서 조회
+        List<AppliedResume> encResumes = appliedResumeRepository.findAppliedResumesByRecruit(recruit);
+
+        // 이력서 복호화
+        List<MemberResumeResponse> resumes = encResumes.stream().map(encResume -> {
+            String plainText = AesUtil.decrypt(encResume.getResume().getEncData(), recruit.getMember().getSalt());
+            Object vc = BaseVc.mappingVc(plainText, encResume.getResume().getResumeType());
+            return new MemberResumeResponse(encResume.getResume().getResumeId(), encResume.getResume().getResumeType(), vc, encResume.getResume().getDid());
+        }).toList();
 
         return ApplierDetailResponse.from(recruit, resumes);
     }
