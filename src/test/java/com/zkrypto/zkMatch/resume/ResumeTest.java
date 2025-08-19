@@ -32,14 +32,8 @@ public class ResumeTest {
 
     @Test
     void VC_변환_테스트() {
-        String data = "{\n" +
-                "    \"ci\": \"dkdkdkdkdkdkdkdkdkdkdkdkdkdkdkdkdk\",\n" +
-                "    \"name\": \"김동현\",\n" +
-                "    \"pid\": \"020306-0000000\",\n" +
-                "    \"license\": \"정보처리기사\",\n" +
-                "    \"expired\": \"2030-05-30\"\n" +
-                "}";
-        boolean res = BaseVc.checkVcFormat(data, ResumeType.LICENSE);
+        String data = "{\"univ\":\"한양대학교\",\"maj\":\"정보시스템학과\",\"ci\":\"12341234\",\"degree\":\"학사\",\"name\":\"김동현\",\"univType\":\"4년제\",\"registerNumber\":\"12341234\"}";
+        boolean res = BaseVc.checkVcFormat(data, ResumeType.EDUCATION);
         Assertions.assertThat(res).isTrue();
     }
 

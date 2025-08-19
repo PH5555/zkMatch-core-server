@@ -12,5 +12,5 @@ public class MemberResumeResponse {
     private Long resumeId;
     private ResumeType resumeType;
     private Object data;
-    private String did;
+    private Boolean did;
 }

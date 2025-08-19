@@ -9,6 +9,7 @@ import com.zkrypto.zkMatch.domain.post.application.dto.request.PostApplyCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.PostCreationCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.PostResponse;
 import com.zkrypto.zkMatch.domain.post.application.service.PostService;
+import com.zkrypto.zkMatch.domain.post.domain.entity.Post;
 import com.zkrypto.zkMatch.domain.post.domain.repository.PostRepository;
 import com.zkrypto.zkMatch.domain.recruit.domain.entity.Recruit;
 import com.zkrypto.zkMatch.domain.recruit.domain.repository.RecruitRepository;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @SpringBootTest
@@ -43,6 +45,8 @@ public class PostServiceTest {
 
     @Autowired
     PostService postService;
+    @Autowired
+    private PostRepository postRepository;
 
     @Test
     void 공고_조회_테스트() {
@@ -161,8 +165,9 @@ public class PostServiceTest {
 
         // 공고 생성
         PostCreationCommand postCreationCommand = new PostCreationCommand();
+        ReflectionUtil.setter(postCreationCommand, "title", "test");
         ReflectionUtil.setter(postCreationCommand, "startDate", LocalDateTime.of(2025, 1,1, 1, 1));
-        ReflectionUtil.setter(postCreationCommand, "endDate", LocalDateTime.of(2025, 1,1, 1, 1));
+        ReflectionUtil.setter(postCreationCommand, "endDate", LocalDateTime.of(2025, 1,2, 1, 1));
         corporationService.createPost(admin.getMemberId(), postCreationCommand);
 
         // 멤버 생성
@@ -170,10 +175,10 @@ public class PostServiceTest {
         memberRepository.save(member);
 
         // 공고 조회
-        List<PostResponse> posts = postService.getPost();
+        Post post = postRepository.findPostByTitle("test").get();
 
         // 공고 제출 기한 지남 검증
-        Assertions.assertThatThrownBy(() -> postService.applyPost(member.getMemberId(), posts.get(0).getPostId())).hasMessage(ErrorCode.EXPIRED_POST.getMessage());
+        Assertions.assertThatThrownBy(() -> postService.applyPost(member.getMemberId(), post.getPostId().toString())).hasMessage(ErrorCode.EXPIRED_POST.getMessage());
     }
 
     @Test
