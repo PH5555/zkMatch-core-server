@@ -5,7 +5,6 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class KeyPair {
-    private String privateKey;
-    private String publicKey;
+public class PkResponse {
+    private String pk;
 }

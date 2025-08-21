@@ -1,6 +1,6 @@
 package com.zkrypto.zkMatch.global.redis;
 
-import com.zkrypto.zkMatch.domain.ca.application.dto.response.KeyPair;
+import com.zkrypto.zkMatch.domain.ca.application.domain.constant.KeyPair;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
