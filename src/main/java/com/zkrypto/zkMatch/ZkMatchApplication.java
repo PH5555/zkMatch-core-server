@@ -17,6 +17,7 @@ public class ZkMatchApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ZkMatchApplication.class, args);
+		System.load(System.getProperty("user.dir") + "/libs/libOpenDID_Hackathon.dylib");
 	}
 
 }
