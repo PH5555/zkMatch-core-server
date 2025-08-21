@@ -155,11 +155,4 @@ public class PostService {
 
         redisService.deleteData(memberId.toString());
     }
-
-    /**
-     * CA앱용 지원 조건 확인 메서드
-     */
-    public void confirmApply(String memberId) {
-        redisService.setData(memberId, "SUCCESS", 600000L);
-    }
 }

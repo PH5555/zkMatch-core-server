@@ -52,6 +52,9 @@ public enum ErrorCode {
     NOT_FOUND_OFFER_ID("V004", HttpStatus.NOT_FOUND, "offer id가 존재하지 않습니다."),
     FAILED_GET_VP("V005", HttpStatus.NOT_FOUND, "VP 생성에 실패했습니다."),
     NOT_FOUND_VP_TYPE("V006", HttpStatus.NOT_FOUND, "VP TYPE을 찾을 수 없습니다."),
+
+    NOT_FOUND_ISSUER_KEY("K001", HttpStatus.NOT_FOUND, "ISSUER KEY를 찾을 수 없습니다."),
+
     ;
 
 

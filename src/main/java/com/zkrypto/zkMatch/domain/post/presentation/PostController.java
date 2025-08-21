@@ -127,10 +127,4 @@ public class PostController {
     public ApiResponse<List<PostResponse>> getInterestPost(@AuthenticationPrincipal UUID memberId){
         return ApiResponse.success(postService.getInterestPost(memberId));
     }
-
-    @PostMapping("/ca-confirm/{memberId}")
-    public ApiResponse<Void> confirmApply(@PathVariable String memberId) {
-        postService.confirmApply(memberId);
-        return ApiResponse.success();
-    }
 }
