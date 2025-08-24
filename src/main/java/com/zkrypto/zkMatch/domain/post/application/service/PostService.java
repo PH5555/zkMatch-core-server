@@ -1,5 +1,8 @@
 package com.zkrypto.zkMatch.domain.post.application.service;
 
+import com.zkrypto.zkMatch.domain.application.domain.constant.Status;
+import com.zkrypto.zkMatch.domain.application.domain.entity.Application;
+import com.zkrypto.zkMatch.domain.application.domain.repository.ApplicationRepository;
 import com.zkrypto.zkMatch.domain.member.domain.entity.Member;
 import com.zkrypto.zkMatch.domain.member.domain.repository.MemberRepository;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.CompleteApplyCommand;
@@ -34,9 +37,9 @@ public class PostService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
     private final RecruitRepository recruitRepository;
-    private final RedisService redisService;
     private final ResumeRepository resumeRepository;
     private final AppliedResumeRepository appliedResumeRepository;
+    private final ApplicationRepository applicationRepository;
 
     /**
      * 공고 조회 메서드
@@ -89,6 +92,7 @@ public class PostService {
     /**
      * 지원 QR 생성 메서드
      */
+    @Transactional
     public ApplyQrResponse createApplyQr(UUID memberId, String postId) {
         // 멤버 존재 확인
         Member member = memberRepository.findById(memberId)
@@ -108,8 +112,11 @@ public class PostService {
             throw new CustomException(ErrorCode.EXPIRED_POST);
         }
 
+        // 공고 지원 요청 저장
+        Application application = applicationRepository.save(new Application(member, post));
+
         // QR 생성
-        ApplyQrResponse resultDto = ApplyQrResponse.from(memberId);
+        ApplyQrResponse resultDto = ApplyQrResponse.from(application);
         byte[] qrImage = QrMaker.makeQr(resultDto);
 
         // 반환 값에 저장
@@ -124,12 +131,6 @@ public class PostService {
      */
     @Transactional
     public void completeApply(UUID memberId, String postId, CompleteApplyCommand completeApplyCommand) {
-        // 지원 조건 확인
-        String applyResult = redisService.getData(memberId.toString()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_APPLY_SESSION));
-        if(!applyResult.equals("SUCCESS")) {
-            throw new CustomException(ErrorCode.INVALID_APPLY_CONDITION);
-        }
-
         // 멤버 조회
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
@@ -137,6 +138,25 @@ public class PostService {
         // 공고 확인
         Post post = postRepository.findById(UUID.fromString(postId))
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_POST));
+
+        // 지원 정보 조회
+        Application applyData = applicationRepository.findApplicationByMemberAndPost(member, post)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_APPLY_SESSION));
+
+        // 지원 성공인지 확인
+        if(applyData.getStatus() != Status.SUCCESS) {
+            throw new CustomException(ErrorCode.INVALID_APPLY_CONDITION);
+        }
+
+        // 같은 공고에 대한 요청인지 확인
+        if(applyData.getPost().getPostId() != post.getPostId()) {
+            throw new CustomException(ErrorCode.INVALID_APPLY_CONDITION);
+        }
+
+        // 유효시간 확인
+        if(LocalDateTime.now().isAfter(applyData.getValidTime())) {
+            throw new CustomException(ErrorCode.EXPIRED_APPLICATION);
+        }
 
         // 이력서 조회
         List<Resume> resumes = completeApplyCommand.getOpenedResumes().stream()
@@ -152,7 +172,5 @@ public class PostService {
             AppliedResume appliedResume = new AppliedResume(recruit, resume);
             appliedResumeRepository.save(appliedResume);
         });
-
-        redisService.deleteData(memberId.toString());
     }
 }
