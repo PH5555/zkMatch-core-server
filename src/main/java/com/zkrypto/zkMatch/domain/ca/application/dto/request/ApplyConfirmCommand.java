@@ -4,8 +4,6 @@ import lombok.Getter;
 
 @Getter
 public class ApplyConfirmCommand {
-    private String memberId;
+    private String applicationId;
     private String proof;
-    private String vk;
-    private String[] value;
 }
