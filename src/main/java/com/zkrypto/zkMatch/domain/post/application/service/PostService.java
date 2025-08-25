@@ -172,5 +172,8 @@ public class PostService {
             AppliedResume appliedResume = new AppliedResume(recruit, resume);
             appliedResumeRepository.save(appliedResume);
         });
+
+        // 지원 정보 삭제
+        applicationRepository.delete(applyData);
     }
 }
