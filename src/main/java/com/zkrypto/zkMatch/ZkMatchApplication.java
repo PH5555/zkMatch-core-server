@@ -1,6 +1,5 @@
 package com.zkrypto.zkMatch;
 
-import com.zkrypto.snark.SNARK;
 import com.zkrypto.zkMatch.mockUp.MockUpHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
@@ -20,6 +19,5 @@ public class ZkMatchApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ZkMatchApplication.class, args);
-	}
-
+    }
 }

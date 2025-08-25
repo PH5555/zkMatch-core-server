@@ -14,6 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -35,7 +38,7 @@ public class CaService {
         Application application = applicationRepository.findById(Long.parseLong(command.getApplicationId()))
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_APPLICATION));
 
-        String vk = "";
+        String vk = getVerifyKey();
 
         // 영지식 증명
         boolean verify = SNARK.verify(
@@ -57,6 +60,14 @@ public class CaService {
         // 증명이 되면 success로 상태 변환
         if(verify) {
             application.success();
+        }
+    }
+
+    private String getVerifyKey() {
+        try {
+            return Files.readString(Paths.get(System.getProperty("user.dir") + "/keys/vk.txt"));
+        } catch (IOException e) {
+            throw new CustomException(ErrorCode.NOT_FOUND_VK);
         }
     }
 }

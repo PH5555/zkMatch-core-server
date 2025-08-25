@@ -12,14 +12,8 @@ public class SnarkConfig {
 
         if (os.contains("linux")) {
             System.load(System.getProperty("user.dir") + "/libs/libOpenDID_Hackathon.so");
-            String[] keys = SNARK.generateCircuit();
-            log.info("ek:" + keys[0]);
-            log.info("vk:" + keys[1]);
         } else if (os.contains("mac")) {
             System.load(System.getProperty("user.dir") + "/libs/libOpenDID_Hackathon.dylib");
-            String[] keys = SNARK.generateCircuit();
-            log.info("ek:" + keys[0]);
-            log.info("vk:" + keys[1]);
         }
     }
 }
