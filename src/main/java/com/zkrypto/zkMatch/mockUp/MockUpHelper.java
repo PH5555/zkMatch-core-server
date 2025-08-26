@@ -39,7 +39,7 @@ public class MockUpHelper implements ApplicationRunner {
         ReflectionUtil.setter(signUpCommand, "ci", "testCi");
         ReflectionUtil.setter(signUpCommand, "loginId", "1234");
         ReflectionUtil.setter(signUpCommand, "password", "1234");
-        ReflectionUtil.setter(signUpCommand, "email", "lmkn5342@gmail.com");
+        ReflectionUtil.setter(signUpCommand, "email", "lmkn5342@naver.com");
         ReflectionUtil.setter(signUpCommand, "emailAuthNumber", "test");
         ReflectionUtil.setter(signUpCommand, "name", "김동현");
         ReflectionUtil.setter(signUpCommand, "phoneNumber", "01041461092");
