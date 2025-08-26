@@ -3,6 +3,8 @@ package com.zkrypto.zkMatch.domain.post.application.service;
 import com.zkrypto.zkMatch.domain.application.domain.constant.Status;
 import com.zkrypto.zkMatch.domain.application.domain.entity.Application;
 import com.zkrypto.zkMatch.domain.application.domain.repository.ApplicationRepository;
+import com.zkrypto.zkMatch.domain.member.application.dto.response.MemberResumeResponse;
+import com.zkrypto.zkMatch.domain.member.application.service.MemberService;
 import com.zkrypto.zkMatch.domain.member.domain.entity.Member;
 import com.zkrypto.zkMatch.domain.member.domain.repository.MemberRepository;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.CompleteApplyCommand;
@@ -12,20 +14,30 @@ import com.zkrypto.zkMatch.domain.post.domain.entity.Post;
 import com.zkrypto.zkMatch.domain.post.domain.repository.PostRepository;
 import com.zkrypto.zkMatch.domain.recruit.domain.entity.Recruit;
 import com.zkrypto.zkMatch.domain.recruit.domain.repository.RecruitRepository;
+import com.zkrypto.zkMatch.domain.resume.domain.constant.BaseVc;
+import com.zkrypto.zkMatch.domain.resume.domain.constant.EducationVc;
+import com.zkrypto.zkMatch.domain.resume.domain.constant.ExperienceVc;
+import com.zkrypto.zkMatch.domain.resume.domain.constant.LicenseVc;
 import com.zkrypto.zkMatch.domain.resume.domain.entity.AppliedResume;
 import com.zkrypto.zkMatch.domain.resume.domain.entity.Resume;
 import com.zkrypto.zkMatch.domain.resume.domain.repository.AppliedResumeRepository;
 import com.zkrypto.zkMatch.domain.resume.domain.repository.ResumeRepository;
+import com.zkrypto.zkMatch.global.crypto.AesUtil;
 import com.zkrypto.zkMatch.global.qr.QrMaker;
 import com.zkrypto.zkMatch.global.redis.RedisService;
 import com.zkrypto.zkMatch.global.response.exception.CustomException;
 import com.zkrypto.zkMatch.global.response.exception.ErrorCode;
+import com.zkrypto.zkMatch.global.utils.DateFormatter;
+import com.zkrypto.zkMatch.global.utils.StringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.Period;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,6 +52,7 @@ public class PostService {
     private final ResumeRepository resumeRepository;
     private final AppliedResumeRepository appliedResumeRepository;
     private final ApplicationRepository applicationRepository;
+    private final MemberService memberService;
 
     /**
      * 공고 조회 메서드
@@ -52,7 +65,7 @@ public class PostService {
     /**
      * 단순 공고 지원 메서드
      */
-    public void applyPost(UUID memberId, String postId) {
+    public void applyPost(UUID memberId, String postId, CompleteApplyCommand completeApplyCommand) {
         // 멤버 존재 확인
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
@@ -71,9 +84,56 @@ public class PostService {
             throw new CustomException(ErrorCode.EXPIRED_POST);
         }
 
+        // 멤버 이력 조회
+        List<Resume> encResumes = resumeRepository.getResumesByMember(member);
+
+        // 공고 조건 확인
+        if(!checkApplyCondition(encResumes, member, post)) {
+            throw new CustomException(ErrorCode.INVALID_APPLY_CONDITION);
+        }
+
         // 지원
         Recruit recruit = new Recruit(post, member);
         recruitRepository.save(recruit);
+
+        // 공개 이력서 설정
+        List<Resume> openedResume = encResumes.stream().filter(resume -> completeApplyCommand.getOpenedResumes().contains(resume.getResumeId())).toList();
+        openedResume.forEach(resume -> {
+            AppliedResume appliedResume = new AppliedResume(recruit, resume);
+            appliedResumeRepository.save(appliedResume);
+        });
+    }
+
+    private Boolean checkApplyCondition(List<Resume> encResumes, Member member, Post post) {
+        List<EducationVc> educationVcList = new ArrayList<>();
+        List<LicenseVc> licenseVcList = new ArrayList<>();
+        List<ExperienceVc> experienceVcList = new ArrayList<>();
+
+        List<MemberResumeResponse> resume = encResumes.stream().map(encResume -> {
+            String plainText = AesUtil.decrypt(encResume.getEncData(), member.getSalt());
+            Object vc = BaseVc.mappingVc(plainText, encResume.getResumeType());
+            return new MemberResumeResponse(encResume.getResumeId(), encResume.getResumeType(), vc, encResume.getDid());
+        }).toList();
+
+        educationVcList.stream().filter(vc -> vc.getUnivType())
+        post.getEducationRequirement();
+
+        // 자격증 확인
+        if(!post.getLicenseRequirement().isEmpty() && !licenseVcList.stream().anyMatch(vc -> post.getLicenseRequirement().contains(vc.getLicense()))) {
+            return false;
+        }
+
+        // 학과 확인
+        if(!StringUtil.isEmpty(post.getMajorRequirement()) && !educationVcList.stream().anyMatch(vc -> vc.getMaj().equals(post.getMajorRequirement()))) {
+            return false;
+        }
+
+        // 경력 확인
+        if(!experienceVcList.stream().anyMatch(vc -> post.getExperienceRequirement() < Period.between(DateFormatter.format(vc.getStartdate()), DateFormatter.format(vc.getExpdate())).getYears())) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
