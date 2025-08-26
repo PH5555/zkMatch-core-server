@@ -29,18 +29,15 @@ import com.zkrypto.zkMatch.domain.resume.domain.repository.ResumeRepository;
 import com.zkrypto.zkMatch.global.crypto.AesUtil;
 import com.zkrypto.zkMatch.global.file.S3Service;
 import com.zkrypto.zkMatch.global.rabbitmq.DirectExchangeService;
-import com.zkrypto.zkMatch.global.rabbitmq.dto.SendMessage;
+import com.zkrypto.zkMatch.global.rabbitmq.dto.EmailMessage;
 import com.zkrypto.zkMatch.global.response.exception.CustomException;
 import com.zkrypto.zkMatch.global.response.exception.ErrorCode;
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -172,7 +169,7 @@ public class CorporationService {
         recruit.updateStatus(command.getStatus());
 
         // 합격 이메일 전송
-        directExchangeService.send(SendMessage.from(recruit, command.getStatus()));
+        directExchangeService.send(EmailMessage.from(recruit, command.getStatus()));
     }
 
     /**

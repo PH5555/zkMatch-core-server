@@ -57,6 +57,7 @@ public enum ErrorCode {
     NOT_FOUND_ISSUER_KEY("K001", HttpStatus.NOT_FOUND, "ISSUER KEY를 찾을 수 없습니다."),
 
     NOT_FOUND_APPLICATION("A001", HttpStatus.NOT_FOUND, "지원 데이터를 찾을 수 없습니다."),
+    NOT_FOUND_VK("A002", HttpStatus.NOT_FOUND, "VK를 찾을 수 없습니다."),
 
     ;
 

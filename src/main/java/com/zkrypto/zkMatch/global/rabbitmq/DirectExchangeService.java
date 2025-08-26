@@ -1,8 +1,6 @@
 package com.zkrypto.zkMatch.global.rabbitmq;
 
-import com.zkrypto.zkMatch.domain.corporation.domain.entity.Corporation;
-import com.zkrypto.zkMatch.domain.member.domain.entity.Member;
-import com.zkrypto.zkMatch.global.rabbitmq.dto.SendMessage;
+import com.zkrypto.zkMatch.global.rabbitmq.dto.EmailMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +17,7 @@ public class DirectExchangeService {
     @Value("${spring.rabbitmq.template.routing-key}")
     private String routingKey;
 
-    public void send(SendMessage message) {
+    public void send(EmailMessage message) {
         rabbitTemplate.convertAndSend(exchange, routingKey, message);
     }
 }

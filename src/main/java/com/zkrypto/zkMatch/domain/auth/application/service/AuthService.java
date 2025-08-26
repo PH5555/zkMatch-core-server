@@ -9,7 +9,7 @@ import com.zkrypto.zkMatch.domain.member.domain.entity.Member;
 import com.zkrypto.zkMatch.domain.member.domain.repository.MemberRepository;
 import com.zkrypto.zkMatch.global.jwt.JwtTokenHandler;
 import com.zkrypto.zkMatch.global.rabbitmq.DirectExchangeService;
-import com.zkrypto.zkMatch.global.rabbitmq.dto.SendMessage;
+import com.zkrypto.zkMatch.global.rabbitmq.dto.EmailMessage;
 import com.zkrypto.zkMatch.global.redis.RedisService;
 import com.zkrypto.zkMatch.global.response.exception.CustomException;
 import com.zkrypto.zkMatch.global.response.exception.ErrorCode;
@@ -123,6 +123,6 @@ public class AuthService {
         redisService.setData(emailVerificationCommand.getCi(), randomKey, 600000L);
 
         // 이메일 전송
-        directExchangeService.send(SendMessage.from(emailVerificationCommand.getEmail(), randomKey));
+        directExchangeService.send(EmailMessage.from(emailVerificationCommand.getEmail(), randomKey));
     }
 }
