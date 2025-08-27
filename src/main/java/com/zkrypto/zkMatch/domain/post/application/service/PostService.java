@@ -25,6 +25,7 @@ import com.zkrypto.zkMatch.global.redis.RedisService;
 import com.zkrypto.zkMatch.global.response.exception.CustomException;
 import com.zkrypto.zkMatch.global.response.exception.ErrorCode;
 import com.zkrypto.zkMatch.global.utils.DateFormatter;
+import com.zkrypto.zkMatch.global.utils.ListUtil;
 import com.zkrypto.zkMatch.global.utils.StringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -114,29 +115,24 @@ public class PostService {
         });
 
         // 학력 확인
-        if(post.getEducationRequirement().equals("4년제") && !educationVcList.stream().anyMatch(vc -> vc.getUnivType().equals("4년제"))) {
-            log.info("4 fail");
+        if(post.getEducationRequirement().equals("4년제") && educationVcList.stream().noneMatch(vc -> vc.getUnivType().equals("4년제"))) {
             return false;
-        }else if(post.getEducationRequirement().equals("2년제") || !educationVcList.stream().anyMatch(vc -> vc.getUnivType().equals("4년제") || vc.getUnivType().equals("2년제"))) {
-            log.info("2 fail");
+        }else if(post.getEducationRequirement().equals("2년제") && educationVcList.stream().noneMatch(vc -> vc.getUnivType().equals("4년제") || vc.getUnivType().equals("2년제"))) {
             return false;
         }
 
         // 자격증 확인
-        if(post.getLicenseRequirement() != null && !licenseVcList.stream().anyMatch(vc -> post.getLicenseRequirement().contains(vc.getLicense()))) {
-            log.info("li fail");
+        if(!ListUtil.isEmpty(post.getLicenseRequirement()) && licenseVcList.stream().noneMatch(vc -> post.getLicenseRequirement().contains(vc.getLicense()))) {
             return false;
         }
 
         // 학과 확인
-        if(!StringUtil.isEmpty(post.getMajorRequirement()) && !educationVcList.stream().anyMatch(vc -> vc.getMaj().equals(post.getMajorRequirement()))) {
-            log.info("maj fail");
+        if(!StringUtil.isEmpty(post.getMajorRequirement()) && educationVcList.stream().noneMatch(vc -> vc.getMaj().equals(post.getMajorRequirement()))) {
             return false;
         }
 
         // 경력 확인
-        if(!experienceVcList.stream().anyMatch(vc -> post.getExperienceRequirement() < Period.between(DateFormatter.format(vc.getStartdate()), DateFormatter.format(vc.getExpdate())).getYears())) {
-            log.info("ex fail");
+        if(post.getExperienceRequirement() > 0 && experienceVcList.stream().noneMatch(vc -> post.getExperienceRequirement() <= Period.between(DateFormatter.format(vc.getStartdate()), DateFormatter.format(vc.getExpdate())).getYears())) {
             return false;
         }
 

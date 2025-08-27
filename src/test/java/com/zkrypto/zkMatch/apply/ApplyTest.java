@@ -64,9 +64,9 @@ public class ApplyTest {
         PostCreationCommand postCreationCommand = new PostCreationCommand();
         ReflectionUtil.setter(postCreationCommand, "title", "test");
         ReflectionUtil.setter(postCreationCommand, "majorRequirement", "정보시스템학과");
-        ReflectionUtil.setter(postCreationCommand, "educationRequirement", "4년제 졸업");
-//        ReflectionUtil.setter(postCreationCommand, "experienceRequirement", 3);
-//        ReflectionUtil.setter(postCreationCommand, "licenseRequirement", List.of("정보처리기사", "빅데이터분석기사"));
+        ReflectionUtil.setter(postCreationCommand, "educationRequirement", "4년제");
+        ReflectionUtil.setter(postCreationCommand, "experienceRequirement", 1);
+        ReflectionUtil.setter(postCreationCommand, "licenseRequirement", List.of("정보처리기사", "빅데이터분석기사"));
         ReflectionUtil.setter(postCreationCommand, "startDate", LocalDateTime.of(2025, 1,1, 1, 1));
         ReflectionUtil.setter(postCreationCommand, "endDate", LocalDateTime.of(2026, 1,1, 1, 1));
         corporationService.createPost(admin.getMemberId(), postCreationCommand);
@@ -80,7 +80,7 @@ public class ApplyTest {
         memberRepository.save(member);
 
         // 이력서 생성
-        String data = "{\n" +
+        String edu = "{\n" +
                 "    \"ci\": \"dkdkdkdkdkdkdkdkdkdkdkdkdkdkdkdkdk\",\n" +
                 "    \"name\": \"김동현\",\n" +
                 "    \"univ\": \"한양대학교\",\n" +
@@ -91,8 +91,34 @@ public class ApplyTest {
                 "}";
         ResumeCreationCommand command = new ResumeCreationCommand();
         ReflectionUtil.setter(command, "resumeType", ResumeType.EDUCATION);
-        ReflectionUtil.setter(command, "data", data);
+        ReflectionUtil.setter(command, "data", edu);
         memberService.createMemberResume(member.getMemberId(), command);
+
+        String license = "{\n" +
+                "    \"ci\": \"dkdkdkdkdkdkdkdkdkdkdkdkdkdkdkdkdk\",\n" +
+                "    \"name\": \"김동현\",\n" +
+                "    \"pid\": \"010101-0000000\",\n" +
+                "    \"license\": \"정보처리기사\",\n" +
+                "    \"expired\": \"20250707\"\n" +
+                "}";
+        ResumeCreationCommand command1 = new ResumeCreationCommand();
+        ReflectionUtil.setter(command1, "resumeType", ResumeType.LICENSE);
+        ReflectionUtil.setter(command1, "data", license);
+        memberService.createMemberResume(member.getMemberId(), command1);
+
+        String experience = "{\n" +
+                "    \"ci\": \"dkdkdkdkdkdkdkdkdkdkdkdkdkdkdkdkdk\",\n" +
+                "    \"name\": \"김동현\",\n" +
+                "    \"startdate\": \"2025.03.01\",\n" +
+                "    \"expdate\": \"2026.03.02\",\n" +
+                "    \"department\": \"연구생\",\n" +
+                "    \"position\": \"연구생\",\n" +
+                "    \"company\": \"지크립토\"\n" +
+                "}";
+        ResumeCreationCommand command2 = new ResumeCreationCommand();
+        ReflectionUtil.setter(command2, "resumeType", ResumeType.EXPERIENCE);
+        ReflectionUtil.setter(command2, "data", experience);
+        memberService.createMemberResume(member.getMemberId(), command2);
 
         // 멤버 이력 조회
         List<Resume> encResumes = resumeRepository.getResumesByMember(member);
