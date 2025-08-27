@@ -22,9 +22,12 @@ import com.zkrypto.zkMatch.domain.post.domain.repository.PostRepository;
 import com.zkrypto.zkMatch.domain.recruit.domain.constant.Status;
 import com.zkrypto.zkMatch.domain.recruit.domain.entity.Recruit;
 import com.zkrypto.zkMatch.domain.recruit.domain.repository.RecruitRepository;
-import com.zkrypto.zkMatch.domain.resume.domain.constant.BaseVc;
+import com.zkrypto.zkMatch.domain.resume.domain.constant.*;
 import com.zkrypto.zkMatch.domain.resume.domain.entity.AppliedResume;
+import com.zkrypto.zkMatch.domain.resume.domain.entity.Resume;
 import com.zkrypto.zkMatch.domain.resume.domain.repository.AppliedResumeRepository;
+import com.zkrypto.zkMatch.domain.resume.domain.repository.ResumeCustomRepository;
+import com.zkrypto.zkMatch.domain.resume.domain.repository.ResumeCustomRepositoryImpl;
 import com.zkrypto.zkMatch.domain.resume.domain.repository.ResumeRepository;
 import com.zkrypto.zkMatch.global.crypto.AesUtil;
 import com.zkrypto.zkMatch.global.file.S3Service;
@@ -32,14 +35,17 @@ import com.zkrypto.zkMatch.global.rabbitmq.DirectExchangeService;
 import com.zkrypto.zkMatch.global.rabbitmq.dto.EmailMessage;
 import com.zkrypto.zkMatch.global.response.exception.CustomException;
 import com.zkrypto.zkMatch.global.response.exception.ErrorCode;
+import com.zkrypto.zkMatch.global.utils.DateFormatter;
+import com.zkrypto.zkMatch.global.utils.ListUtil;
+import com.zkrypto.zkMatch.global.utils.StringUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-import java.util.UUID;
+import java.time.Period;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -54,8 +60,8 @@ public class CorporationService {
     private final InterviewRepository interviewRepository;
     private final OfferRepository offerRepository;
     private final EvaluationRepository evaluationRepository;
-    private final ResumeRepository resumeRepository;
     private final AppliedResumeRepository appliedResumeRepository;
+    private final ResumeCustomRepository resumeCustomRepository;
 
     /**
      * 기업 생성 메서드
@@ -239,10 +245,60 @@ public class CorporationService {
     /**
      *  인재 검색 메서드
      */
-    public List<CandidateResponse> searchCandidate() {
-        // TODO: 필터링 조건 따라 인재 검색으로 변경
-        List<Member> members = memberRepository.findAll();
-        return members.stream().map(CandidateResponse::from).toList();
+    public List<CandidateResponse> searchCandidate(List<String> licenses, int employPeriod, String educationType) {
+        // 필터링 조건에 따른 이력서 조회
+        List<Resume> resumes = resumeCustomRepository.findCandidateResume(licenses, employPeriod, educationType);
+
+        // 이력서 멤버마다 구분
+        Map<Member, List<Resume>> memberResumeMap = new HashMap<>();
+        resumes.forEach(resume -> memberResumeMap.computeIfAbsent(resume.getMember(), k -> new ArrayList<>()).add(resume));
+
+        // 필터링 조건 확인
+        List<Member> filteredMember = memberResumeMap.keySet().stream()
+                .filter(member -> checkFilterCondition(memberResumeMap.get(member), member, licenses, employPeriod, educationType)).toList();
+        return filteredMember.stream().map(CandidateResponse::from).toList();
+    }
+
+    /**
+     * 필터링 조건 확인 메서드
+     */
+    private Boolean checkFilterCondition(List<Resume> encResumes, Member member, List<String> licenses, int employPeriod, String educationType) {
+        List<EducationVc> educationVcList = new ArrayList<>();
+        List<LicenseVc> licenseVcList = new ArrayList<>();
+        List<ExperienceVc> experienceVcList = new ArrayList<>();
+
+        encResumes.forEach(encResume -> {
+            String plainText = AesUtil.decrypt(encResume.getEncData(), member.getSalt());
+            Object vc = BaseVc.mappingVc(plainText, encResume.getResumeType());
+            if(encResume.getResumeType() == ResumeType.EDUCATION) {
+                educationVcList.add((EducationVc) vc);
+            }
+            else if(encResume.getResumeType() == ResumeType.EXPERIENCE) {
+                experienceVcList.add((ExperienceVc) vc);
+            }
+            else if(encResume.getResumeType() == ResumeType.LICENSE) {
+                licenseVcList.add((LicenseVc) vc);
+            }
+        });
+
+        // 학력 확인
+        if(educationType.equals("4년제") && educationVcList.stream().noneMatch(vc -> vc.getUnivType().equals("4년제"))) {
+            return false;
+        }else if(educationType.equals("2년제") && educationVcList.stream().noneMatch(vc -> vc.getUnivType().equals("4년제") || vc.getUnivType().equals("2년제"))) {
+            return false;
+        }
+
+        // 자격증 확인
+        if(!ListUtil.isEmpty(licenses) && licenseVcList.stream().noneMatch(vc -> licenses.contains(vc.getLicense()))) {
+            return false;
+        }
+
+        // 경력 확인
+        if(employPeriod > 0 && experienceVcList.stream().noneMatch(vc -> employPeriod <= Period.between(DateFormatter.format(vc.getStartdate()), DateFormatter.format(vc.getExpdate())).getYears())) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

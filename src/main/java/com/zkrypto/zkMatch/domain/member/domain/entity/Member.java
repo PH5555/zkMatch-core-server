@@ -4,6 +4,7 @@ import com.zkrypto.zkMatch.domain.auth.application.dto.request.SignUpCommand;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.request.CorporationCreationCommand;
 import com.zkrypto.zkMatch.domain.corporation.domain.entity.Corporation;
 import com.zkrypto.zkMatch.domain.member.domain.constant.Role;
+import com.zkrypto.zkMatch.domain.resume.domain.entity.Resume;
 import com.zkrypto.zkMatch.global.crypto.SaltUtil;
 import com.zkrypto.zkMatch.global.utils.StringListConverter;
 import jakarta.persistence.*;
@@ -11,7 +12,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
@@ -45,6 +48,9 @@ public class Member {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "corporation_id")
     private Corporation corporation;
+
+    @OneToMany(mappedBy = "member")
+    private List<Resume> resumes = new ArrayList<>();
 
     public Member(Role role, String loginId, String password, String name, String birth, String gender, String email, String phoneNumber, List<String> interests, String ci) {
         this.role = role;
@@ -94,5 +100,18 @@ public class Member {
 
     public static Member from(CorporationCreationCommand corporationCreationCommand, String hashedPassword) {
         return new Member(Role.ROLE_ADMIN, corporationCreationCommand.getLoginId(), hashedPassword, corporationCreationCommand.getName(), corporationCreationCommand.getEmail(), corporationCreationCommand.getPhoneNumber());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.memberId);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Member member = (Member) o;
+        return Objects.equals(this.memberId, member.getMemberId());
     }
 }
