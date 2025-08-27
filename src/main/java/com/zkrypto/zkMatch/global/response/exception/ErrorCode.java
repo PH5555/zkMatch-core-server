@@ -59,6 +59,8 @@ public enum ErrorCode {
     NOT_FOUND_APPLICATION("A001", HttpStatus.NOT_FOUND, "지원 데이터를 찾을 수 없습니다."),
     NOT_FOUND_VK("A002", HttpStatus.NOT_FOUND, "VK를 찾을 수 없습니다."),
 
+    INVALID_DATE_TYPE("D001", HttpStatus.BAD_REQUEST, "VC date 타입이 잘못됐습니다."),
+
     ;
 
 

@@ -55,6 +55,31 @@ public class PostController {
     }
 
     @Operation(
+            summary = "지원하기 API",
+            description = "snark를 사용하지 않고 지원하는 api입니다.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            },
+            parameters = {
+                    @Parameter(
+                            in = ParameterIn.HEADER,
+                            name = "Authorization",
+                            description = "Bearer 토큰",
+                            required = true
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
+                    content = {@Content(schema = @Schema(implementation = ApplyQrResponse.class))}),
+    })
+    @PostMapping("/{postId}")
+    public ApiResponse<Void> applyPost(@AuthenticationPrincipal UUID memberId, @PathVariable("postId") String postId) {
+        postService.applyPost(memberId, postId);
+        return ApiResponse.success();
+    }
+
+    @Operation(
             summary = "지원 QR 생성 API",
             description = "해당 공고에 지원하기 위한 QR을 생성합니다.",
             security = {
@@ -73,7 +98,7 @@ public class PostController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
                     content = {@Content(schema = @Schema(implementation = ApplyQrResponse.class))}),
     })
-    @GetMapping("/{postId}")
+    @GetMapping("/{postId}/snark")
     public ApiResponse<ApplyQrResponse> createApplyQr(@AuthenticationPrincipal UUID memberId, @PathVariable("postId") String postId) {
         return ApiResponse.success(postService.createApplyQr(memberId, postId));
     }
@@ -97,7 +122,7 @@ public class PostController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
                     content = {@Content(schema = @Schema(implementation = Void.class))}),
     })
-    @PostMapping("/{postId}")
+    @PostMapping("/{postId}/snark")
     public ApiResponse<Void> completeApply(@AuthenticationPrincipal UUID memberId, @PathVariable("postId") String postId,
                                                       @RequestBody CompleteApplyCommand completeApplyCommand) {
         postService.completeApply(memberId, postId, completeApplyCommand);
