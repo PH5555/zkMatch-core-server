@@ -50,7 +50,6 @@ public class PostService {
     private final ResumeRepository resumeRepository;
     private final AppliedResumeRepository appliedResumeRepository;
     private final ApplicationRepository applicationRepository;
-    private final MemberService memberService;
 
     /**
      * 공고 조회 메서드
@@ -80,14 +79,6 @@ public class PostService {
         // 제출 기한이 지난 공고인지 확인
         if(LocalDateTime.now().isAfter(post.getEndDate())) {
             throw new CustomException(ErrorCode.EXPIRED_POST);
-        }
-
-        // 멤버 이력 조회
-        List<Resume> encResumes = resumeRepository.getResumesByMember(member);
-
-        // 공고 조건 확인
-        if(!checkApplyCondition(encResumes, member, post)) {
-            throw new CustomException(ErrorCode.INVALID_APPLY_CONDITION);
         }
 
         // 지원
