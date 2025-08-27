@@ -239,8 +239,7 @@ public class CorporationService {
     /**
      *  인재 검색 메서드
      */
-    public List<CandidateResponse> searchCandidate() {
-        // TODO: 필터링 조건 따라 인재 검색으로 변경
+    public List<CandidateResponse> searchCandidate(List<String> licenses, int employPeriod, String educationType) {
         List<Member> members = memberRepository.findAll();
         return members.stream().map(CandidateResponse::from).toList();
     }

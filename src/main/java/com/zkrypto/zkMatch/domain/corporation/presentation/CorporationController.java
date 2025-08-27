@@ -364,8 +364,11 @@ public class CorporationController {
                     content = {@Content(array = @ArraySchema(schema = @Schema(implementation = CandidateResponse.class)))}),
     })
     @GetMapping("/candidate")
-    public ApiResponse<List<CandidateResponse>> searchCandidate() {
-        return ApiResponse.success(corporationService.searchCandidate());
+    public ApiResponse<List<CandidateResponse>> searchCandidate(
+            @RequestParam(value = "licenses", required = false) List<String> licenses,
+            @RequestParam(value = "employPeriod", required = false) int employPeriod,
+            @RequestParam(value = "education", required = false) String educationType) {
+        return ApiResponse.success(corporationService.searchCandidate(licenses, employPeriod, educationType));
     }
 
     @Operation(
