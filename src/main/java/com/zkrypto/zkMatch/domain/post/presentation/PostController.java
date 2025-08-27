@@ -74,8 +74,8 @@ public class PostController {
                     content = {@Content(schema = @Schema(implementation = ApplyQrResponse.class))}),
     })
     @PostMapping("/{postId}")
-    public ApiResponse<Void> applyPost(@AuthenticationPrincipal UUID memberId, @PathVariable("postId") String postId, @RequestBody CompleteApplyCommand completeApplyCommand) {
-        postService.applyPost(memberId, postId, completeApplyCommand);
+    public ApiResponse<Void> applyPost(@AuthenticationPrincipal UUID memberId, @PathVariable("postId") String postId) {
+        postService.applyPost(memberId, postId);
         return ApiResponse.success();
     }
 
