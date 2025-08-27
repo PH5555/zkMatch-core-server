@@ -251,7 +251,7 @@ public class CorporationService {
 
         // 이력서 멤버마다 구분
         Map<Member, List<Resume>> memberResumeMap = new HashMap<>();
-        resumes.forEach(resume -> memberResumeMap.putIfAbsent(resume.getMember(), new ArrayList<>()).add(resume));
+        resumes.forEach(resume -> memberResumeMap.computeIfAbsent(resume.getMember(), k -> new ArrayList<>()).add(resume));
 
         // 필터링 조건 확인
         List<Member> filteredMember = memberResumeMap.keySet().stream()
@@ -262,7 +262,7 @@ public class CorporationService {
     /**
      * 필터링 조건 확인 메서드
      */
-    public Boolean checkFilterCondition(List<Resume> encResumes, Member member, List<String> licenses, int employPeriod, String educationType) {
+    private Boolean checkFilterCondition(List<Resume> encResumes, Member member, List<String> licenses, int employPeriod, String educationType) {
         List<EducationVc> educationVcList = new ArrayList<>();
         List<LicenseVc> licenseVcList = new ArrayList<>();
         List<ExperienceVc> experienceVcList = new ArrayList<>();

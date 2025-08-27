@@ -1,12 +1,11 @@
 package com.zkrypto.zkMatch.corporation;
 
 import com.zkrypto.zkMatch.domain.corporation.application.dto.request.*;
-import com.zkrypto.zkMatch.domain.corporation.application.dto.response.ApplierDetailResponse;
-import com.zkrypto.zkMatch.domain.corporation.application.dto.response.CorporationResponse;
-import com.zkrypto.zkMatch.domain.corporation.application.dto.response.EvaluationResponse;
-import com.zkrypto.zkMatch.domain.corporation.application.dto.response.InterviewResponse;
+import com.zkrypto.zkMatch.domain.corporation.application.dto.response.*;
 import com.zkrypto.zkMatch.domain.corporation.application.service.CorporationService;
 import com.zkrypto.zkMatch.domain.corporation.domain.repository.CorporationRepository;
+import com.zkrypto.zkMatch.domain.member.application.dto.request.ResumeCreationCommand;
+import com.zkrypto.zkMatch.domain.member.application.service.MemberService;
 import com.zkrypto.zkMatch.domain.member.domain.entity.Member;
 import com.zkrypto.zkMatch.domain.member.domain.repository.MemberRepository;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.UpdateApplierStatusCommand;
@@ -21,6 +20,8 @@ import com.zkrypto.zkMatch.domain.post.domain.repository.PostRepository;
 import com.zkrypto.zkMatch.domain.recruit.domain.constant.Status;
 import com.zkrypto.zkMatch.domain.recruit.domain.entity.Recruit;
 import com.zkrypto.zkMatch.domain.recruit.domain.repository.RecruitRepository;
+import com.zkrypto.zkMatch.domain.resume.domain.constant.ResumeType;
+import com.zkrypto.zkMatch.global.crypto.SaltUtil;
 import com.zkrypto.zkMatch.global.utils.ReflectionUtil;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -54,8 +55,12 @@ public class CorporationServiceTest {
 
     @Autowired
     PostService postService;
+
     @Autowired
     private RecruitRepository recruitRepository;
+
+    @Autowired
+    MemberService memberService;
 
     @Test
     void 생성_테스트() {
@@ -669,5 +674,75 @@ public class CorporationServiceTest {
         
         Assertions.assertThatThrownBy(() -> corporationService.evaluateApplier(recruit.getId().toString(), evaluationCreationCommand))
                 .hasMessageContaining("평가 대상이 아닙니다.");
+    }
+
+    @Test
+    void 인재_검색_테스트() {
+        // 멤버1 생성
+        Member member1 = new Member();
+        ReflectionUtil.setter(member1, "salt", SaltUtil.generateSalt());
+        ReflectionUtil.setter(member1, "name", "김동현");
+        memberRepository.save(member1);
+
+        // 이력서 생성
+        String member1_data1 = "{\n" +
+                "    \"ci\": \"dkdkdkdkdkdkdkdkdkdkdkdkdkdkdkdkdk\",\n" +
+                "    \"name\": \"김동현\",\n" +
+                "    \"univ\": \"한양대학교\",\n" +
+                "    \"univType\": \"4년제\",\n" +
+                "    \"maj\": \"정보시스템\",\n" +
+                "    \"degree\": \"학사\",\n" +
+                "    \"registerNumber\": \"hyu-20251234125\"\n" +
+                "}";
+        ResumeCreationCommand command = new ResumeCreationCommand();
+        ReflectionUtil.setter(command, "resumeType", ResumeType.EDUCATION);
+        ReflectionUtil.setter(command, "data", member1_data1);
+        memberService.createMemberResume(member1.getMemberId(), command);
+
+        String member1_data2 = "{\n" +
+                "    \"ci\": \"dkdkdkdkdkdkdkdkdkdkdkdkdkdkdkdkdk\",\n" +
+                "    \"name\": \"김동현\",\n" +
+                "    \"pid\": \"002000-000000\",\n" +
+                "    \"license\": \"정보처리기사\",\n" +
+                "    \"expired\": \"20020306\"\n" +
+                "}";
+        ResumeCreationCommand command1 = new ResumeCreationCommand();
+        ReflectionUtil.setter(command1, "resumeType", ResumeType.LICENSE);
+        ReflectionUtil.setter(command1, "data", member1_data2);
+        memberService.createMemberResume(member1.getMemberId(), command1);
+
+        // 멤버2 생성
+        Member member2 = new Member();
+        ReflectionUtil.setter(member2, "salt", SaltUtil.generateSalt());
+        ReflectionUtil.setter(member2, "name", "김동욱");
+        memberRepository.save(member2);
+
+        // 이력서 생성
+        String member2_data1 = "{\n" +
+                "    \"ci\": \"dkdkdkdkdkdkdkdkdkdkdkdkdkdkdkdkdk\",\n" +
+                "    \"name\": \"김동욱\",\n" +
+                "    \"univ\": \"짭한양대\",\n" +
+                "    \"univType\": \"2년제\",\n" +
+                "    \"maj\": \"정보시스템\",\n" +
+                "    \"degree\": \"학사\",\n" +
+                "    \"registerNumber\": \"hyu-20251234125\"\n" +
+                "}";
+        ResumeCreationCommand command2 = new ResumeCreationCommand();
+        ReflectionUtil.setter(command2, "resumeType", ResumeType.EDUCATION);
+        ReflectionUtil.setter(command2, "data", member2_data1);
+        memberService.createMemberResume(member2.getMemberId(), command);
+
+        // 필터링
+        List<CandidateResponse> response1 = corporationService.searchCandidate(List.of("정보처리기사"), 0, "4년제");
+        List<CandidateResponse> response2 = corporationService.searchCandidate(null, 0, "2년제");
+        List<CandidateResponse> response3 = corporationService.searchCandidate(List.of("정보처리기사"), 2, "4년제");
+
+        // 검증
+        assertThat(response1.size()).isEqualTo(1);
+        assertThat(response1.get(0).getUserId()).isEqualTo(member1.getMemberId().toString());
+
+        assertThat(response2.size()).isEqualTo(2);
+
+        assertThat(response3.size()).isEqualTo(0);
     }
 }
