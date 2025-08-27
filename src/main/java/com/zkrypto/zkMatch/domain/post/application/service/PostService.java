@@ -86,6 +86,9 @@ public class PostService {
         recruitRepository.save(recruit);
     }
 
+    /**
+     * 지원 조건 확인 메서드
+     */
     public Boolean checkApplyCondition(List<Resume> encResumes, Member member, Post post) {
         List<EducationVc> educationVcList = new ArrayList<>();
         List<LicenseVc> licenseVcList = new ArrayList<>();
