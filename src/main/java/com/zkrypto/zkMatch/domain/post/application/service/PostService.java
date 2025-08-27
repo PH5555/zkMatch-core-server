@@ -14,10 +14,7 @@ import com.zkrypto.zkMatch.domain.post.domain.entity.Post;
 import com.zkrypto.zkMatch.domain.post.domain.repository.PostRepository;
 import com.zkrypto.zkMatch.domain.recruit.domain.entity.Recruit;
 import com.zkrypto.zkMatch.domain.recruit.domain.repository.RecruitRepository;
-import com.zkrypto.zkMatch.domain.resume.domain.constant.BaseVc;
-import com.zkrypto.zkMatch.domain.resume.domain.constant.EducationVc;
-import com.zkrypto.zkMatch.domain.resume.domain.constant.ExperienceVc;
-import com.zkrypto.zkMatch.domain.resume.domain.constant.LicenseVc;
+import com.zkrypto.zkMatch.domain.resume.domain.constant.*;
 import com.zkrypto.zkMatch.domain.resume.domain.entity.AppliedResume;
 import com.zkrypto.zkMatch.domain.resume.domain.entity.Resume;
 import com.zkrypto.zkMatch.domain.resume.domain.repository.AppliedResumeRepository;
@@ -109,14 +106,26 @@ public class PostService {
         List<LicenseVc> licenseVcList = new ArrayList<>();
         List<ExperienceVc> experienceVcList = new ArrayList<>();
 
-        List<MemberResumeResponse> resume = encResumes.stream().map(encResume -> {
+        encResumes.forEach(encResume -> {
             String plainText = AesUtil.decrypt(encResume.getEncData(), member.getSalt());
             Object vc = BaseVc.mappingVc(plainText, encResume.getResumeType());
-            return new MemberResumeResponse(encResume.getResumeId(), encResume.getResumeType(), vc, encResume.getDid());
-        }).toList();
+            if(encResume.getResumeType() == ResumeType.EDUCATION) {
+                educationVcList.add((EducationVc) vc);
+            }
+            else if(encResume.getResumeType() == ResumeType.EXPERIENCE) {
+                experienceVcList.add((ExperienceVc) vc);
+            }
+            else if(encResume.getResumeType() == ResumeType.LICENSE) {
+                licenseVcList.add((LicenseVc) vc);
+            }
+        });
 
-        educationVcList.stream().filter(vc -> vc.getUnivType())
-        post.getEducationRequirement();
+        // 학력 확인
+        if(post.getEducationRequirement().equals("4년제") && !educationVcList.stream().anyMatch(vc -> vc.getUnivType().equals("4년제"))) {
+            return false;
+        }else if(post.getEducationRequirement().equals("2년제") || !educationVcList.stream().anyMatch(vc -> vc.getUnivType().equals("4년제") || vc.getUnivType().equals("2년제"))) {
+            return false;
+        }
 
         // 자격증 확인
         if(!post.getLicenseRequirement().isEmpty() && !licenseVcList.stream().anyMatch(vc -> post.getLicenseRequirement().contains(vc.getLicense()))) {
