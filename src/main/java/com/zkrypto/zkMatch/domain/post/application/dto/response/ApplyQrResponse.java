@@ -13,6 +13,7 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -34,14 +35,10 @@ public class ApplyQrResponse {
         String jsonString = JsonUtil.serializeAndSort(new RequestApplyDto(
                 application.getApplicationId().toString(),
                 application.getPost().getMajorRequirement(),
-                "",
-                "",
                 application.getPost().getEducationRequirement(),
-                "",
-                String.valueOf(application.getCreatedAt().toEpochSecond(ZoneOffset.UTC)),
-                String.valueOf(LocalDate.of(1970, 1, 1).plusYears(application.getPost().getExperienceRequirement()).atStartOfDay().toEpochSecond(ZoneOffset.UTC)),
-                application.getPost().getLicenseRequirement().getFirst()
-                ));
+                application.getPost().getLicenseRequirement(),
+                application.getPost().getExperienceRequirement()
+        ));
         String encDataPayload = BaseMultibaseUtil.encode(jsonString.getBytes(), MultiBaseType.base64);
         return new ApplyQrResponse(encDataPayload, "APPLY", DateFormatter.format(application.getValidTime()));
     }
@@ -50,13 +47,9 @@ public class ApplyQrResponse {
     @Getter
     public static class RequestApplyDto {
         private String applicationId;
-        private String major1;
-        private String major2;
-        private String major3;
-        private String univType1;
-        private String univType2;
-        private String currentTime;
-        private String employPeriod;
-        private String license;
+        private String majorRequirement;
+        private String educationRequirement;
+        private List<String> licenseRequirement;
+        private int experienceRequirement;
     }
 }
