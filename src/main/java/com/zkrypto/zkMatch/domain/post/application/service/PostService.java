@@ -170,6 +170,7 @@ public class PostService {
         }
 
         // 공고 지원 요청 저장
+        applicationRepository.findApplicationByMemberAndPost(member, post).ifPresent(applicationRepository::delete);
         Application application = applicationRepository.save(new Application(member, post));
 
         // QR 생성
