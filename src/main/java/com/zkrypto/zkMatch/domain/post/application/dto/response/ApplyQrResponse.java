@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
 
+@Getter
 public class ApplyQrResponse {
     private String payload;
     private String payloadType;
