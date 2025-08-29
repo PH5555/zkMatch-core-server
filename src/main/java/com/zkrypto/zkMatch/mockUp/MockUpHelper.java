@@ -8,6 +8,9 @@ import com.zkrypto.zkMatch.domain.member.application.service.MemberService;
 import com.zkrypto.zkMatch.domain.member.domain.entity.Member;
 import com.zkrypto.zkMatch.domain.member.domain.repository.MemberRepository;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.PostCreationCommand;
+import com.zkrypto.zkMatch.domain.post.application.service.PostService;
+import com.zkrypto.zkMatch.domain.post.domain.entity.Post;
+import com.zkrypto.zkMatch.domain.post.domain.repository.PostRepository;
 import com.zkrypto.zkMatch.global.utils.ReflectionUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
@@ -26,12 +29,15 @@ public class MockUpHelper implements ApplicationRunner {
     private final MemberRepository memberRepository;
     private final CorporationService corporationService;
     private final PasswordEncoder passwordEncoder;
+    private final PostService postService;
+    private final PostRepository postRepository;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
         createMemberAccount();
         createCorporationAccount();
         createPost();
+        apply();
     }
 
     private void createMemberAccount() {
@@ -84,5 +90,11 @@ public class MockUpHelper implements ApplicationRunner {
 
         Member admin = memberRepository.findMemberByLoginId("admin").get();
         corporationService.createPost(admin.getMemberId(), postCreationCommand);
+    }
+
+    private void apply() {
+        Member member = memberRepository.findMemberByLoginId("1234").get();
+        Post post = postRepository.findPostByTitle("지크립토 백엔드 개발자 채용").get();
+        postService.applyPost(member.getMemberId(), post.getPostId().toString());
     }
 }

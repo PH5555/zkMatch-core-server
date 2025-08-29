@@ -25,4 +25,6 @@ public interface PostRepository extends JpaRepository<Post, UUID>, PostCustomRep
     List<Post> findByCategory(@Param("keyword") String keyword);
 
     Optional<Post> findPostByTitle(String title);
+
+    Optional<Post> getPostByTitle(String title);
 }
