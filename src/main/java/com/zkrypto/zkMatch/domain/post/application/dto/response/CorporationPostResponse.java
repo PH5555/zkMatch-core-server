@@ -14,15 +14,29 @@ public class CorporationPostResponse {
     private String title;
     private int applierCount;
     private String endDate;
+    private String status;
+    private String workType;
+    private String experienceRequirement;
 
-    private CorporationPostResponse(String postId, String title, int applierCount, String endDate) {
+    public CorporationPostResponse(String postId, String title, int applierCount, String endDate, String status, String workType, String experienceRequirement) {
         this.postId = postId;
         this.title = title;
         this.applierCount = applierCount;
         this.endDate = endDate;
+        this.status = status;
+        this.workType = workType;
+        this.experienceRequirement = experienceRequirement;
     }
 
     public static CorporationPostResponse from(Post post, int applierCount) {
-        return new CorporationPostResponse(post.getPostId().toString(), post.getTitle(), applierCount, DateFormatter.format(post.getEndDate()));
+        return new CorporationPostResponse(
+                post.getPostId().toString(),
+                post.getTitle(),
+                applierCount,
+                DateFormatter.format(post.getEndDate()),
+                post.getEndDate().isAfter(LocalDateTime.now()) ? "마감" : "모집중",
+                post.getWorkType(),
+                post.getExperienceRequirement() > 0 ? post.getExperienceRequirement() + "년 이상" : "경력무관"
+                );
     }
 }
