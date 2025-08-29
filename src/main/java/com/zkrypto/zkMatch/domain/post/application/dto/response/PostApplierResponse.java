@@ -41,6 +41,6 @@ public class PostApplierResponse {
     }
 
     public static PostApplierResponse from(Recruit recruit) {
-        return new PostApplierResponse(recruit.getId().toString(), recruit.getMember().getName(), recruit.getMember().getPortfolioUrl(), DateFormatter.format(recruit.getCreatedAt()), recruit.getStatus());
+        return new PostApplierResponse(recruit.getId().toString(), recruit.getMember().getName().charAt(0) + "00", recruit.getMember().getPortfolioUrl(), DateFormatter.format(recruit.getCreatedAt()), recruit.getStatus());
     }
 }

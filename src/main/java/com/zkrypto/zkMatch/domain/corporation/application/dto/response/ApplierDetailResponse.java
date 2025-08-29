@@ -33,7 +33,7 @@ public class ApplierDetailResponse {
 
     public static ApplierDetailResponse from(Recruit recruit, List<MemberResumeResponse> resumes) {
         return new ApplierDetailResponse(
-                recruit.getMember().getName(),
+                recruit.getMember().getName().charAt(0) + "00",
                 DateFormatter.format(recruit.getCreatedAt()),
                 recruit.getMember().getEmail(),
                 recruit.getPost().getContent(),
