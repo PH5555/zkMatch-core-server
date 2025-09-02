@@ -336,13 +336,14 @@ public class CorporationServiceTest {
         memberRepository.save(member);
 
         // 공고 조회
-        List<PostResponse> posts = postService.getPost();
+        Post post = postRepository.getPostByTitle("hi").get();
+
 
         // 공고 지원
-        postService.applyPost(member.getMemberId(), posts.get(0).getPostId());
+        postService.applyPost(member.getMemberId(), post.getPostId().toString());
 
         // 지원 내역 조회
-        Recruit recruit = recruitRepository.findRecruitByPostAndMember(UUID.fromString(posts.get(0).getPostId()), member).get();
+        Recruit recruit = recruitRepository.findRecruitByPostAndMember(post.getPostId(), member).get();
 
         // 지원자 합격
         UpdateApplierStatusCommand updateApplierStatusCommand = new UpdateApplierStatusCommand();
@@ -350,7 +351,7 @@ public class CorporationServiceTest {
         corporationService.updateApplierStatus(recruit.getId().toString(), updateApplierStatusCommand);
 
         // 검증
-        List<PostApplierResponse> postApplier = corporationService.getPostApplier(posts.get(0).getPostId());
+        List<PostApplierResponse> postApplier = corporationService.getPostApplier(post.getPostId().toString());
         assertThat(postApplier.get(0).getStatus()).isEqualTo("불합격");
     }
 

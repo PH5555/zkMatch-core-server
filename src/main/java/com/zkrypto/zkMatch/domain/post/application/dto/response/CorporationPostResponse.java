@@ -53,7 +53,7 @@ public class CorporationPostResponse {
                 post.getTitle(),
                 applierCount,
                 DateFormatter.format(post.getEndDate()),
-                post.getEndDate().isAfter(LocalDateTime.now()) ? "마감" : "모집중",
+                post.getEndDate().isAfter(LocalDateTime.now()) ? "모집중" : "마감",
                 post.getWorkType(),
                 post.getExperienceRequirement() > 0 ? post.getExperienceRequirement() + "년 이상" : "경력무관",
                 post.getContent(),

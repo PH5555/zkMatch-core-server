@@ -37,7 +37,7 @@ public class MockUpHelper implements ApplicationRunner {
         createMemberAccount();
         createCorporationAccount();
         createPost();
-        apply();
+//        apply();
     }
 
     private void createMemberAccount() {
@@ -79,8 +79,8 @@ public class MockUpHelper implements ApplicationRunner {
         ReflectionUtil.setter(postCreationCommand, "startDate", LocalDateTime.of(LocalDate.of(2025, 8, 14), LocalTime.of(0, 0)));
         ReflectionUtil.setter(postCreationCommand, "endDate", LocalDateTime.of(LocalDate.of(2025, 10, 14), LocalTime.of(0, 0)));
         ReflectionUtil.setter(postCreationCommand, "majorRequirement", "정보시스템학과");
-        ReflectionUtil.setter(postCreationCommand, "educationRequirement", "4년제 졸업");
-        ReflectionUtil.setter(postCreationCommand, "experienceRequirement", 3);
+        ReflectionUtil.setter(postCreationCommand, "educationRequirement", "4년제");
+        ReflectionUtil.setter(postCreationCommand, "experienceRequirement", 2);
         ReflectionUtil.setter(postCreationCommand, "licenseRequirement", List.of("정보처리기사", "빅데이터분석기사"));
         ReflectionUtil.setter(postCreationCommand, "salaryStart", 5000);
         ReflectionUtil.setter(postCreationCommand, "salaryEnd", 7000);
