@@ -5,6 +5,7 @@ import com.zkrypto.zkMatch.domain.member.application.dto.request.ResumeCreationC
 import com.zkrypto.zkMatch.domain.member.application.dto.response.*;
 import com.zkrypto.zkMatch.domain.member.application.service.MemberService;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.PostResponse;
+import com.zkrypto.zkMatch.domain.post.domain.constant.PostType;
 import com.zkrypto.zkMatch.domain.resume.domain.constant.ResumeType;
 import com.zkrypto.zkMatch.domain.scrab.application.dto.response.ScrabResponse;
 import com.zkrypto.zkMatch.global.response.ApiResponse;
@@ -127,8 +128,8 @@ public class MemberController {
                     content = {@Content(array = @ArraySchema(schema = @Schema(implementation = MemberPostResponse.class)))}),
     })
     @GetMapping("/post")
-    public ApiResponse<List<MemberPostResponse>> getMemberPost(@AuthenticationPrincipal UUID memberId) {
-        return ApiResponse.success(memberService.getPost(memberId));
+    public ApiResponse<List<MemberPostResponse>> getMemberPost(@AuthenticationPrincipal UUID memberId, @RequestParam(value = "type", required = false) PostType postType) {
+        return ApiResponse.success(memberService.getPost(memberId, postType));
     }
 
     @Operation(

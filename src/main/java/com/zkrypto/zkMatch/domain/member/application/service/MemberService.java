@@ -13,6 +13,7 @@ import com.zkrypto.zkMatch.domain.member.application.dto.response.*;
 import com.zkrypto.zkMatch.domain.offer.domain.entity.Offer;
 import com.zkrypto.zkMatch.domain.offer.domain.repository.OfferRepository;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.PostResponse;
+import com.zkrypto.zkMatch.domain.post.domain.constant.PostType;
 import com.zkrypto.zkMatch.domain.resume.domain.constant.BaseVc;
 import com.zkrypto.zkMatch.domain.resume.domain.constant.ResumeType;
 import com.zkrypto.zkMatch.domain.resume.domain.entity.Resume;
@@ -81,13 +82,13 @@ public class MemberService {
     /**
      * 지원 내역 조회 메서드
      */
-    public List<MemberPostResponse> getPost(UUID memberId) {
+    public List<MemberPostResponse> getPost(UUID memberId, PostType postType) {
         // 멤버 존재 확인
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
 
         // 지원 내역 조회
-        List<Recruit> recruit = recruitRepository.findByMemberWithPost(member);
+        List<Recruit> recruit = recruitRepository.findByMemberAndType(member, postType);
 
         return recruit.stream().map(MemberPostResponse::from).toList();
     }

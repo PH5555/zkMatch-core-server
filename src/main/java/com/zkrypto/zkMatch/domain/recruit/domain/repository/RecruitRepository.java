@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface RecruitRepository extends JpaRepository<Recruit, Long> {
+public interface RecruitRepository extends JpaRepository<Recruit, Long>, RecruitCustomRepository{
     boolean existsByMemberAndPost(Member member, Post post);
 
     List<Recruit> findByMember(Member member);
