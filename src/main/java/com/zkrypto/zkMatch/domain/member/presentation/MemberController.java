@@ -326,4 +326,28 @@ public class MemberController {
     public ApiResponse<List<PostResponse>> getMemberFreelancerProjects(@AuthenticationPrincipal UUID memberId) {
         return ApiResponse.success(memberService.getMemberFreelancerProjects(memberId));
     }
+
+    @Operation(
+            summary = "프리랜서 프로젝트 VC 발급 QR 요청 API",
+            description = "VC 발급 QR을 요청합니다.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            },
+            parameters = {
+                    @Parameter(
+                            in = ParameterIn.HEADER,
+                            name = "Authorization",
+                            description = "Bearer 토큰",
+                            required = true
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
+                    content = {@Content(schema = @Schema(implementation = PortfolioVcQrResponse.class))}),
+    })
+    @GetMapping("/post/freelancer/vc")
+    public ApiResponse<PortfolioVcQrResponse> getFreelancerVcQr() {
+        return ApiResponse.success(memberService.getPortfolioVcQr());
+    }
 }
