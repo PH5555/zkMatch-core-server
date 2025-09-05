@@ -249,7 +249,7 @@ public class CorporationServiceTest {
         memberRepository.save(member);
 
         // 공고 조회
-        List<PostResponse> posts = postService.getPost();
+        List<PostResponse> posts = postService.getPost(null);
 
         // 공고 지원
         postService.applyPost(member.getMemberId(), posts.get(0).getPostId());
@@ -381,7 +381,7 @@ public class CorporationServiceTest {
         memberRepository.save(member);
 
         // 공고 조회
-        List<PostResponse> posts = postService.getPost();
+        List<PostResponse> posts = postService.getPost(null);
 
         // 공고 지원
         postService.applyPost(member.getMemberId(), posts.get(0).getPostId());
@@ -424,7 +424,7 @@ public class CorporationServiceTest {
         memberRepository.save(member);
 
         // 공고 조회
-        List<PostResponse> posts = postService.getPost();
+        List<PostResponse> posts = postService.getPost(null);
 
         // 공고 지원
         postService.applyPost(member.getMemberId(), posts.get(0).getPostId());
@@ -468,7 +468,7 @@ public class CorporationServiceTest {
         memberRepository.save(member);
 
         // 공고 조회
-        List<PostResponse> posts = postService.getPost();
+        List<PostResponse> posts = postService.getPost(null);
 
         // 공고 지원
         postService.applyPost(member.getMemberId(), posts.get(0).getPostId());
@@ -514,7 +514,7 @@ public class CorporationServiceTest {
         memberRepository.save(member);
 
         // 공고 조회
-        List<PostResponse> posts = postService.getPost();
+        List<PostResponse> posts = postService.getPost(null);
 
         // 공고 지원
         postService.applyPost(member.getMemberId(), posts.get(0).getPostId());
@@ -560,7 +560,7 @@ public class CorporationServiceTest {
         memberRepository.save(member);
 
         // 공고 조회
-        List<PostResponse> posts = postService.getPost();
+        List<PostResponse> posts = postService.getPost(null);
 
         // 공고 지원
         postService.applyPost(member.getMemberId(), posts.get(0).getPostId());
@@ -613,7 +613,7 @@ public class CorporationServiceTest {
         memberRepository.save(member);
 
         // 공고 조회
-        List<PostResponse> posts = postService.getPost();
+        List<PostResponse> posts = postService.getPost(null);
 
         // 공고 지원
         postService.applyPost(member.getMemberId(), posts.get(0).getPostId());
@@ -663,7 +663,7 @@ public class CorporationServiceTest {
         memberRepository.save(member);
 
         // 공고 조회
-        List<PostResponse> posts = postService.getPost();
+        List<PostResponse> posts = postService.getPost(null);
 
         // 공고 지원
         postService.applyPost(member.getMemberId(), posts.get(0).getPostId());

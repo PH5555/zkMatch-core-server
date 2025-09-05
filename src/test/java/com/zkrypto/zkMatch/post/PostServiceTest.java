@@ -9,6 +9,7 @@ import com.zkrypto.zkMatch.domain.post.application.dto.request.PostApplyCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.PostCreationCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.PostResponse;
 import com.zkrypto.zkMatch.domain.post.application.service.PostService;
+import com.zkrypto.zkMatch.domain.post.domain.constant.PostType;
 import com.zkrypto.zkMatch.domain.post.domain.entity.Post;
 import com.zkrypto.zkMatch.domain.post.domain.repository.PostRepository;
 import com.zkrypto.zkMatch.domain.recruit.domain.entity.Recruit;
@@ -69,10 +70,38 @@ public class PostServiceTest {
         corporationService.createPost(admin.getMemberId(), postCreationCommand);
 
         // 공고 조회
-        List<PostResponse> posts = postService.getPost();
+        List<PostResponse> posts = postService.getPost(null);
 
         // 검증
         Assertions.assertThat(posts.size()).isEqualTo(2);
+    }
+
+    @Test
+    void 공고_조회_타입_테스트() {
+        // 기업 생성
+        CorporationCreationCommand corporationCreationCommand = new CorporationCreationCommand();
+        ReflectionUtil.setter(corporationCreationCommand, "corporationName", "test");
+        ReflectionUtil.setter(corporationCreationCommand, "loginId", "test");
+        ReflectionUtil.setter(corporationCreationCommand, "password", "test");
+
+        corporationService.createCorporation(corporationCreationCommand, null);
+
+        // 관리자 조회
+        Member admin = memberRepository.findMemberByLoginId("test").get();
+
+        // 공고 생성
+        PostCreationCommand postCreationCommand = new PostCreationCommand();
+        ReflectionUtil.setter(postCreationCommand, "startDate", LocalDateTime.of(2025, 1,1, 1, 1));
+        ReflectionUtil.setter(postCreationCommand, "endDate", LocalDateTime.of(2026, 1,1, 1, 1));
+        ReflectionUtil.setter(postCreationCommand, "title", "하이");
+        ReflectionUtil.setter(postCreationCommand, "postType", PostType.FREELANCER);
+        corporationService.createPost(admin.getMemberId(), postCreationCommand);
+
+        // 공고 조회
+        List<PostResponse> posts = postService.getPost(PostType.FREELANCER);
+
+        // 검증
+        Assertions.assertThat(posts.size()).isEqualTo(1);
     }
 
     @Test
@@ -140,7 +169,7 @@ public class PostServiceTest {
         memberRepository.save(member);
 
         // 공고 조회
-        List<PostResponse> posts = postService.getPost();
+        List<PostResponse> posts = postService.getPost(null);
 
         // 공고 지원
         postService.applyPost(member.getMemberId(), posts.get(0).getPostId());
@@ -205,7 +234,7 @@ public class PostServiceTest {
         memberRepository.save(member);
 
         // 공고 조회
-        List<PostResponse> posts = postService.getPost();
+        List<PostResponse> posts = postService.getPost(null);
 
         // 공고 지원
         postService.applyPost(member.getMemberId(), posts.get(0).getPostId());
