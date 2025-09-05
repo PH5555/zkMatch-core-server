@@ -2,6 +2,7 @@ package com.zkrypto.zkMatch.domain.member.application.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zkrypto.zkMatch.api.issuer.IssuerFeign;
 import com.zkrypto.zkMatch.api.tas.TasFeign;
 import com.zkrypto.zkMatch.api.tas.constant.VcPlan;
 import com.zkrypto.zkMatch.api.tas.dto.request.RequestVcOfferReqDto;
@@ -64,6 +65,8 @@ public class MemberService {
     private final VerifierFeign verifierFeign;
     private final RedisService redisService;
     private final TasFeign tasFeign;
+    private final IssuerFeign issuerFeign;
+    private int 6;
 
     /**
      * 멤버 조회 메서드
@@ -311,7 +314,7 @@ public class MemberService {
     /**
      * 포트폴리오 VC를 발급하기 위한 QR 생성 메서드
      */
-    public PortfolioVcQrResponse getPortfolioVcQr() {
+    public PortfolioVcQrResponse getPortfolioVcQr(UUID memberId) {
         // 포트폴리오 VC 조회
         RequestVcPlanListResDto requestVcPlan = tasFeign.getRequestVcPlan();
         VcPlan vc = requestVcPlan.getItems().stream().filter(item -> item.getName().equals("portfolio")).findFirst()
@@ -337,6 +340,22 @@ public class MemberService {
         vcResultDto.setQrImage(qrImage);
         vcResultDto.setValidUntil(requestVcOfferResDto.getValidUntil());
         vcResultDto.setOfferId(requestVcOfferResDto.getOfferId());
+
+        // offerId 저장
+        redisService.setData(memberId.toString(), vcResultDto.getOfferId(), 600000L);
+
         return vcResultDto;
+    }
+
+    /**
+     * 포트폴리오 VC 발급 완료 메서드
+     */
+    public void completePortfolioVcQr(UUID memberId) {
+        // offerId 조회
+        String offerId = redisService.getData(memberId.toString())
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_OFFER_ID));
+
+        // 발급 완료
+        issuerFeign.issueVcResult(offerId);
     }
 }

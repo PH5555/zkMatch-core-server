@@ -347,7 +347,32 @@ public class MemberController {
                     content = {@Content(schema = @Schema(implementation = PortfolioVcQrResponse.class))}),
     })
     @GetMapping("/post/freelancer/vc")
-    public ApiResponse<PortfolioVcQrResponse> getFreelancerVcQr() {
-        return ApiResponse.success(memberService.getPortfolioVcQr());
+    public ApiResponse<PortfolioVcQrResponse> getFreelancerVcQr(@AuthenticationPrincipal UUID memberId) {
+        return ApiResponse.success(memberService.getPortfolioVcQr(memberId));
+    }
+
+    @Operation(
+            summary = "프리랜서 프로젝트 VC 발급 완료 요청 API",
+            description = "VC 발급을 완료합니다.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            },
+            parameters = {
+                    @Parameter(
+                            in = ParameterIn.HEADER,
+                            name = "Authorization",
+                            description = "Bearer 토큰",
+                            required = true
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
+                    content = {@Content(schema = @Schema(implementation = Void.class))}),
+    })
+    @PostMapping("/post/freelancer/vc")
+    public ApiResponse<Void> completeFreelancerVcQr(@AuthenticationPrincipal UUID memberId) {
+        memberService.completePortfolioVcQr(memberId);
+        return ApiResponse.success();
     }
 }
