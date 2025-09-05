@@ -1,5 +1,6 @@
 package com.zkrypto.zkMatch.domain.post.application.dto.request;
 
+import com.zkrypto.zkMatch.domain.post.domain.constant.PostType;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -21,4 +22,5 @@ public class PostCreationCommand {
     private String workSpace;
     private String workType;
     private List<String> category;
+    private PostType postType;
 }
