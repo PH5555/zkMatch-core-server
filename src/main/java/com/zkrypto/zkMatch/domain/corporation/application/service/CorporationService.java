@@ -1,7 +1,14 @@
 package com.zkrypto.zkMatch.domain.corporation.application.service;
 
+import com.zkrypto.zkMatch.api.cas.CasFeign;
+import com.zkrypto.zkMatch.api.cas.dto.request.SaveUserInfoResDto;
+import com.zkrypto.zkMatch.api.issuer.IssuerFeign;
+import com.zkrypto.zkMatch.api.tas.TasFeign;
+import com.zkrypto.zkMatch.api.tas.constant.VcPlan;
+import com.zkrypto.zkMatch.api.tas.dto.response.RequestVcPlanListResDto;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.request.*;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.response.*;
+import com.zkrypto.zkMatch.domain.corporation.domain.constant.SaveUserInfoReqDto;
 import com.zkrypto.zkMatch.domain.corporation.domain.entity.Corporation;
 import com.zkrypto.zkMatch.domain.corporation.domain.repository.CorporationRepository;
 import com.zkrypto.zkMatch.domain.evaluation.domain.entity.Evaluation;
@@ -62,6 +69,9 @@ public class CorporationService {
     private final EvaluationRepository evaluationRepository;
     private final AppliedResumeRepository appliedResumeRepository;
     private final ResumeCustomRepository resumeCustomRepository;
+    private final TasFeign tasFeign;
+    private final CasFeign casFeign;
+    private final IssuerFeign issuerFeign;
 
     /**
      * 기업 생성 메서드
@@ -365,5 +375,28 @@ public class CorporationService {
         }).toList();
 
         return ApplierDetailResponse.from(recruit, resumes);
+    }
+
+    /**
+     * 프로젝트 정보 저장 메서드
+     */
+    public void saveMemberProjectInfo(String recruitId) {
+        // 지원 이력 조회
+        Recruit recruit = recruitRepository.findById(Long.parseLong(recruitId))
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_RECRUIT));
+
+        // 포트폴리오 VC 조회
+        RequestVcPlanListResDto requestVcPlan = tasFeign.getRequestVcPlan();
+        VcPlan vc = requestVcPlan.getItems().stream().filter(item -> item.getName().equals("portfolio")).findFirst()
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_PORTFOLIO_VC));
+
+        // VC 정보 저장
+        SaveUserInfoReqDto userInfo = SaveUserInfoReqDto.from(recruit, vc.getCredentialSchema().getId());
+        String userId = UUID.randomUUID().toString().substring(0, 8);
+        casFeign.saveUserInfo(SaveUserInfoResDto.builder()
+                .userId(userId)
+                .pii(userInfo.getPii())
+                .build());
+        issuerFeign.saveUserInfo(userInfo);
     }
 }

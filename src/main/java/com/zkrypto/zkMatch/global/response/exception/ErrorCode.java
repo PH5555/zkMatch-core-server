@@ -18,6 +18,7 @@ public enum ErrorCode {
     ID_DUPLICATION("M002", HttpStatus.BAD_REQUEST, "중복되는 아이디입니다."),
 
     CORPORATION_DUPLICATION("C001", HttpStatus.BAD_REQUEST, "이미 존재하는 법인입니다."),
+    NOT_FOUND_PORTFOLIO_VC("C002", HttpStatus.NOT_FOUND, "포트폴리오 vc를 찾을 수 없습니다."),
 
     NOT_FOUND_POST("P001", HttpStatus.NOT_FOUND, "공고가 존재하지 않습니다."),
     ALREADY_APPLIED_POST("P002", HttpStatus.CONFLICT, "이미 지원한 공고입니다."),
@@ -60,6 +61,8 @@ public enum ErrorCode {
     NOT_FOUND_VK("A002", HttpStatus.NOT_FOUND, "VK를 찾을 수 없습니다."),
 
     INVALID_DATE_TYPE("D001", HttpStatus.BAD_REQUEST, "VC date 타입이 잘못됐습니다."),
+
+    CRYPTO_VC_ERROR("C001", HttpStatus.BAD_REQUEST, "VC 암호화가 잘못됐습니다."),
 
     ;
 
