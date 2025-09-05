@@ -29,4 +29,6 @@ public interface RecruitRepository extends JpaRepository<Recruit, Long>, Recruit
 
     @Query("select recruit from Recruit recruit where recruit.post.postId = :id and recruit.member = :member")
     Optional<Recruit> findRecruitByPostAndMember(@Param("id") UUID id, Member member);
+
+    List<Recruit> findRecruitByMember(Member member);
 }
