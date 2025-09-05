@@ -5,6 +5,7 @@ import com.zkrypto.zkMatch.domain.post.application.dto.request.PostApplyCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.ApplyQrResponse;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.PostResponse;
 import com.zkrypto.zkMatch.domain.post.application.service.PostService;
+import com.zkrypto.zkMatch.domain.post.domain.constant.PostType;
 import com.zkrypto.zkMatch.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -50,8 +51,8 @@ public class PostController {
                     content = {@Content(array = @ArraySchema(schema = @Schema(implementation = PostResponse.class)))}),
     })
     @GetMapping()
-    public ApiResponse<List<PostResponse>> getPost(){
-        return ApiResponse.success(postService.getPost());
+    public ApiResponse<List<PostResponse>> getPost(@RequestParam(value = "type", required = false) PostType postType){
+        return ApiResponse.success(postService.getPost(postType));
     }
 
     @Operation(
