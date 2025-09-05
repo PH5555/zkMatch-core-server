@@ -56,3 +56,9 @@ encryption:
 
 verifier:
   url: 127.0.0.1
+tas:
+  url: 127.0.0.1
+cas:
+  url: 127.0.0.1
+issuer:
+  url: 127.0.0.1
