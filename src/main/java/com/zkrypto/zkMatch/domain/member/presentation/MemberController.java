@@ -302,4 +302,28 @@ public class MemberController {
     public ApiResponse<List<MemberOfferResponse>> getMemberOffer(@AuthenticationPrincipal UUID memberId) {
         return ApiResponse.success(memberService.getMemberOffer(memberId));
     }
+
+    @Operation(
+            summary = "완료한 프리랜서 프로젝트 조회 API",
+            description = "내가 완료한 프로젝트 이력을 조회합니다.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            },
+            parameters = {
+                    @Parameter(
+                            in = ParameterIn.HEADER,
+                            name = "Authorization",
+                            description = "Bearer 토큰",
+                            required = true
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
+                    content = {@Content(array = @ArraySchema(schema = @Schema(implementation = MemberOfferResponse.class)))}),
+    })
+    @GetMapping("/post/freelancer")
+    public ApiResponse<List<PostResponse>> getMemberFreelancerProjects(@AuthenticationPrincipal UUID memberId) {
+        return ApiResponse.success(memberService.getMemberFreelancerProjects(memberId));
+    }
 }

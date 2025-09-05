@@ -14,6 +14,8 @@ import com.zkrypto.zkMatch.domain.offer.domain.entity.Offer;
 import com.zkrypto.zkMatch.domain.offer.domain.repository.OfferRepository;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.PostResponse;
 import com.zkrypto.zkMatch.domain.post.domain.constant.PostType;
+import com.zkrypto.zkMatch.domain.post.domain.repository.PostRepository;
+import com.zkrypto.zkMatch.domain.recruit.domain.constant.Status;
 import com.zkrypto.zkMatch.domain.resume.domain.constant.BaseVc;
 import com.zkrypto.zkMatch.domain.resume.domain.constant.ResumeType;
 import com.zkrypto.zkMatch.domain.resume.domain.entity.Resume;
@@ -57,6 +59,7 @@ public class MemberService {
     private final OfferRepository offerRepository;
     private final VerifierFeign verifierFeign;
     private final RedisService redisService;
+    private final PostRepository postRepository;
 
     /**
      * 멤버 조회 메서드
@@ -283,5 +286,21 @@ public class MemberService {
 
         redisService.deleteData(memberId.toString());
         redisService.deleteData(memberId + "type");
+    }
+
+    /**
+     * 완료된 프리랜서 프로젝트 조회 메서드
+     */
+    public List<PostResponse> getMemberFreelancerProjects(UUID memberId) {
+        // 멤버 존재 확인
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
+
+        // 지원 내역 조회
+        List<Recruit> recruits = recruitRepository.findByMemberAndType(member, PostType.FREELANCER);
+
+        // 통과한 프로젝트만 조회
+        return recruits.stream().filter(recruit -> recruit.getStatus() == Status.PASS)
+                .map(recruit -> PostResponse.from(recruit.getPost())).toList();
     }
 }
