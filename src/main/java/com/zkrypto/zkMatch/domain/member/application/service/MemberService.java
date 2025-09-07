@@ -66,7 +66,6 @@ public class MemberService {
     private final RedisService redisService;
     private final TasFeign tasFeign;
     private final IssuerFeign issuerFeign;
-    private int 6;
 
     /**
      * 멤버 조회 메서드

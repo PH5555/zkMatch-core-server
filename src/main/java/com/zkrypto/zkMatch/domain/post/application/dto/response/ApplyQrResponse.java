@@ -37,7 +37,8 @@ public class ApplyQrResponse {
                 application.getPost().getMajorRequirement(),
                 application.getPost().getEducationRequirement(),
                 application.getPost().getLicenseRequirement(),
-                application.getPost().getExperienceRequirement()
+                application.getPost().getExperienceRequirement(),
+                application.getCreatedAt()
         ));
         String encDataPayload = BaseMultibaseUtil.encode(jsonString.getBytes(), MultiBaseType.base64);
         return new ApplyQrResponse(encDataPayload, "APPLY", DateFormatter.format(application.getValidTime()));
@@ -51,5 +52,6 @@ public class ApplyQrResponse {
         private String educationRequirement;
         private List<String> licenseRequirement;
         private int experienceRequirement;
+        private LocalDateTime createdAt;
     }
 }
