@@ -88,7 +88,7 @@ public class MockUpHelper implements ApplicationRunner {
         ReflectionUtil.setter(postCreationCommand, "workSpace", "서울특별시 성동구");
         ReflectionUtil.setter(postCreationCommand, "workType", "정규직");
         ReflectionUtil.setter(postCreationCommand, "category", List.of("백엔드", "블록체인"));
-        ReflectionUtil.setter(postCreationCommand, "postType", PostType.EMPLOYMENT);
+        ReflectionUtil.setter(postCreationCommand, "postType", PostType.FREELANCER);
 
 
         Member admin = memberRepository.findMemberByLoginId("admin").get();

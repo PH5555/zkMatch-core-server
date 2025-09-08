@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(value = "IssuerAdmin", url = "${issuer.url}", path = "/issuer/admin/v1")
+@FeignClient(value = "IssuerAdmin", url = "${issuer.url}")
 public interface IssuerFeign {
-    @RequestMapping(value = "/users/demo", method = RequestMethod.POST)
+    @RequestMapping(value = "/issuer/admin/v1/users/demo", method = RequestMethod.POST)
     void saveUserInfo(@RequestBody SaveUserInfoReqDto saveUserInfoReqDto);
 
-    @RequestMapping(value = "/issue-vc/result", method = RequestMethod.GET)
+    @RequestMapping(value = "/issuer/api/v1/issue-vc/result", method = RequestMethod.GET)
     IssueVcResultResDto issueVcResult(@RequestParam("offerId") String offerId);
 }

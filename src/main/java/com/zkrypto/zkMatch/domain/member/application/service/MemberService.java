@@ -356,5 +356,8 @@ public class MemberService {
 
         // 발급 완료
         issuerFeign.issueVcResult(offerId);
+
+        // offerId 삭제
+        redisService.deleteData(memberId.toString());
     }
 }

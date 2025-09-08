@@ -13,6 +13,6 @@ public interface TasFeign {
     @RequestMapping(value = "/list/api/v1/vcplan/list/issuer", method = RequestMethod.GET)
     RequestVcPlanListResDto getRequestVcPlan();
 
-    @RequestMapping(value = "/offer-issue-vc/qr", method = RequestMethod.POST)
+    @RequestMapping(value = "/tas/api/v1/offer-issue-vc/qr", method = RequestMethod.POST)
     RequestVcOfferResDto requestVcOfferQR(@RequestBody RequestVcOfferReqDto requestVcOfferReqDto);
 }
