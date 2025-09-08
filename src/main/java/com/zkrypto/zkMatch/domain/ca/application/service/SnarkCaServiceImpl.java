@@ -3,17 +3,17 @@ package com.zkrypto.zkMatch.domain.ca.application.service;
 import com.zkrypto.snark.SNARK;
 import com.zkrypto.zkMatch.domain.application.domain.entity.Application;
 import com.zkrypto.zkMatch.domain.application.domain.repository.ApplicationRepository;
-import com.zkrypto.zkMatch.domain.ca.application.domain.constant.KeyPair;
 import com.zkrypto.zkMatch.domain.ca.application.dto.request.ApplyConfirmCommand;
-import com.zkrypto.zkMatch.domain.ca.application.dto.response.PkResponse;
-import com.zkrypto.zkMatch.global.redis.KeyRedisService;
 import com.zkrypto.zkMatch.global.response.exception.CustomException;
 import com.zkrypto.zkMatch.global.response.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -22,13 +22,10 @@ import java.time.ZoneOffset;
 @Service
 @RequiredArgsConstructor
 public class SnarkCaServiceImpl implements CaService {
-    private final KeyRedisService keyRedisService;
     private final ApplicationRepository applicationRepository;
 
-    public PkResponse getPk() {
-        KeyPair keyPair = keyRedisService.getKeyPair("assert").orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ISSUER_KEY));
-        return new PkResponse(keyPair.getPublicKey());
-    }
+    @Value("classpath:vk.bin")
+    private Resource vkResource;
 
     @Override
     @Transactional
@@ -43,9 +40,6 @@ public class SnarkCaServiceImpl implements CaService {
         boolean verify = SNARK.verify(
                 vk,
                 command.getProof(),
-                this.getPk().getPk(),
-                this.getPk().getPk(),
-                this.getPk().getPk(),
                 application.getPost().getMajorRequirement(),
                 "",
                 "",
@@ -62,11 +56,11 @@ public class SnarkCaServiceImpl implements CaService {
         }
     }
 
-    private String getVerifyKey() {
-        try {
-            return Files.readString(Paths.get(System.getProperty("user.dir") + "/keys/vk.txt"));
+    public String getVerifyKey() {
+        try (var inputStream = vkResource.getInputStream()) {
+            return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException e) {
-            throw new CustomException(ErrorCode.NOT_FOUND_VK);
+            throw new RuntimeException(e);
         }
     }
 }

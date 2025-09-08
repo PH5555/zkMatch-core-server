@@ -5,6 +5,7 @@ import com.zkrypto.zkMatch.domain.member.application.dto.request.ResumeCreationC
 import com.zkrypto.zkMatch.domain.member.application.dto.response.*;
 import com.zkrypto.zkMatch.domain.member.application.service.MemberService;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.PostResponse;
+import com.zkrypto.zkMatch.domain.post.domain.constant.PostType;
 import com.zkrypto.zkMatch.domain.resume.domain.constant.ResumeType;
 import com.zkrypto.zkMatch.domain.scrab.application.dto.response.ScrabResponse;
 import com.zkrypto.zkMatch.global.response.ApiResponse;
@@ -127,8 +128,8 @@ public class MemberController {
                     content = {@Content(array = @ArraySchema(schema = @Schema(implementation = MemberPostResponse.class)))}),
     })
     @GetMapping("/post")
-    public ApiResponse<List<MemberPostResponse>> getMemberPost(@AuthenticationPrincipal UUID memberId) {
-        return ApiResponse.success(memberService.getPost(memberId));
+    public ApiResponse<List<MemberPostResponse>> getMemberPost(@AuthenticationPrincipal UUID memberId, @RequestParam(value = "type", required = false) PostType postType) {
+        return ApiResponse.success(memberService.getPost(memberId, postType));
     }
 
     @Operation(
@@ -300,5 +301,78 @@ public class MemberController {
     @GetMapping("/offer")
     public ApiResponse<List<MemberOfferResponse>> getMemberOffer(@AuthenticationPrincipal UUID memberId) {
         return ApiResponse.success(memberService.getMemberOffer(memberId));
+    }
+
+    @Operation(
+            summary = "완료한 프리랜서 프로젝트 조회 API",
+            description = "내가 완료한 프로젝트 이력을 조회합니다.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            },
+            parameters = {
+                    @Parameter(
+                            in = ParameterIn.HEADER,
+                            name = "Authorization",
+                            description = "Bearer 토큰",
+                            required = true
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
+                    content = {@Content(array = @ArraySchema(schema = @Schema(implementation = MemberOfferResponse.class)))}),
+    })
+    @GetMapping("/post/freelancer")
+    public ApiResponse<List<PostResponse>> getMemberFreelancerProjects(@AuthenticationPrincipal UUID memberId) {
+        return ApiResponse.success(memberService.getMemberFreelancerProjects(memberId));
+    }
+
+    @Operation(
+            summary = "프리랜서 프로젝트 VC 발급 QR 요청 API",
+            description = "VC 발급 QR을 요청합니다.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            },
+            parameters = {
+                    @Parameter(
+                            in = ParameterIn.HEADER,
+                            name = "Authorization",
+                            description = "Bearer 토큰",
+                            required = true
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
+                    content = {@Content(schema = @Schema(implementation = PortfolioVcQrResponse.class))}),
+    })
+    @GetMapping("/post/freelancer/vc")
+    public ApiResponse<PortfolioVcQrResponse> getFreelancerVcQr(@AuthenticationPrincipal UUID memberId) {
+        return ApiResponse.success(memberService.getPortfolioVcQr(memberId));
+    }
+
+    @Operation(
+            summary = "프리랜서 프로젝트 VC 발급 완료 요청 API",
+            description = "VC 발급을 완료합니다.",
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            },
+            parameters = {
+                    @Parameter(
+                            in = ParameterIn.HEADER,
+                            name = "Authorization",
+                            description = "Bearer 토큰",
+                            required = true
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
+                    content = {@Content(schema = @Schema(implementation = Void.class))}),
+    })
+    @PostMapping("/post/freelancer/vc")
+    public ApiResponse<Void> completeFreelancerVcQr(@AuthenticationPrincipal UUID memberId) {
+        memberService.completePortfolioVcQr(memberId);
+        return ApiResponse.success();
     }
 }

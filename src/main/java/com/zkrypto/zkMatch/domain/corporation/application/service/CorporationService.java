@@ -1,7 +1,14 @@
 package com.zkrypto.zkMatch.domain.corporation.application.service;
 
+import com.zkrypto.zkMatch.api.cas.CasFeign;
+import com.zkrypto.zkMatch.api.cas.dto.request.SaveUserInfoResDto;
+import com.zkrypto.zkMatch.api.issuer.IssuerFeign;
+import com.zkrypto.zkMatch.api.tas.TasFeign;
+import com.zkrypto.zkMatch.api.tas.constant.VcPlan;
+import com.zkrypto.zkMatch.api.tas.dto.response.RequestVcPlanListResDto;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.request.*;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.response.*;
+import com.zkrypto.zkMatch.domain.corporation.domain.constant.SaveUserInfoReqDto;
 import com.zkrypto.zkMatch.domain.corporation.domain.entity.Corporation;
 import com.zkrypto.zkMatch.domain.corporation.domain.repository.CorporationRepository;
 import com.zkrypto.zkMatch.domain.evaluation.domain.entity.Evaluation;
@@ -17,6 +24,7 @@ import com.zkrypto.zkMatch.domain.post.application.dto.request.UpdateApplierStat
 import com.zkrypto.zkMatch.domain.post.application.dto.request.PostCreationCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.CorporationPostResponse;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.PostApplierResponse;
+import com.zkrypto.zkMatch.domain.post.domain.constant.PostType;
 import com.zkrypto.zkMatch.domain.post.domain.entity.Post;
 import com.zkrypto.zkMatch.domain.post.domain.repository.PostRepository;
 import com.zkrypto.zkMatch.domain.recruit.domain.constant.Status;
@@ -39,6 +47,7 @@ import com.zkrypto.zkMatch.global.utils.DateFormatter;
 import com.zkrypto.zkMatch.global.utils.ListUtil;
 import com.zkrypto.zkMatch.global.utils.StringUtil;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,6 +56,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.Period;
 import java.util.*;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class CorporationService {
@@ -62,6 +72,9 @@ public class CorporationService {
     private final EvaluationRepository evaluationRepository;
     private final AppliedResumeRepository appliedResumeRepository;
     private final ResumeCustomRepository resumeCustomRepository;
+    private final TasFeign tasFeign;
+    private final CasFeign casFeign;
+    private final IssuerFeign issuerFeign;
 
     /**
      * 기업 생성 메서드
@@ -169,6 +182,11 @@ public class CorporationService {
         // 이미 탈락한 지원자인지 확인
         if(recruit.getStatus() == Status.FAILED) {
             throw new CustomException(ErrorCode.ALREADY_FAILED);
+        }
+
+        // 프리랜서 공고이고 합격이면 VC 데이터 저장
+        if(recruit.getPost().getPostType() == PostType.FREELANCER && command.getStatus() == Status.PASS) {
+            saveMemberProjectInfo(recruit);
         }
 
         // 상태 업데이트
@@ -365,5 +383,25 @@ public class CorporationService {
         }).toList();
 
         return ApplierDetailResponse.from(recruit, resumes);
+    }
+
+    /**
+     * 프로젝트 정보 저장 메서드
+     */
+    public void saveMemberProjectInfo(Recruit recruit) {
+        // 포트폴리오 VC 조회
+        RequestVcPlanListResDto requestVcPlan = tasFeign.getRequestVcPlan();
+        VcPlan vc = requestVcPlan.getItems().stream().filter(item -> item.getName().equals("portfolio")).findFirst()
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_PORTFOLIO_VC));
+
+        // VC 정보 저장
+        SaveUserInfoReqDto userInfo = SaveUserInfoReqDto.from(recruit, vc.getCredentialSchema().getId());
+        String userId = UUID.randomUUID().toString().substring(0, 8);
+
+        casFeign.saveUserInfo(SaveUserInfoResDto.builder()
+                .userId(userId)
+                .pii(userInfo.getPii())
+                .build());
+        issuerFeign.saveUserInfo(userInfo);
     }
 }

@@ -1,5 +1,6 @@
 package com.zkrypto.zkMatch.domain.post.application.dto.response;
 
+import com.zkrypto.zkMatch.domain.post.domain.constant.PostType;
 import com.zkrypto.zkMatch.domain.post.domain.entity.Post;
 import com.zkrypto.zkMatch.global.utils.DateFormatter;
 import lombok.Getter;
@@ -27,8 +28,9 @@ public class CorporationPostResponse {
     private int salaryEnd;
     private String workSpace;
     private List<String> category;
+    private PostType postType;
 
-    public CorporationPostResponse(String postId, String title, int applierCount, String endDate, String status, String workType, String experienceRequirement, String content, String startDate, String majorRequirement, String educationRequirement, List<String> licenseRequirement, int salaryStart, int salaryEnd, String workSpace, List<String> category) {
+    public CorporationPostResponse(String postId, String title, int applierCount, String endDate, String status, String workType, String experienceRequirement, String content, String startDate, String majorRequirement, String educationRequirement, List<String> licenseRequirement, int salaryStart, int salaryEnd, String workSpace, List<String> category, PostType postType) {
         this.postId = postId;
         this.title = title;
         this.applierCount = applierCount;
@@ -45,6 +47,7 @@ public class CorporationPostResponse {
         this.salaryEnd = salaryEnd;
         this.workSpace = workSpace;
         this.category = category;
+        this.postType = postType;
     }
 
     public static CorporationPostResponse from(Post post, int applierCount) {
@@ -64,7 +67,8 @@ public class CorporationPostResponse {
                 post.getSalaryStart(),
                 post.getSalaryEnd(),
                 post.getWorkSpace(),
-                post.getCategory()
+                post.getCategory(),
+                post.getPostType()
                 );
     }
 }

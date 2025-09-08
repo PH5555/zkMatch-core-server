@@ -2,22 +2,30 @@ package com.zkrypto.zkMatch.domain.member.application.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zkrypto.zkMatch.api.issuer.IssuerFeign;
+import com.zkrypto.zkMatch.api.tas.TasFeign;
+import com.zkrypto.zkMatch.api.tas.constant.VcPlan;
+import com.zkrypto.zkMatch.api.tas.dto.request.RequestVcOfferReqDto;
+import com.zkrypto.zkMatch.api.tas.dto.response.RequestVcOfferResDto;
+import com.zkrypto.zkMatch.api.tas.dto.response.RequestVcPlanListResDto;
 import com.zkrypto.zkMatch.api.verify.VerifierFeign;
 import com.zkrypto.zkMatch.api.verify.dto.request.ConfirmVerifyReqDto;
 import com.zkrypto.zkMatch.api.verify.dto.request.RequestVpOfferReqDto;
 import com.zkrypto.zkMatch.api.verify.dto.response.ConfirmVerifyResDto;
 import com.zkrypto.zkMatch.api.verify.dto.response.RequestVpOfferResDto;
 import com.zkrypto.zkMatch.api.verify.dto.response.VpPolicyResponseDto;
+import com.zkrypto.zkMatch.domain.member.application.dto.response.PortfolioVcQrResponse;
 import com.zkrypto.zkMatch.domain.member.application.dto.request.ResumeCreationCommand;
 import com.zkrypto.zkMatch.domain.member.application.dto.response.*;
 import com.zkrypto.zkMatch.domain.offer.domain.entity.Offer;
 import com.zkrypto.zkMatch.domain.offer.domain.repository.OfferRepository;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.PostResponse;
+import com.zkrypto.zkMatch.domain.post.domain.constant.PostType;
+import com.zkrypto.zkMatch.domain.recruit.domain.constant.Status;
 import com.zkrypto.zkMatch.domain.resume.domain.constant.BaseVc;
 import com.zkrypto.zkMatch.domain.resume.domain.constant.ResumeType;
 import com.zkrypto.zkMatch.domain.resume.domain.entity.Resume;
 import com.zkrypto.zkMatch.domain.resume.domain.repository.ResumeRepository;
-import com.zkrypto.zkMatch.domain.scrab.application.dto.response.ScrabResponse;
 import com.zkrypto.zkMatch.domain.member.domain.entity.Member;
 import com.zkrypto.zkMatch.domain.member.domain.repository.MemberRepository;
 import com.zkrypto.zkMatch.domain.recruit.domain.entity.Recruit;
@@ -56,6 +64,8 @@ public class MemberService {
     private final OfferRepository offerRepository;
     private final VerifierFeign verifierFeign;
     private final RedisService redisService;
+    private final TasFeign tasFeign;
+    private final IssuerFeign issuerFeign;
 
     /**
      * 멤버 조회 메서드
@@ -81,13 +91,13 @@ public class MemberService {
     /**
      * 지원 내역 조회 메서드
      */
-    public List<MemberPostResponse> getPost(UUID memberId) {
+    public List<MemberPostResponse> getPost(UUID memberId, PostType postType) {
         // 멤버 존재 확인
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
 
         // 지원 내역 조회
-        List<Recruit> recruit = recruitRepository.findByMemberWithPost(member);
+        List<Recruit> recruit = recruitRepository.findByMemberAndType(member, postType);
 
         return recruit.stream().map(MemberPostResponse::from).toList();
     }
@@ -282,5 +292,72 @@ public class MemberService {
 
         redisService.deleteData(memberId.toString());
         redisService.deleteData(memberId + "type");
+    }
+
+    /**
+     * 완료된 프리랜서 프로젝트 조회 메서드
+     */
+    public List<PostResponse> getMemberFreelancerProjects(UUID memberId) {
+        // 멤버 존재 확인
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
+
+        // 지원 내역 조회
+        List<Recruit> recruits = recruitRepository.findByMemberAndType(member, PostType.FREELANCER);
+
+        // 통과한 프로젝트만 조회
+        return recruits.stream().filter(recruit -> recruit.getStatus() == Status.PASS)
+                .map(recruit -> PostResponse.from(recruit.getPost())).toList();
+    }
+
+    /**
+     * 포트폴리오 VC를 발급하기 위한 QR 생성 메서드
+     */
+    public PortfolioVcQrResponse getPortfolioVcQr(UUID memberId) {
+        // 포트폴리오 VC 조회
+        RequestVcPlanListResDto requestVcPlan = tasFeign.getRequestVcPlan();
+        VcPlan vc = requestVcPlan.getItems().stream().filter(item -> item.getName().equals("portfolio")).findFirst()
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_PORTFOLIO_VC));
+
+        // VC 생성 요청
+        RequestVcOfferReqDto vcOfferReqDto = RequestVcOfferReqDto.builder()
+                .vcPlanId(vc.getVcPlanId())
+                .issuer(vc.getAllowedIssuers().getFirst())
+                .build();
+
+        RequestVcOfferResDto requestVcOfferResDto = tasFeign.requestVcOfferQR(vcOfferReqDto);
+
+        // QR 데이터 생성
+        String jsonString = JsonUtil.serializeAndSort(requestVcOfferResDto.getIssueOfferPayload());
+        String encDataPayload = BaseMultibaseUtil.encode(jsonString.getBytes(), MultiBaseType.base64);
+        PortfolioVcQrResponse vcResultDto = PortfolioVcQrResponse.builder()
+                .payloadType("ISSUE_VC")
+                .payload(encDataPayload)
+                .build();
+
+        byte[] qrImage = QrMaker.makeQr(vcResultDto);
+        vcResultDto.setQrImage(qrImage);
+        vcResultDto.setValidUntil(requestVcOfferResDto.getValidUntil());
+        vcResultDto.setOfferId(requestVcOfferResDto.getOfferId());
+
+        // offerId 저장
+        redisService.setData(memberId.toString(), vcResultDto.getOfferId(), 600000L);
+
+        return vcResultDto;
+    }
+
+    /**
+     * 포트폴리오 VC 발급 완료 메서드
+     */
+    public void completePortfolioVcQr(UUID memberId) {
+        // offerId 조회
+        String offerId = redisService.getData(memberId.toString())
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_OFFER_ID));
+
+        // 발급 완료
+        issuerFeign.issueVcResult(offerId);
+
+        // offerId 삭제
+        redisService.deleteData(memberId.toString());
     }
 }

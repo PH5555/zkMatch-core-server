@@ -10,7 +10,9 @@ import com.zkrypto.zkMatch.domain.member.domain.repository.MemberRepository;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.CompleteApplyCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.ApplyQrResponse;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.PostResponse;
+import com.zkrypto.zkMatch.domain.post.domain.constant.PostType;
 import com.zkrypto.zkMatch.domain.post.domain.entity.Post;
+import com.zkrypto.zkMatch.domain.post.domain.repository.PostCustomRepository;
 import com.zkrypto.zkMatch.domain.post.domain.repository.PostRepository;
 import com.zkrypto.zkMatch.domain.recruit.domain.entity.Recruit;
 import com.zkrypto.zkMatch.domain.recruit.domain.repository.RecruitRepository;
@@ -54,8 +56,8 @@ public class PostService {
     /**
      * 공고 조회 메서드
      */
-    public List<PostResponse> getPost() {
-        List<Post> posts = postRepository.findAllWithCorporation();
+    public List<PostResponse> getPost(PostType postType) {
+        List<Post> posts = postRepository.findPostWithType(postType);
         return posts.stream().map(PostResponse::from).toList();
     }
 

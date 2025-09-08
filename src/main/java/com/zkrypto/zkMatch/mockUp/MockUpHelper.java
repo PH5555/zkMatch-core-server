@@ -9,6 +9,7 @@ import com.zkrypto.zkMatch.domain.member.domain.entity.Member;
 import com.zkrypto.zkMatch.domain.member.domain.repository.MemberRepository;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.PostCreationCommand;
 import com.zkrypto.zkMatch.domain.post.application.service.PostService;
+import com.zkrypto.zkMatch.domain.post.domain.constant.PostType;
 import com.zkrypto.zkMatch.domain.post.domain.entity.Post;
 import com.zkrypto.zkMatch.domain.post.domain.repository.PostRepository;
 import com.zkrypto.zkMatch.global.utils.ReflectionUtil;
@@ -87,6 +88,8 @@ public class MockUpHelper implements ApplicationRunner {
         ReflectionUtil.setter(postCreationCommand, "workSpace", "서울특별시 성동구");
         ReflectionUtil.setter(postCreationCommand, "workType", "정규직");
         ReflectionUtil.setter(postCreationCommand, "category", List.of("백엔드", "블록체인"));
+        ReflectionUtil.setter(postCreationCommand, "postType", PostType.FREELANCER);
+
 
         Member admin = memberRepository.findMemberByLoginId("admin").get();
         corporationService.createPost(admin.getMemberId(), postCreationCommand);

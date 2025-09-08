@@ -1,5 +1,6 @@
 package com.zkrypto.zkMatch.domain.post.application.dto.response;
 
+import com.zkrypto.zkMatch.domain.post.domain.constant.PostType;
 import com.zkrypto.zkMatch.domain.post.domain.entity.Post;
 import com.zkrypto.zkMatch.domain.scrab.domain.entity.Scrab;
 import com.zkrypto.zkMatch.global.utils.DateFormatter;
@@ -26,8 +27,9 @@ public class PostResponse {
     private String workType;
     private List<String> category;
     private String corporationName;
+    private PostType postType;
 
-    public PostResponse(String postId, String title, String content, String startDate, String endDate, String majorRequirement, String educationRequirement, String experienceRequirement, List<String> licenseRequirement, int salaryStart, int salaryEnd, String workSpace, String workType, List<String> category, String corporationName) {
+    public PostResponse(String postId, String title, String content, String startDate, String endDate, String majorRequirement, String educationRequirement, String experienceRequirement, List<String> licenseRequirement, int salaryStart, int salaryEnd, String workSpace, String workType, List<String> category, String corporationName, PostType postType) {
         this.postId = postId;
         this.title = title;
         this.content = content;
@@ -43,6 +45,7 @@ public class PostResponse {
         this.workType = workType;
         this.category = category;
         this.corporationName = corporationName;
+        this.postType = postType;
     }
 
     public static PostResponse from(Post post) {
@@ -61,7 +64,8 @@ public class PostResponse {
                 post.getWorkSpace(),
                 post.getWorkType(),
                 post.getCategory(),
-                post.getCorporation().getCorporationName()
+                post.getCorporation().getCorporationName(),
+                post.getPostType()
         );
     }
 
@@ -83,7 +87,8 @@ public class PostResponse {
                 post.getWorkSpace(),
                 post.getWorkType(),
                 post.getCategory(),
-                post.getCorporation().getCorporationName()
+                post.getCorporation().getCorporationName(),
+                post.getPostType()
         );
     }
 }

@@ -3,6 +3,7 @@ package com.zkrypto.zkMatch.domain.post.domain.entity;
 import com.zkrypto.zkMatch.domain.corporation.application.dto.request.PostUpdateCommand;
 import com.zkrypto.zkMatch.domain.corporation.domain.entity.Corporation;
 import com.zkrypto.zkMatch.domain.post.application.dto.request.PostCreationCommand;
+import com.zkrypto.zkMatch.domain.post.domain.constant.PostType;
 import com.zkrypto.zkMatch.global.utils.StringListConverter;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -34,6 +35,9 @@ public class Post {
     private String workSpace;
     private String workType;
 
+    @Enumerated(EnumType.STRING)
+    private PostType postType;
+
     @Convert(converter = StringListConverter.class)
     private List<String> category;
 
@@ -41,7 +45,7 @@ public class Post {
     @JoinColumn(name = "corporation_id")
     private Corporation corporation;
 
-    public Post(String title, String content, LocalDateTime startDate, LocalDateTime endDate, String majorRequirement, String educationRequirement, int experienceRequirement, List<String> licenseRequirement, int salaryStart, int salaryEnd, String workSpace, String workType, Corporation corporation, List<String> category) {
+    public Post(String title, String content, LocalDateTime startDate, LocalDateTime endDate, String majorRequirement, String educationRequirement, int experienceRequirement, List<String> licenseRequirement, int salaryStart, int salaryEnd, String workSpace, String workType, Corporation corporation, List<String> category, PostType postType) {
         this.title = title;
         this.content = content;
         this.startDate = startDate;
@@ -56,6 +60,7 @@ public class Post {
         this.workType = workType;
         this.corporation = corporation;
         this.category = category;
+        this.postType = postType;
     }
 
     public static Post from(PostCreationCommand command, Corporation corporation) {
@@ -73,7 +78,8 @@ public class Post {
                 command.getWorkSpace(),
                 command.getWorkType(),
                 corporation,
-                command.getCategory()
+                command.getCategory(),
+                command.getPostType()
         );
     }
 

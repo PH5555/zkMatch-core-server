@@ -28,7 +28,8 @@ public class MemberPostResponse extends PostResponse {
                 recruit.getPost().getWorkSpace(),
                 recruit.getPost().getWorkType(),
                 recruit.getPost().getCategory(),
-                recruit.getPost().getCorporation().getCorporationName()
+                recruit.getPost().getCorporation().getCorporationName(),
+                recruit.getPost().getPostType()
         );
         this.status = recruit.getStatus();
         this.applyDate = DateFormatter.format(recruit.getCreatedAt());
