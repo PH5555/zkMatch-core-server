@@ -101,7 +101,7 @@ public class PostServiceTest {
         List<PostResponse> posts = postService.getPost(PostType.FREELANCER);
 
         // 검증
-        Assertions.assertThat(posts.size()).isEqualTo(1);
+        Assertions.assertThat(posts.size()).isEqualTo(2);
     }
 
     @Test

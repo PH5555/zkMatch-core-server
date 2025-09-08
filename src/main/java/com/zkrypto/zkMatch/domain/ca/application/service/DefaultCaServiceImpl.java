@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Primary
 @Service
 @RequiredArgsConstructor
 public class DefaultCaServiceImpl implements CaService{

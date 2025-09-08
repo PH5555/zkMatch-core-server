@@ -26,6 +26,10 @@ public class BaseVc {
             tryMappingVc(LicenseVc.class, data);
             return true;
         }
+        else if(resumeType == ResumeType.PORTFOLIO) {
+            tryMappingVc(PortfolioVc.class, data);
+            return true;
+        }
         else {
             return false;
         }
@@ -40,6 +44,9 @@ public class BaseVc {
         }
         else if(resumeType == ResumeType.LICENSE) {
             return tryMappingVc(LicenseVc.class, data);
+        }
+        else if(resumeType == ResumeType.PORTFOLIO) {
+            return tryMappingVc(PortfolioVc.class, data);
         }
         else {
             throw new CustomException(ErrorCode.INVALID_VC_TYPE);
