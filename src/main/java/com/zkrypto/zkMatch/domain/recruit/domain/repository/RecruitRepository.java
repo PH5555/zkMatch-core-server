@@ -31,4 +31,8 @@ public interface RecruitRepository extends JpaRepository<Recruit, Long>, Recruit
     Optional<Recruit> findRecruitByPostAndMember(@Param("id") UUID id, Member member);
 
     List<Recruit> findRecruitByMember(Member member);
+
+    Optional<Recruit> findRecruitByMember_MemberIdAndPost_PostId(UUID memberId, UUID postId);
+
+    UUID post(Post post);
 }

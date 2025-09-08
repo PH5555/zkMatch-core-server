@@ -2,6 +2,8 @@ package com.zkrypto.zkMatch.domain.member.application.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zkrypto.zkMatch.api.cas.CasFeign;
+import com.zkrypto.zkMatch.api.cas.dto.request.SaveUserInfoResDto;
 import com.zkrypto.zkMatch.api.issuer.IssuerFeign;
 import com.zkrypto.zkMatch.api.tas.TasFeign;
 import com.zkrypto.zkMatch.api.tas.constant.VcPlan;
@@ -14,6 +16,7 @@ import com.zkrypto.zkMatch.api.verify.dto.request.RequestVpOfferReqDto;
 import com.zkrypto.zkMatch.api.verify.dto.response.ConfirmVerifyResDto;
 import com.zkrypto.zkMatch.api.verify.dto.response.RequestVpOfferResDto;
 import com.zkrypto.zkMatch.api.verify.dto.response.VpPolicyResponseDto;
+import com.zkrypto.zkMatch.domain.corporation.domain.constant.SaveUserInfoReqDto;
 import com.zkrypto.zkMatch.domain.member.application.dto.response.PortfolioVcQrResponse;
 import com.zkrypto.zkMatch.domain.member.application.dto.request.ResumeCreationCommand;
 import com.zkrypto.zkMatch.domain.member.application.dto.response.*;
@@ -66,6 +69,7 @@ public class MemberService {
     private final RedisService redisService;
     private final TasFeign tasFeign;
     private final IssuerFeign issuerFeign;
+    private final CasFeign casFeign;
 
     /**
      * 멤버 조회 메서드
@@ -313,7 +317,14 @@ public class MemberService {
     /**
      * 포트폴리오 VC를 발급하기 위한 QR 생성 메서드
      */
-    public PortfolioVcQrResponse getPortfolioVcQr(UUID memberId) {
+    public PortfolioVcQrResponse getPortfolioVcQr(UUID memberId, String postId) {
+        // 지원이력 확인
+        Recruit recruit = recruitRepository.findRecruitByMember_MemberIdAndPost_PostId(memberId, UUID.fromString(postId))
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_APPLIED_TO_POSTING));
+
+        // 포트폴리오 정보 저장
+        saveMemberProjectInfo(recruit);
+
         // 포트폴리오 VC 조회
         RequestVcPlanListResDto requestVcPlan = tasFeign.getRequestVcPlan();
         VcPlan vc = requestVcPlan.getItems().stream().filter(item -> item.getName().equals("portfolio")).findFirst()
@@ -359,5 +370,25 @@ public class MemberService {
 
         // offerId 삭제
         redisService.deleteData(memberId.toString());
+    }
+
+    /**
+     * 프로젝트 정보 저장 메서드
+     */
+    public void saveMemberProjectInfo(Recruit recruit) {
+        // 포트폴리오 VC 조회
+        RequestVcPlanListResDto requestVcPlan = tasFeign.getRequestVcPlan();
+        VcPlan vc = requestVcPlan.getItems().stream().filter(item -> item.getName().equals("portfolio")).findFirst()
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_PORTFOLIO_VC));
+
+        // VC 정보 저장
+        SaveUserInfoReqDto userInfo = SaveUserInfoReqDto.from(recruit, vc.getCredentialSchema().getId());
+        String userId = UUID.randomUUID().toString().substring(0, 8);
+
+        casFeign.saveUserInfo(SaveUserInfoResDto.builder()
+                .userId(userId)
+                .pii(userInfo.getPii())
+                .build());
+        issuerFeign.saveUserInfo(userInfo);
     }
 }

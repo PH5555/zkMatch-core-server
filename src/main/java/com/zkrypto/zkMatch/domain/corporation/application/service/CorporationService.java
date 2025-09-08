@@ -184,11 +184,6 @@ public class CorporationService {
             throw new CustomException(ErrorCode.ALREADY_FAILED);
         }
 
-        // 프리랜서 공고이고 합격이면 VC 데이터 저장
-        if(recruit.getPost().getPostType() == PostType.FREELANCER && command.getStatus() == Status.PASS) {
-            saveMemberProjectInfo(recruit);
-        }
-
         // 상태 업데이트
         recruit.updateStatus(command.getStatus());
 
@@ -383,25 +378,5 @@ public class CorporationService {
         }).toList();
 
         return ApplierDetailResponse.from(recruit, resumes);
-    }
-
-    /**
-     * 프로젝트 정보 저장 메서드
-     */
-    public void saveMemberProjectInfo(Recruit recruit) {
-        // 포트폴리오 VC 조회
-        RequestVcPlanListResDto requestVcPlan = tasFeign.getRequestVcPlan();
-        VcPlan vc = requestVcPlan.getItems().stream().filter(item -> item.getName().equals("portfolio")).findFirst()
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_PORTFOLIO_VC));
-
-        // VC 정보 저장
-        SaveUserInfoReqDto userInfo = SaveUserInfoReqDto.from(recruit, vc.getCredentialSchema().getId());
-        String userId = UUID.randomUUID().toString().substring(0, 8);
-
-        casFeign.saveUserInfo(SaveUserInfoResDto.builder()
-                .userId(userId)
-                .pii(userInfo.getPii())
-                .build());
-        issuerFeign.saveUserInfo(userInfo);
     }
 }

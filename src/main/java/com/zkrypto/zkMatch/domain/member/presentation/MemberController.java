@@ -347,8 +347,8 @@ public class MemberController {
                     content = {@Content(schema = @Schema(implementation = PortfolioVcQrResponse.class))}),
     })
     @GetMapping("/post/freelancer/vc")
-    public ApiResponse<PortfolioVcQrResponse> getFreelancerVcQr(@AuthenticationPrincipal UUID memberId) {
-        return ApiResponse.success(memberService.getPortfolioVcQr(memberId));
+    public ApiResponse<PortfolioVcQrResponse> getFreelancerVcQr(@AuthenticationPrincipal UUID memberId, @RequestParam("postId") String postId) {
+        return ApiResponse.success(memberService.getPortfolioVcQr(memberId, postId));
     }
 
     @Operation(
@@ -370,7 +370,7 @@ public class MemberController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
                     content = {@Content(schema = @Schema(implementation = Void.class))}),
     })
-    @PostMapping("/post/freelancer/vc")
+    @GetMapping("/post/freelancer/vc/complete")
     public ApiResponse<Void> completeFreelancerVcQr(@AuthenticationPrincipal UUID memberId) {
         memberService.completePortfolioVcQr(memberId);
         return ApiResponse.success();
