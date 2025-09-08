@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.zkrypto.zkMatch.global.response.exception.CustomException;
 import com.zkrypto.zkMatch.global.response.exception.ErrorCode;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class JsonUtil {
     private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -17,6 +19,7 @@ public class JsonUtil {
             return jsonString.replaceAll("\\s", "");
         }
         catch (Exception e) {
+            log.info(e.getMessage());
             throw new CustomException(ErrorCode.VP_JSON_FORMAT_ERROR);
         }
     }

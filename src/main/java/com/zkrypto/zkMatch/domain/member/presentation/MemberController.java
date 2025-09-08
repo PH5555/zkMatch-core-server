@@ -320,7 +320,7 @@ public class MemberController {
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "요청 성공",
-                    content = {@Content(array = @ArraySchema(schema = @Schema(implementation = MemberOfferResponse.class)))}),
+                    content = {@Content(array = @ArraySchema(schema = @Schema(implementation = PostResponse.class)))}),
     })
     @GetMapping("/post/freelancer")
     public ApiResponse<List<PostResponse>> getMemberFreelancerProjects(@AuthenticationPrincipal UUID memberId) {
