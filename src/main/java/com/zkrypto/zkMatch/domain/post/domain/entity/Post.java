@@ -21,6 +21,8 @@ public class Post {
     private UUID postId;
 
     private String title;
+
+    @Column(length = 1024)
     private String content;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
