@@ -60,9 +60,9 @@ public class SaveUserInfoReqDto {
 
     private static String getUserInfo(Recruit recruit) {
         Map<String, String> fields = new HashMap<>();
-        fields.put("prjName", recruit.getPost().getTitle());
-        fields.put("startDate", DateFormatter.format(recruit.getPost().getStartDate()));
-        fields.put("endDate", DateFormatter.format(recruit.getCreatedAt()));
+        fields.put("portfolio.prjName", recruit.getPost().getTitle());
+        fields.put("portfolio.startDate", DateFormatter.format(recruit.getPost().getStartDate()));
+        fields.put("portfolio.endDate", DateFormatter.format(recruit.getCreatedAt()));
 
         ObjectMapper objectMapper = new ObjectMapper();
         String userInfoJson = null;

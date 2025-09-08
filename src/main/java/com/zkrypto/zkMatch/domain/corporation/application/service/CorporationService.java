@@ -24,6 +24,7 @@ import com.zkrypto.zkMatch.domain.post.application.dto.request.UpdateApplierStat
 import com.zkrypto.zkMatch.domain.post.application.dto.request.PostCreationCommand;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.CorporationPostResponse;
 import com.zkrypto.zkMatch.domain.post.application.dto.response.PostApplierResponse;
+import com.zkrypto.zkMatch.domain.post.domain.constant.PostType;
 import com.zkrypto.zkMatch.domain.post.domain.entity.Post;
 import com.zkrypto.zkMatch.domain.post.domain.repository.PostRepository;
 import com.zkrypto.zkMatch.domain.recruit.domain.constant.Status;
@@ -46,6 +47,7 @@ import com.zkrypto.zkMatch.global.utils.DateFormatter;
 import com.zkrypto.zkMatch.global.utils.ListUtil;
 import com.zkrypto.zkMatch.global.utils.StringUtil;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,6 +56,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.Period;
 import java.util.*;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class CorporationService {
@@ -179,6 +182,11 @@ public class CorporationService {
         // 이미 탈락한 지원자인지 확인
         if(recruit.getStatus() == Status.FAILED) {
             throw new CustomException(ErrorCode.ALREADY_FAILED);
+        }
+
+        // 프리랜서 공고이고 합격이면 VC 데이터 저장
+        if(recruit.getPost().getPostType() == PostType.FREELANCER && command.getStatus() == Status.PASS) {
+            saveMemberProjectInfo(recruit);
         }
 
         // 상태 업데이트
@@ -380,11 +388,7 @@ public class CorporationService {
     /**
      * 프로젝트 정보 저장 메서드
      */
-    public void saveMemberProjectInfo(String recruitId) {
-        // 지원 이력 조회
-        Recruit recruit = recruitRepository.findById(Long.parseLong(recruitId))
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_RECRUIT));
-
+    public void saveMemberProjectInfo(Recruit recruit) {
         // 포트폴리오 VC 조회
         RequestVcPlanListResDto requestVcPlan = tasFeign.getRequestVcPlan();
         VcPlan vc = requestVcPlan.getItems().stream().filter(item -> item.getName().equals("portfolio")).findFirst()
@@ -393,6 +397,7 @@ public class CorporationService {
         // VC 정보 저장
         SaveUserInfoReqDto userInfo = SaveUserInfoReqDto.from(recruit, vc.getCredentialSchema().getId());
         String userId = UUID.randomUUID().toString().substring(0, 8);
+
         casFeign.saveUserInfo(SaveUserInfoResDto.builder()
                 .userId(userId)
                 .pii(userInfo.getPii())
