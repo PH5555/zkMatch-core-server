@@ -16,11 +16,6 @@ public class Web3Config {
     private String rpcUrl;
 
     @Bean
-    public ContractGasProvider contractGasProvider() {
-        return new DefaultGasProvider();
-    }
-
-    @Bean
     public Web3j web3j() {
         long pollingInterval = 2000L;
         var executor = Executors.newScheduledThreadPool(1);
