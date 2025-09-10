@@ -6,8 +6,11 @@ import com.zkrypto.zkMatch.domain.application.domain.repository.ApplicationRepos
 import com.zkrypto.zkMatch.domain.ca.application.dto.request.ApplyConfirmCommand;
 import com.zkrypto.zkMatch.global.response.exception.CustomException;
 import com.zkrypto.zkMatch.global.response.exception.ErrorCode;
+import com.zkrypto.zkMatch.global.web3.ApplicationContract;
+import com.zkrypto.zkMatch.global.web3.dto.ApplicationEventDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,7 @@ import java.time.ZoneOffset;
 @RequiredArgsConstructor
 public class SnarkCaServiceImpl implements CaService {
     private final ApplicationRepository applicationRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Value("classpath:vk.bin")
     private Resource vkResource;
@@ -55,6 +59,9 @@ public class SnarkCaServiceImpl implements CaService {
         // 증명이 되면 success로 상태 변환
         if(verify) {
             application.success();
+
+            // omnione chain에 지원정보 업로드
+            eventPublisher.publishEvent(new ApplicationEventDto(application.getMember().getMemberId().toString(), application.getPost().getPostId().toString(), command.getProof()));
         }
     }
 

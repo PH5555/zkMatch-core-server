@@ -38,6 +38,7 @@ public enum ErrorCode {
     INVALID_APPLY_CONDITION("R008", HttpStatus.CONFLICT, "지원 조건을 만족하지 않습니다."),
     NOT_FOUNT_POLICY("R009", HttpStatus.NOT_FOUND, "해당 vp policy를 찾을 수 없습니다."),
     EXPIRED_APPLICATION("R010", HttpStatus.CONFLICT, "지원 조건 확인 유효시간이 지났습니다."),
+    FAILED_APPLY_BLOCKCHAIN("R011", HttpStatus.CONFLICT, "지원 정보를 블록체인에 업로드하는데 실패했습니다."),
 
     NOT_FOUND_INTERVIEW("I001", HttpStatus.NOT_FOUND, "면접 일정이 존재하지 않습니다."),
     NOT_INTERVIEW_TARGET("I002", HttpStatus.CONFLICT, "면접 대상이 아닙니다."),

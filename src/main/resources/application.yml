@@ -62,3 +62,8 @@ cas:
   url: 192.168.0.207:8094
 issuer:
   url: 192.168.0.207:8091
+
+omnione:
+  url: ${omnione-url}
+  privateKey: ${omnione-privateKey}
+  contractAddress: ${omnione-contractAddress}
