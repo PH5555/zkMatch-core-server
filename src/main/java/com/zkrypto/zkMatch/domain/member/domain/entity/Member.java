@@ -37,8 +37,8 @@ public class Member {
     private String ci;
     private String salt;
 
-    @Setter
     private String portfolioUrl;
+    private String portfolioName;
 
     @Convert(converter = StringListConverter.class)
     private List<String> interests;
@@ -113,5 +113,10 @@ public class Member {
         if (o == null || getClass() != o.getClass()) return false;
         Member member = (Member) o;
         return Objects.equals(this.memberId, member.getMemberId());
+    }
+
+    public void setPortfolio(String name, String url) {
+        this.portfolioName = name;
+        this.portfolioUrl = url;
     }
 }

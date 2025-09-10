@@ -75,6 +75,7 @@ public class CorporationService {
     private final TasFeign tasFeign;
     private final CasFeign casFeign;
     private final IssuerFeign issuerFeign;
+    private final ResumeRepository resumeRepository;
 
     /**
      * 기업 생성 메서드
@@ -269,7 +270,14 @@ public class CorporationService {
         // 필터링 조건 확인
         List<Member> filteredMember = memberResumeMap.keySet().stream()
                 .filter(member -> checkFilterCondition(memberResumeMap.get(member), member, licenses, employPeriod, educationType)).toList();
-        return filteredMember.stream().map(CandidateResponse::from).toList();
+        return filteredMember.stream().map(this::toCandidateResponse).toList();
+    }
+
+    private CandidateResponse toCandidateResponse(Member member) {
+        List<Evaluation> evaluations = evaluationRepository.findEvaluationsByMember(member);
+        long projectCount = resumeRepository.countByMemberAndResumeType(member, ResumeType.PORTFOLIO);
+        double averageRating = evaluations.stream().mapToInt(Evaluation::getRating).average().orElse(0);
+        return CandidateResponse.from(member, averageRating, projectCount);
     }
 
     /**

@@ -39,4 +39,8 @@ public class Resume {
     public static Resume from(ResumeType type, String data, Member member) {
         return new Resume(type, data, true, member);
     }
+
+    public static Resume from(String data, Member member) {
+        return new Resume(ResumeType.PORTFOLIO, data, false, member);
+    }
 }
