@@ -366,7 +366,7 @@ public class CorporationController {
     @GetMapping("/candidate")
     public ApiResponse<List<CandidateResponse>> searchCandidate(
             @RequestParam(value = "licenses", required = false) List<String> licenses,
-            @RequestParam(value = "employPeriod", required = false) int employPeriod,
+            @RequestParam(value = "employPeriod", required = false) Integer employPeriod,
             @RequestParam(value = "education", required = false) String educationType) {
         return ApiResponse.success(corporationService.searchCandidate(licenses, employPeriod, educationType));
     }

@@ -16,12 +16,12 @@ public class ResumeCustomRepositoryImpl implements ResumeCustomRepository{
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<Resume> findCandidateResume(List<String> licenses, int employPeriod, String educationType) {
+    public List<Resume> findCandidateResume(List<String> licenses, Integer employPeriod, String educationType) {
         BooleanBuilder builder = new BooleanBuilder();
         if (licenses != null && !licenses.isEmpty()) {
             builder.or(resume.resumeType.eq(ResumeType.LICENSE));
         }
-        if (employPeriod > 0) {
+        if (employPeriod != null && employPeriod > 0) {
             builder.or(resume.resumeType.eq(ResumeType.EXPERIENCE));
         }
         if (educationType != null && !educationType.isEmpty()) {

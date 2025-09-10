@@ -259,7 +259,7 @@ public class CorporationService {
     /**
      *  인재 검색 메서드
      */
-    public List<CandidateResponse> searchCandidate(List<String> licenses, int employPeriod, String educationType) {
+    public List<CandidateResponse> searchCandidate(List<String> licenses, Integer employPeriod, String educationType) {
         // 필터링 조건에 따른 이력서 조회
         List<Resume> resumes = resumeCustomRepository.findCandidateResume(licenses, employPeriod, educationType);
 
