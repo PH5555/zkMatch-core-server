@@ -10,12 +10,14 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.Resource;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
 @ComponentScan(basePackages = {"com.zkrypto.zkMatch.domain", "com.zkrypto.zkMatch.global"})
 @Import(MockUpHelper.class)
 @EnableJpaAuditing
 @EnableFeignClients
+@EnableAsync
 @Slf4j
 public class ZkMatchApplication {
 	public static void main(String[] args) {

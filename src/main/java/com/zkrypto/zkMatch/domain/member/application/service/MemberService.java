@@ -119,7 +119,7 @@ public class MemberService {
         String url = s3Service.uploadFile(file);
 
         // 자기소개서 등록
-        member.setPortfolio(file.getName(), url);
+        member.setPortfolio(file.getOriginalFilename() + "." + file.getContentType(), url);
     }
 
     /**
