@@ -44,8 +44,10 @@ import com.zkrypto.zkMatch.global.response.exception.ErrorCode;
 import com.zkrypto.zkMatch.global.utils.BaseMultibaseUtil;
 import com.zkrypto.zkMatch.global.utils.JsonUtil;
 import com.zkrypto.zkMatch.global.utils.MultiBaseType;
+import com.zkrypto.zkMatch.global.web3.dto.SubmitResumeEventDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -70,6 +72,7 @@ public class MemberService {
     private final TasFeign tasFeign;
     private final IssuerFeign issuerFeign;
     private final CasFeign casFeign;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 멤버 조회 메서드
@@ -119,7 +122,7 @@ public class MemberService {
         String url = s3Service.uploadFile(file);
 
         // 자기소개서 등록
-        member.setPortfolio(file.getName(), url);
+        member.setPortfolio(file.getOriginalFilename() + "." + file.getContentType(), url);
     }
 
     /**
@@ -275,24 +278,27 @@ public class MemberService {
         confirmVerifyResDto.getClaims().forEach(claim -> {
             data.put(claim.getCaption(), claim.getValue());
         });
-        String vc = objectMapper.writeValueAsString(data);
-        log.info("vp data:" + vc);
+        String vp = objectMapper.writeValueAsString(data);
+        log.info("vp data:" + vp);
 
         // 데이터 형식 확인
         ResumeType type = ResumeType.valueOf(redisService.getData(memberId + "type")
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_VP_TYPE)));
-        if(!BaseVc.checkVcFormat(vc, type)) {
+        if(!BaseVc.checkVcFormat(vp, type)) {
             throw new CustomException(ErrorCode.INVALID_VC_TYPE);
         }
 
         // 데이터 암호화
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
-        String encData = AesUtil.encrypt(vc, member.getSalt());
+        String encData = AesUtil.encrypt(vp, member.getSalt());
 
         // 이력서 저장
         Resume resume = Resume.from(type, encData, member);
         resumeRepository.save(resume);
+
+        // 이력서 데이터 블록체인 업로드
+        eventPublisher.publishEvent(new SubmitResumeEventDto(member.getMemberId().toString(), resume.getResumeId().toString(), vp));
 
         redisService.deleteData(memberId.toString());
         redisService.deleteData(memberId + "type");

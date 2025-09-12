@@ -9,6 +9,7 @@ import com.zkrypto.zkMatch.global.response.exception.ErrorCode;
 import com.zkrypto.zkMatch.global.web3.ApplicationContract;
 import com.zkrypto.zkMatch.global.web3.dto.ApplicationEventDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Primary;
@@ -25,6 +26,7 @@ import java.time.ZoneOffset;
 
 @Primary
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class SnarkCaServiceImpl implements CaService {
     private final ApplicationRepository applicationRepository;

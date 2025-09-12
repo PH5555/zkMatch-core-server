@@ -7,8 +7,10 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Bool;
+import org.web3j.abi.datatypes.DynamicArray;
 import org.web3j.abi.datatypes.DynamicStruct;
 import org.web3j.abi.datatypes.Function;
+import org.web3j.abi.datatypes.StaticStruct;
 import org.web3j.abi.datatypes.Type;
 import org.web3j.abi.datatypes.Utf8String;
 import org.web3j.abi.datatypes.generated.Bytes32;
@@ -17,6 +19,7 @@ import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.RemoteFunctionCall;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.tuples.generated.Tuple4;
 import org.web3j.tuples.generated.Tuple5;
 import org.web3j.tx.Contract;
 import org.web3j.tx.TransactionManager;
@@ -41,9 +44,17 @@ public class ApplicationContract extends Contract {
 
     public static final String FUNC_GETAPPLICATIONBYID = "getApplicationById";
 
+    public static final String FUNC_GETRESUMESBYUSERID = "getResumesByUserId";
+
     public static final String FUNC_HASAPPLIED = "hasApplied";
 
+    public static final String FUNC_RESUMES = "resumes";
+
     public static final String FUNC_SUBMITAPPLICATION = "submitApplication";
+
+    public static final String FUNC_SUBMITRESUME = "submitResume";
+
+    public static final String FUNC_USERRESUMEINDEXES = "userResumeIndexes";
 
     @Deprecated
     protected ApplicationContract(String contractAddress, Web3j web3j, Credentials credentials,
@@ -102,12 +113,46 @@ public class ApplicationContract extends Contract {
         return executeRemoteCallSingleValueReturn(function, Application.class);
     }
 
+    public RemoteFunctionCall<List> getResumesByUserId(byte[] _userId) {
+        final Function function = new Function(FUNC_GETRESUMESBYUSERID, 
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Bytes32(_userId)), 
+                Arrays.<TypeReference<?>>asList(new TypeReference<DynamicArray<Resume>>() {}));
+        return new RemoteFunctionCall<List>(function,
+                new Callable<List>() {
+                    @Override
+                    @SuppressWarnings("unchecked")
+                    public List call() throws Exception {
+                        List<Type> result = (List<Type>) executeCallSingleValueReturn(function, List.class);
+                        return convertToNative(result);
+                    }
+                });
+    }
+
     public RemoteFunctionCall<Boolean> hasApplied(byte[] param0, byte[] param1) {
         final Function function = new Function(FUNC_HASAPPLIED, 
                 Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Bytes32(param0), 
                 new org.web3j.abi.datatypes.generated.Bytes32(param1)), 
                 Arrays.<TypeReference<?>>asList(new TypeReference<Bool>() {}));
         return executeRemoteCallSingleValueReturn(function, Boolean.class);
+    }
+
+    public RemoteFunctionCall<Tuple4<byte[], byte[], byte[], BigInteger>> resumes(
+            BigInteger param0) {
+        final Function function = new Function(FUNC_RESUMES, 
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Uint256(param0)), 
+                Arrays.<TypeReference<?>>asList(new TypeReference<Bytes32>() {}, new TypeReference<Bytes32>() {}, new TypeReference<Bytes32>() {}, new TypeReference<Uint256>() {}));
+        return new RemoteFunctionCall<Tuple4<byte[], byte[], byte[], BigInteger>>(function,
+                new Callable<Tuple4<byte[], byte[], byte[], BigInteger>>() {
+                    @Override
+                    public Tuple4<byte[], byte[], byte[], BigInteger> call() throws Exception {
+                        List<Type> results = executeCallMultipleValueReturn(function);
+                        return new Tuple4<byte[], byte[], byte[], BigInteger>(
+                                (byte[]) results.get(0).getValue(), 
+                                (byte[]) results.get(1).getValue(), 
+                                (byte[]) results.get(2).getValue(), 
+                                (BigInteger) results.get(3).getValue());
+                    }
+                });
     }
 
     public RemoteFunctionCall<TransactionReceipt> submitApplication(byte[] _userId, byte[] _postId,
@@ -119,6 +164,25 @@ public class ApplicationContract extends Contract {
                 new org.web3j.abi.datatypes.Utf8String(_proof)), 
                 Collections.<TypeReference<?>>emptyList());
         return executeRemoteCallTransaction(function);
+    }
+
+    public RemoteFunctionCall<TransactionReceipt> submitResume(byte[] _userId, byte[] _resumeId,
+            byte[] _data) {
+        final Function function = new Function(
+                FUNC_SUBMITRESUME, 
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Bytes32(_userId), 
+                new org.web3j.abi.datatypes.generated.Bytes32(_resumeId), 
+                new org.web3j.abi.datatypes.generated.Bytes32(_data)), 
+                Collections.<TypeReference<?>>emptyList());
+        return executeRemoteCallTransaction(function);
+    }
+
+    public RemoteFunctionCall<BigInteger> userResumeIndexes(byte[] param0, BigInteger param1) {
+        final Function function = new Function(FUNC_USERRESUMEINDEXES, 
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Bytes32(param0), 
+                new org.web3j.abi.datatypes.generated.Uint256(param1)), 
+                Arrays.<TypeReference<?>>asList(new TypeReference<Uint256>() {}));
+        return executeRemoteCallSingleValueReturn(function, BigInteger.class);
     }
 
     @Deprecated
@@ -176,6 +240,35 @@ public class ApplicationContract extends Contract {
             this.postId = postId.getValue();
             this.proof = proof.getValue();
             this.timestamp = timestamp.getValue();
+        }
+    }
+
+    public static class Resume extends StaticStruct {
+        public byte[] userId;
+
+        public byte[] resumeId;
+
+        public byte[] data;
+
+        public BigInteger updateAt;
+
+        public Resume(byte[] userId, byte[] resumeId, byte[] data, BigInteger updateAt) {
+            super(new org.web3j.abi.datatypes.generated.Bytes32(userId), 
+                    new org.web3j.abi.datatypes.generated.Bytes32(resumeId), 
+                    new org.web3j.abi.datatypes.generated.Bytes32(data), 
+                    new org.web3j.abi.datatypes.generated.Uint256(updateAt));
+            this.userId = userId;
+            this.resumeId = resumeId;
+            this.data = data;
+            this.updateAt = updateAt;
+        }
+
+        public Resume(Bytes32 userId, Bytes32 resumeId, Bytes32 data, Uint256 updateAt) {
+            super(userId, resumeId, data, updateAt);
+            this.userId = userId.getValue();
+            this.resumeId = resumeId.getValue();
+            this.data = data.getValue();
+            this.updateAt = updateAt.getValue();
         }
     }
 }
