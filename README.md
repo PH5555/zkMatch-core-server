@@ -2,15 +2,6 @@
 
 영지식증명(ZKP)과 탈중앙화 신원증명(DID)으로 개인정보 노출 없이 자격을 검증하고, AI로 기업과 인재를 잇는 차세대 채용 플랫폼
 
-## 📖 Table of Contents
-
-  - [Introduction](https://www.google.com/search?q=%23introduction)
-  - [Features](https://www.google.com/search?q=%23features)
-  - [Architecture](https://www.google.com/search?q=%23Architecture)
-  - [Tech Stack](https://www.google.com/search?q=%23tech-stack)
-  - [Acknowledgement](https://www.google.com/search?q=%23acknowledgement)
-  - [License](https://www.google.com/search?q=%23license)
-
 ## 🌟 Introduction
 
 **zkMatch**는 영지식증명(Zero-Knowledge Proof)과 탈중앙화 신원증명(Decentralized Identifier) 기술을 통해 채용 시장의 패러다임을 혁신하는 플랫폼입니다. 기존 채용 과정에서 발생했던 개인정보 과다 노출, 자격 증명의 번거로움, 그리고 채용 과정의 편견 문제를 해결합니다.
