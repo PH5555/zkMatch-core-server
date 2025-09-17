@@ -6,6 +6,7 @@
 
   - [Introduction](https://www.google.com/search?q=%23introduction)
   - [Features](https://www.google.com/search?q=%23features)
+  - [Architecture](https://www.google.com/search?q=%23Architecture)
   - [Tech Stack](https://www.google.com/search?q=%23tech-stack)
   - [Acknowledgement](https://www.google.com/search?q=%23acknowledgement)
   - [License](https://www.google.com/search?q=%23license)
@@ -32,6 +33,12 @@
 
       - 기업은 간단한 키워드나 직무 설명만으로 AI가 최적의 채용 공고를 자동으로 생성해주는 기능을 활용할 수 있습니다.
       - AI가 영지식증명으로 검증된 지원자의 데이터를 분석하여, 편견 없이 직무에 가장 적합한 인재를 빠르고 정확하게 매칭합니다.
+   
+## 📐 Architecture
+
+<img width="2285" height="1308" alt="Frame 1" src="https://github.com/user-attachments/assets/c3e58080-c9c8-4dc2-9cb2-77230bfd1bdf" />
+
+[이메일 서버 리포지토리](https://github.com/PH5555/zkMatch-email-server)
 
 ## 🛠️ Tech Stack
 
